@@ -22,6 +22,35 @@ import { UI } from './ui.mjs';
  * exactly the strings; this holds exactly the structure. Adding a language is
  * then one JSON file rather than one more 520-line HTML file to keep in step.
  */
+/**
+ * The landing page's icons, as inline lucide SVG.
+ *
+ * lucide's own 24x24 geometry (the reference draws these with lucide-react),
+ * written out because a `<symbol>` sprite cannot carry them: a `<use>` clones
+ * the referenced element into a shadow tree that inherits from the `use` site
+ * rather than from the sprite's ancestors, so the stroke attributes that make
+ * an icon take the colour of its card have to travel with the icon itself.
+ * Only the GitHub mark -- one filled glyph, used once -- stays in the sprite.
+ */
+const ICONS = {
+  doc: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" />',
+  sheet:
+    '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M8 13h2" /><path d="M14 13h2" /><path d="M8 17h2" /><path d="M14 17h2" />',
+  slides: '<path d="M2 3h20" /><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" /><path d="m7 21 5-5 5 5" />',
+  plugins:
+    '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />',
+  shield:
+    '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />',
+  cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />',
+  yes: '<path d="M20 6 9 17l-5-5" />',
+  no: '<path d="M18 6 6 18" /><path d="m6 6 12 12" />',
+};
+
+/** One inline lucide icon. An unknown name is a loud build error, not a blank. */
+const inlineIcon = (name) =>
+  `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] ?? ''}</svg>`;
+
 export function renderHome({ locale, data, locales }) {
   const L = LOCALES[locale];
   const ui = UI[locale];
@@ -93,23 +122,71 @@ export function renderHome({ locale, data, locales }) {
           </a>`,
     )
     .join('\n');
-  const pillars = data.sections.pillars.items
+  /**
+   * The InSuite sections, assembled from content/<locale>/home.json.
+   *
+   * The layout is the reference site's: hero with its flag stamp, three feature
+   * cards, the editor grid, the honest comparison table, the closing call and
+   * the Inled block -- plus the two bands this build has to keep (the format
+   * index and the FAQ: they are what makes every /open/* page reachable and
+   * what answers "did I lose my work?" for a crawler, and test/unit/landing-
+   * pages.test.ts pins both).
+   */
+  const features = data.features.items
     .map(
-      (p) => `          <div class="pillar">
-            <span class="k">${e(p.k)}</span>
-            <h3>${e(p.h3)}</h3>
-            <p>${e(p.p)}</p>
-          </div>`,
+      (f) => `            <article class="lp-card">
+              <span class="lp-card-mark" aria-hidden="true">${inlineIcon(f.icon)}</span>
+              <h3>${e(f.title)}</h3>
+              <p>${e(f.desc)}</p>
+            </article>`,
     )
     .join('\n');
-  const steps = data.sections.steps.items
+  const editorCards = [
+    ...data.editors.items.map((it, i) => ({ ...it, kind: ['docx', 'xlsx', 'pptx'][i], plugins: false })),
+    { ...data.editors.plugins, kind: 'plugins', plugins: true },
+  ]
+    .map((it) => {
+      // docx -> i-doc, xlsx -> i-sheet, pptx -> i-slides: the sprite names the
+      // shape, not the product name.
+      const mark = { docx: 'doc', xlsx: 'sheet', pptx: 'slides', plugins: 'plugins' }[it.kind] ?? 'doc';
+      const open = it.plugins
+        ? `<article class="lp-card lp-card-plugins">`
+        : `<a class="lp-card lp-card-link" href="${editor(`new=${it.kind}`)}" data-prefetch="${it.kind}">`;
+      return `            ${open}
+              <span class="lp-card-mark" aria-hidden="true">${inlineIcon(mark)}</span>
+              <h3>${e(it.name)}</h3>
+              <p>${e(it.desc)}</p>
+            ${it.plugins ? '</article>' : '</a>'}`;
+    })
+    .join('\n');
+  const comparisonRows = data.comparison.rows
+    .map((r) => {
+      const stars = Array.from(
+        { length: 5 },
+        (_, i) => `<i class="lp-star${i < r.comp ? ' on' : ''}" aria-hidden="true"></i>`,
+      ).join('');
+      const yes = `<svg class="ic  lp-yes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>`;
+      const no = `<svg class="ic  lp-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>`;
+      return `              <tr${r.featured ? ' class="is-featured"' : ''}>
+                <td class="lp-suite">
+                  <img src="${e(r.logo)}" alt="" width="24" height="24" loading="lazy" onerror="this.style.visibility='hidden'" />
+                  <b>${e(r.name)}</b>
+                </td>
+                <td><span class="lp-pill${r.privacy === data.comparison.local ? ' lp-pill-ok' : ''}">${e(r.privacy)}</span></td>
+                <td class="lp-center">${r.auditable ? yes : no}</td>
+                <td class="lp-stars" aria-label="${r.comp} / 5">${stars}</td>
+                <td class="lp-center">${r.install ? no : yes}</td>
+                <td class="${r.price === data.comparison.free ? 'lp-free' : ''}">${e(r.price)}</td>
+                <td class="lp-diff">${e(r.diff)}</td>
+              </tr>`;
+    })
+    .join('\n');
+  const aboutStats = data.about.stats
     .map(
-      (st) => `          <div class="step">
-            <div class="n">${e(st.n)}</div>
-            <h3>${e(st.h3)}</h3>
-            <p>${e(st.p)}</p>
-            <span class="loc">${e(st.loc)}</span>
-          </div>`,
+      (s) => `            <div>
+              <b>${e(s.value)}</b>
+              <span>${e(s.label)}</span>
+            </div>`,
     )
     .join('\n');
   const faq = data.sections.faq.items
@@ -122,7 +199,13 @@ export function renderHome({ locale, data, locales }) {
     .join('\n');
   const nav = data.nav.map((l) => `            <a class="navlink" href="${e(l.href)}">${e(l.label)}</a>`).join('\n');
   const footLinks = data.foot.links.map((l) => `          <a href="${e(l.href)}">${e(l.label)}</a>`).join('\n');
-  const trust = data.trust.map((t) => `<span>${e(t)}</span>`).join('');
+  /**
+   * Where the hero's calls land. The landing page hands over to the app:
+   * "start using" opens the app's home page (the editors, a file to open, the
+   * documents this browser is holding), and every link into the editor carries
+   * the language this page is in, which is what the app resolves first.
+   */
+  const appHome = locale === DEFAULT_LOCALE ? '/home' : `/home?locale=${locale}`;
 
   return `<!doctype html>
 <!-- GENERATED by bin/build-pages.mjs from content/${locale}/home.json -- edit the JSON, not this file. -->
@@ -130,8 +213,8 @@ export function renderHome({ locale, data, locales }) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/img/64.png" rel="shortcut icon" />
-    <link rel="icon" type="image/png" href="/img/64.png" />
+    <link rel="icon" href="https://hosted.inled.es/cdn/insuite.svg" />
+    
     <link rel="manifest" href="/manifest.json" />
     <!-- Route split: this is a static landing page, /editor hosts the app. Deep
          links that used to target it (?file= ?src= ?new= ?open=local ?embed=
@@ -204,14 +287,21 @@ ${jsonLd}
 
   <body>
     <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <!-- Only the GitHub mark lives in a sprite: one filled glyph, used once.
+           Every icon that has to take its container's colour is inlined at the
+           point of use (see ICONS above), because a <use> clones the
+           referenced element into a shadow tree that inherits from the <use>
+           site and not from the sprite's ancestors -- so a sprite cannot carry
+           the stroke attributes a coloured icon needs. -->
       <symbol id="gh-mark" viewBox="0 0 16 16">
         <path d="${GH_MARK}" />
       </symbol>
     </svg>
+
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="${home}"><span class="logo">D</span><span class="wordmark">${e(ui.siteName)}</span></a>
+          <a class="brand" href="${home}"><img class="logo" src="https://hosted.inled.es/cdn/insuite.svg" alt="" width="40" height="40" /><span class="wordmark">Insuite Office<span class="tagline">Docs · Sheets · Slides</span></span></a>
           <nav>
 ${nav}
             <a class="navlink gh" href="${REPO}" rel="noopener" target="_blank">
@@ -219,94 +309,168 @@ ${nav}
             </a>
 ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
           </nav>
+          <a class="bar-cta" href="${appHome}">${e(ui.openEditor)}</a>
         </div>
       </header>
 
       <main>
-      <div class="hero wrap">
-        <div class="hero-copy">
-          <span class="chip reveal d1"><span class="dot"></span>${data.chip}</span>
-          <h1 class="reveal d2">${e(data.h1.plain)} <span class="accent">${e(data.h1.accent)}</span></h1>
-          <p class="sub reveal d3">${e(data.sub)}</p>
-          <div class="cta reveal d4">
-            <r-button type="primary" id="hero-open" data-open-local="${editor('open=local')}">${e(data.cta.open)}</r-button>
-            <a href="${editor('new=docx')}" data-prefetch="docx"><r-button id="hero-new-docx">${e(data.cta.docx)}</r-button></a>
-            <a href="${editor('new=xlsx')}" data-prefetch="xlsx"><r-button id="hero-new-xlsx">${e(data.cta.xlsx)}</r-button></a>
-            <a href="${editor('new=pptx')}" data-prefetch="pptx"><r-button id="hero-new-pptx">${e(data.cta.pptx)}</r-button></a>
+        <!-- The reference's hero: a centred opening, the flag stamp, and a
+             window that looks like the product. The window is a static
+             facsimile of each document type rather than a mounted editor --
+             this page deliberately never loads the editor bundle (it is the one
+             page that has to paint and be readable before any WASM arrives),
+             and the three tabs are radio inputs, so the preview needs no script
+             either. Every panel links to the real thing. -->
+        <div class="lp-hero wrap">
+          <span class="lp-chip reveal d1">${e(data.hero.beta)}</span>
+          <h1 class="reveal d2">${e(data.hero.h1)}</h1>
+          <p class="lp-sub reveal d3">${e(data.hero.sub)}</p>
+          <!-- Two actions, two weights: the primary anchor goes to the app
+               homepage, the secondary opens the file picker right here (see
+               open-local.js). No third button -- the feature list is a section
+               below, not a call to action. -->
+          <div class="lp-cta reveal d4">
+            <a class="lp-btn lp-btn-primary" href="${appHome}"
+              >${e(data.hero.start)} <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg
+            ></a>
+            <r-button id="hero-open" data-open-local="${editor('open=local')}">${e(data.hero.open)}</r-button>
           </div>
-          <!-- Autosave is a promise about the user's data, so it is served HTML
-               rather than drawn by script: the retention window and the way to
-               inspect and delete what is kept are visible to a first-time
-               visitor, to a crawler, and with JavaScript off. -->
-          <div class="recent reveal d5">
+
+          <!-- The three claims a first-time visitor needs, as a quiet line
+               under the calls: no account, no price, no compatibility tax.
+               Keep it one line on desktop -- these are hero facts, not a
+               feature list; the full grid lives below. -->
+          <ul class="lp-points reveal d4">
+            <li>${e(data.hero.noSignup)}</li>
+            <li>${e(data.hero.free)}</li>
+            <li>${e(data.hero.wordCompatible)}</li>
+          </ul>          <!-- The way back into work this browser is holding, right under the
+               calls (the resume line is added by public/history-recent.js). No
+               retention note here: what the copies are and when they are
+               removed is a promise about someone's documents, and it lives in
+               the FAQ below (machine-readable, pinned by
+               landing-pages.test.ts) and on /history, where the whole store is
+               on screen. Nothing here is deleted because of its age. -->
+          <div class="lp-recent">
             <span data-recent-slot data-recent-label="${e(data.recent.label)}" hidden></span>
-            <span class="recent-note">${e(data.recent.note)}</span>
-            <a class="recent-all" href="${locale === DEFAULT_LOCALE ? '/history' : `/history?locale=${locale}`}"
-              >${e(data.recent.all)}</a
-            >
+            <a
+              class="recent-all"
+              href="${locale === DEFAULT_LOCALE ? '/history' : `/history?locale=${locale}`}">${e(data.recent.all)}</a>
           </div>
-          <div class="trust reveal d5">${trust}</div>
         </div>
 
-        <!-- Decorative "document being edited locally" window -- pure CSS, no JS. -->
-        <div class="docwin reveal d3" aria-hidden="true">
-          <div class="dw-bar">
-            <span class="dw-dots"><i></i><i></i><i></i></span>
-            <span class="dw-file">${e(data.docwin.file)}</span>
-            <span class="dw-badge">${e(data.docwin.badge)}</span>
+      <section id="features" class="lp-section">
+        <div class="wrap">
+          <div class="lp-head">
+            <h2>${e(data.features.h2)}</h2>
+            <p>${e(data.features.sub)}</p>
           </div>
-          <div class="dw-tabs"><span class="on">.docx</span><span>.xlsx</span><span>.pptx</span><span>.csv</span></div>
-          <div class="dw-body">
-            <div class="dw-sheet">
-              <span class="dl t"></span>
-              <span class="dl w92"></span>
-              <span class="dl w78"></span>
-              <p class="dw-text"><mark>${e(data.docwin.selected)}</mark><i class="caret"></i></p>
-              <span class="dl w85"></span>
-              <span class="dl w60"></span>
-              <span class="dl t2"></span>
-              <span class="dl w88"></span>
-              <span class="dl w92"></span>
-              <span class="dl w70"></span>
-            </div>
-            <aside class="dw-note">
-              <b>${e(data.docwin.noteAuthor)}</b>
-              <span>${e(data.docwin.noteBody)}</span>
-            </aside>
+          <div class="lp-grid lp-grid-3">
+${features}
           </div>
-          <div class="dw-net"><i class="ok"></i>${e(data.docwin.net)}</div>
         </div>
-      </div>
+      </section>
 
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">${e(data.sections.formats.eyebrow)}</span>
-          <h2>${e(data.sections.formats.h2)}</h2>
+      <section id="editors" class="lp-section lp-section-alt">
+        <div class="wrap">
+          <div class="lp-head">
+            <h2>${e(data.editors.h2)}</h2>
+            <p>${e(data.editors.sub)}</p>
+          </div>
+          <div class="lp-grid lp-grid-4">
+${editorCards}
+          </div>
         </div>
-        <div class="index">
+      </section>
+
+      <!-- The format index. It is the band that makes every /open/* page and
+           the two convert pages reachable from the busiest page on the site
+           (test/unit/landing-pages.test.ts), so it stays -- laid out as the
+           reference lays out its card rows. -->
+      <section class="lp-section">
+        <div class="wrap">
+          <div class="lp-head">
+            <span class="lp-eyebrow">${e(data.sections.formats.eyebrow)}</span>
+            <h2>${e(data.sections.formats.h2)}</h2>
+          </div>
+          <div class="index">
 ${rows}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">${e(data.sections.pillars.eyebrow)}</span>
-          <h2>${e(data.sections.pillars.h2)}</h2>
+      <section id="compare" class="lp-section">
+        <div class="wrap">
+          <div class="lp-head">
+            <h2>${e(data.comparison.h2)}</h2>
+            <p>${e(data.comparison.sub)}</p>
+          </div>
+          <div class="lp-table-scroll">
+            <table class="lp-table">
+              <thead>
+                <tr>
+                  <th>${e(data.comparison.cols[0])}</th>
+                  <th>${e(data.comparison.cols[1])}</th>
+                  <th>${e(data.comparison.cols[2])}</th>
+                  <th>${e(data.comparison.cols[3])}</th>
+                  <th>${e(data.comparison.cols[4])}</th>
+                  <th>${e(data.comparison.cols[5])}</th>
+                  <th>${e(data.comparison.cols[6])}</th>
+                </tr>
+              </thead>
+              <tbody>
+${comparisonRows}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="pillars">
-${pillars}
-        </div>
-      </div>
+      </section>
 
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">${e(data.sections.steps.eyebrow)}</span>
-          <h2>${e(data.sections.steps.h2)}</h2>
+      <section class="lp-section">
+        <div class="wrap">
+          <div class="lp-final">
+            <img
+              class="lp-final-media"
+              src="https://hosted.inled.es/insuite-office-matrix.gif"
+              alt=""
+              width="1200"
+              height="630"
+              loading="lazy"
+            />
+            <div class="lp-final-body">
+              <h2>${e(data.cta.h2)}</h2>
+              <p>${e(data.cta.sub)}</p>
+              <div class="lp-cta">
+                <a class="lp-btn lp-btn-primary" href="${appHome}"
+                  >${e(data.cta.start)} <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg
+                ></a>
+                <a class="lp-btn lp-btn-ghost" href="${REPO}" rel="noopener" target="_blank">
+                  <svg class="ic" aria-hidden="true"><use href="#gh-mark"></use></svg> ${e(data.cta.code)}
+                </a>
+              </div>
+              <p class="lp-final-note">${e(data.cta.note)}</p>
+            </div>
+          </div>
         </div>
-        <div class="steps">
-${steps}
+      </section>
+
+      <section id="about" class="lp-section">
+        <div class="wrap">
+          <div class="lp-about">
+            <img
+              src="https://hosted.inled.es/inled-logo-full.png"
+              alt="Inled Group"
+              height="80"
+              loading="lazy"
+            />
+            <h2>${e(data.about.h2)}</h2>
+            <p>${e(data.about.p)}</p>
+            <div class="lp-about-stats">
+${aboutStats}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div class="section wrap faq-sec">
         <div class="section-head">
@@ -321,20 +485,6 @@ ${faq}
         </div>
       </div>
 
-      <div class="eco">
-        <div class="wrap">
-          <span class="eco-label">
-            <svg class="gitmark" aria-hidden="true"><use href="#gh-mark"></use></svg>
-            ${e(data.eco.label)}
-          </span>
-          <nav>
-            <span class="here"><b>${e(data.eco.here.name)}</b> <small>${e(data.eco.here.role)}</small></span>
-            <a href="${e(data.eco.other.href)}" rel="noopener" target="_blank">
-              <b>${e(data.eco.other.name)}</b> <small>${e(data.eco.other.role)}</small>
-            </a>
-          </nav>
-        </div>
-      </div>
 
       </main>
 
@@ -345,6 +495,13 @@ ${footLinks}
         </nav>
         <r-theme-switch class="theme-switch" label="${e(ui.themeLabel)}"></r-theme-switch>
         <span class="lic">${e(data.foot.license)}</span>
+        <!-- Two credits, and both are asks. The editors are ONLYOFFICE's,
+             and this site is a fork of ranuts/document; the footer is where a
+             visitor will actually read that, so it is where the links live.
+             Unescaped on purpose: the values carry their own anchors (ui.mjs),
+             the same way ossNote does. -->
+        <p class="deriv">${ui.vendorCredit}</p>
+        <p class="deriv">${ui.upstreamCredit}</p>
         <p class="tm">${e(ui.trademark)}</p>
       </footer>
     </section>

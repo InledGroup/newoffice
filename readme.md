@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 
@@ -30,7 +30,7 @@ Open and edit Word, Excel and PowerPoint files in a browser tab. There is no
 server: the OnlyOffice engine and its WASM converter run on the visitor's own
 device, so documents are never uploaded, and no account is involved.
 
-**Live site: [edit.chaxus.com](https://edit.chaxus.com/)**
+**Live site: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -39,7 +39,7 @@ device, so documents are never uploaded, and no account is involved.
 - 🔒 **Nothing is uploaded** — every conversion, edit and export happens in the tab
 - 📝 **Real editing, not preview** — DOCX, XLSX, PPTX and CSV, plus ODF, RTF, TXT and the legacy binary formats; PDFs open and can be annotated
 - 💾 **Saves into your own file** — pick it once, every save after writes back to it (Chromium; elsewhere it downloads as before)
-- 🕓 **Nothing is lost if you close the tab** — edits autosave into your own browser, kept for 7 days, deletable any time ([details](#-your-data-stays-on-your-device))
+- 🕓 **Nothing is lost if you close the tab** — edits autosave into your own browser, kept until you delete them ([details](#-your-data-stays-on-your-device))
 - 📴 **Works offline** — installable as a PWA; after the first visit no network is needed
 - 🌍 **Multi-language** — 7 languages end to end (English, 中文, 日本語, Deutsch, Español, 한국어, Português): the pages, the app UI and the editor all follow the one you pick; the editor itself ships 45
 - 🧩 **Embeddable** — full postMessage API for iframe integration
@@ -50,7 +50,7 @@ device, so documents are never uploaded, and no account is involved.
 
 ## 🚀 Quick start
 
-**Use it:** [edit.chaxus.com](https://edit.chaxus.com/) — nothing to install.
+**Use it:** [office.inled.es](https://office.inled.es/) — nothing to install.
 
 **Self-host with Docker:**
 
@@ -118,10 +118,12 @@ itself, and both are yours to remove:
   cost you the work. Reopening the editor offers it back. These copies exist so
   you can pick up where you left off — they are not a backup, so keep exporting
   anything you want to keep.
-- **Seven days, then gone.** Each document is deleted automatically seven days
-  after you last edited or opened it, whether or not you come back.
+- **Nothing deletes itself.** A document stays here until you delete it or clear
+  the list, however long ago you last opened it. The one automatic exception is
+  this browser running out of room, and then the document you opened least
+  recently is the one that goes.
 
-[`/history`](https://edit.chaxus.com/history) lists what is stored, with a
+[`/history`](https://office.inled.es/history) lists what is stored, with a
 delete on every row, a delete-all, and a switch to turn autosave off entirely.
 Deleting there takes effect immediately. On a shared machine, that is the page
 to visit.

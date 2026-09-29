@@ -62,7 +62,7 @@ function probe() {
     document.querySelector('#landing-hero .wrap') ||
     document.querySelector('main.wrap') ||
     document.querySelector('.wrap') ||
-    document.querySelector('.history-page') ||
+    document.querySelector('.app-card') ||
     document.querySelector('main') ||
     document.body;
 
@@ -92,7 +92,7 @@ function probe() {
     chars = Math.round(para.getBoundingClientRect().width / avg);
   }
 
-  const h1 = document.querySelector('h1, .history-title');
+  const h1 = document.querySelector('h1');
   const bar = document.querySelector('header.bar');
   return {
     container: Math.round(container.getBoundingClientRect().width),

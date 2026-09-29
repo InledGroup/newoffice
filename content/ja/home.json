@@ -2,31 +2,9 @@
   "title": "ブラウザで DOCX・XLSX・PPTX を開く — 無料のドキュメントビューア＆エディタ",
   "description": "Word（DOCX）、Excel（XLSX）、PowerPoint（PPTX）、CSV のファイルをブラウザでそのまま開いて表示できます。Office のインストールも、アップロードも、登録も不要。編集して保存することもできます。無料、プライバシー優先、オフライン対応。OnlyOffice を使用。",
   "ogDescription": "DOCX・XLSX・PPTX・CSV をブラウザで開いて表示・編集。Office 不要、アップロードなし、登録不要。無料でオフラインでも使えます。",
-  "chip": "ローカル優先 · <b>オープンソース</b>",
-  "h1": {
-    "plain": "Word・Excel・PowerPoint のファイルを、",
-    "accent": "ブラウザでそのまま。"
-  },
-  "sub": "Office が入っていない？ DOCX・XLSX・PPTX をすぐに表示でき、必要なときは編集もできます。すべてお使いの端末で動作——アップロードなし、登録不要、オフラインでも使えます。",
-  "cta": {
-    "open": "ファイルを開く",
-    "docx": "Word を新規作成",
-    "xlsx": "Excel を新規作成",
-    "pptx": "PowerPoint を新規作成"
-  },
   "recent": {
     "label": "編集を再開",
-    "note": "うっかりタブを閉じても失われません。編集内容は作業中このブラウザに保存されます。保存されたコピーは 7 日間残り、その後は自動的に削除されます——もちろん、いつでも自分で削除できます。",
     "all": "保存したドキュメント"
-  },
-  "trust": ["アップロード 0 バイト", "アカウント不要", "オフライン対応", ".docx .xlsx .pptx .csv"],
-  "docwin": {
-    "file": "report.docx",
-    "badge": "ローカルに保存済み ✓",
-    "selected": "入力した内容は、すべてこの端末に留まります。",
-    "noteAuthor": "あなた · たった今",
-    "noteBody": "アップロード 0 バイト——ネットワークタブで確認できます。",
-    "net": "network · 0 リクエスト · 送信 0 バイト"
   },
   "nav": [
     {
@@ -87,56 +65,6 @@
         }
       ]
     },
-    "pillars": {
-      "eyebrow": "何が違うのか",
-      "h2": "プライバシーは約束ではなく、設計で",
-      "items": [
-        {
-          "k": "100% クライアントサイド",
-          "h3": "ファイルは端末から出ません",
-          "p": "どのドキュメントもローカルで開き、編集し、保存します。アップロード先のサーバーが存在しません。"
-        },
-        {
-          "k": "アカウント不要",
-          "h3": "登録するものがありません",
-          "p": "メールもログインの壁もありません。ページを開けばすぐ編集できます。"
-        },
-        {
-          "k": "PWA · オフライン",
-          "h3": "インストールして機内でも",
-          "p": "ホーム画面に追加すれば、インターネットがなくても動き続けます。"
-        },
-        {
-          "k": "AGPL-3.0",
-          "h3": "オープンソース・セルフホスト可能",
-          "p": "動いているコードをそのまま監査でき、自分で運用することもできます。OnlyOffice を使用。"
-        }
-      ]
-    },
-    "steps": {
-      "eyebrow": "流れ",
-      "h2": "使い方",
-      "items": [
-        {
-          "n": "01",
-          "h3": "ファイルを開く",
-          "p": "DOCX・XLSX・PPTX・CSV をドロップ——または空のファイルから始めます。",
-          "loc": "端末に留まります"
-        },
-        {
-          "n": "02",
-          "h3": "しっかり編集する",
-          "p": "OnlyOffice による完全な書式・表・グラフ・数式。",
-          "loc": "端末に留まります"
-        },
-        {
-          "n": "03",
-          "h3": "保存し直す",
-          "p": "同じ形式で書き出します。一度もアップロードされていません。",
-          "loc": "端末に留まります"
-        }
-      ]
-    },
     "faq": {
       "eyebrow": "FAQ",
       "h2": "よくある質問",
@@ -156,7 +84,7 @@
         },
         {
           "q": "タブを閉じたり、ページを再読み込みしたらどうなりますか？",
-          "a": "何も失われません。作業中の編集内容はこのブラウザに保存されるため、エディタを開き直せばそのドキュメントが提示され、再読み込みしても元に戻ります。保存されたコピーは端末に 7 日間残り、その後は自動的に削除されます。自分でいつでも削除することもできます。アップロードは一切ありません——コピーはこのブラウザの中だけに存在します。"
+          "a": "何も失われません。作業中の編集内容はこのブラウザに保存されるため、エディタを開き直せばそのドキュメントが提示され、再読み込みしても元に戻ります。保存されたコピーは自分で削除するまで端末に残ります。時間が経って自動的に消えるものはなく、自動的な例外は、このブラウザの保存領域が埋まった場合だけです。アップロードは一切ありません——コピーはこのブラウザの中だけに存在します。"
         },
         {
           "q": "オフラインでも使えますか？",
@@ -167,18 +95,6 @@
           "a": "アカウントも、登録も、メールも不要です。ページを開いて編集するだけです。"
         }
       ]
-    }
-  },
-  "eco": {
-    "label": "ran エコシステムの一部 · すべてオープンソース",
-    "here": {
-      "name": "edit.chaxus.com",
-      "role": "Office エディタ"
-    },
-    "other": {
-      "href": "https://ran.chaxus.com",
-      "name": "ran.chaxus.com",
-      "role": "UI コンポーネント"
     }
   },
   "foot": {
@@ -237,7 +153,7 @@
         "label": "XLSX → CSV"
       },
       {
-        "href": "https://github.com/ranuts/document",
+        "href": "https://github.com/InledGroup/newoffice",
         "label": "GitHub"
       }
     ],
@@ -253,8 +169,153 @@
     "postMessage API で埋め込み可能",
     "無料でオープンソース（AGPL-3.0）"
   ],
-  "ecosystem": {
-    "name": "ran ecosystem",
-    "url": "https://ran.chaxus.com"
+  "hero": {
+    "beta": "Beta",
+    "h1": "The free, open Office",
+    "sub": "Total privacy without installations. Open, edit and save your documents directly in your browser. Your files never leave your computer.",
+    "start": "Start using for free",
+    "open": "Open a file",
+    "noSignup": "No sign-up required",
+    "free": "Free",
+    "wordCompatible": "Fully compatible with Word",
+    "tryIt": "Try it!",
+    "tabs": ["Word", "Excel", "PowerPoint"],
+    "noteLead": "Interact with the editor. It is a",
+    "noteStrong": "real instance",
+    "noteTail": "running 100% in your browser via WebAssembly.",
+    "selection": "Everything you type stays on this device.",
+    "openCta": "Open the real editor"
+  },
+  "features": {
+    "h2": "Why choose InSuite?",
+    "sub": "Because it is made thinking of you, not for profit. Because it is free, private and made in Spain.",
+    "items": [
+      {
+        "icon": "flag",
+        "title": "Made in Spain",
+        "desc": "The free, no-install, free of charge and 100% compatible office created in Spain for Spain."
+      },
+      {
+        "icon": "shield",
+        "title": "100% Private",
+        "desc": "Nothing is uploaded to the server. Everything stays in your browser. We comply with the strictest European and Spanish privacy regulations by not collecting a single piece of data."
+      },
+      {
+        "icon": "cloud",
+        "title": "No installation needed",
+        "desc": "Everything works in the browser, you only need a file explorer to upload documents and a browser to use the editor."
+      }
+    ]
+  },
+  "editors": {
+    "h2": "Professional Tools",
+    "sub": "Powerful desktop editors, now in your browser. 100% compatible with your usual files.",
+    "items": [
+      {
+        "name": "Documents",
+        "desc": "Compatible with .docx. The same power as Microsoft Word, but a thousand times better than Google Docs."
+      },
+      {
+        "name": "Spreadsheets",
+        "desc": "Compatible with .xlsx. Realize complex analysis and formulas with total compatibility."
+      },
+      {
+        "name": "Presentations",
+        "desc": "Compatible with .pptx. Create impactful slides directly in your browser."
+      }
+    ],
+    "plugins": {
+      "name": "Plugins",
+      "desc": "Translation, local AI, spell check and more. Customize your office with our catalog."
+    }
+  },
+  "comparison": {
+    "h2": "Honest Comparison",
+    "sub": "The best way for you to see why InSuite is the best option is by comparing it with the rest of the options in the market.",
+    "cols": ["Suite", "Privacy", "Auditable", "Compatibility", "No Install", "Price", "Key Differences"],
+    "local": "Local",
+    "free": "Free",
+    "rows": [
+      {
+        "name": "InSuite",
+        "logo": "/img/64.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 5,
+        "install": false,
+        "price": "Free",
+        "diff": "Supports Export PDF, IndexedDB",
+        "featured": true
+      },
+      {
+        "name": "Ziziyi Office",
+        "logo": "https://hosted.inled.es/ziziyi-office-insuite.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 5,
+        "install": false,
+        "price": "Freemium",
+        "diff": "Cannot export to PDF. No browser saving.",
+        "featured": false
+      },
+      {
+        "name": "OnlyOffice",
+        "logo": "https://hosted.inled.es/onlyoffice-insuite.png",
+        "privacy": "Cloud",
+        "auditable": false,
+        "comp": 5,
+        "install": true,
+        "price": "Freemium",
+        "diff": "Certain components are not auditable.",
+        "featured": false
+      },
+      {
+        "name": "LibreOffice",
+        "logo": "https://hosted.inled.es/libreoffice-insuite.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 3,
+        "install": true,
+        "price": "Free",
+        "diff": "Paltry interface, installation needed, low compatibility",
+        "featured": false
+      },
+      {
+        "name": "MS Office",
+        "logo": "https://hosted.inled.es/microslop-insuite.png",
+        "privacy": "Low (Cloud)",
+        "auditable": false,
+        "comp": 5,
+        "install": true,
+        "price": "Subscription",
+        "diff": "Proprietary, expensive, data spying",
+        "featured": false
+      }
+    ]
+  },
+  "about": {
+    "h2": "About Inled Group",
+    "p": "Inled Group is a software brand focused on privacy, Spanish technological sovereignty and local AI. We use free technologies, AI agents to develop and we are fans of Linux.",
+    "stats": [
+      {
+        "value": "100%",
+        "label": "Private"
+      },
+      {
+        "value": "Libre",
+        "label": "Free Open Source"
+      },
+      {
+        "value": "ES",
+        "label": "Made in Spain"
+      }
+    ]
+  },
+  "cta": {
+    "h2": "It's time, you decide.",
+    "sub": "Don't let your data stay in storage, be charged for simply editing documents, be forced to install something or be made to go through foreign countries' regulations.",
+    "start": "Start Now",
+    "code": "Review the code",
+    "note": "By using InSuite, you are using free, private and Spanish software"
   }
 }

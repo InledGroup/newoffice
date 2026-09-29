@@ -1,6 +1,6 @@
 ---
 title: 소개 — 이 편집기를 누가 만드는지, 왜 이렇게 만드는지
-description: edit.chaxus.com을 만드는 사람은 누구인지, 실제로 무엇을 하는지, 어떻게 만들어졌는지, 소스 코드는 어디에 있는지. Word·Excel·PowerPoint·CSV·PDF 파일을 브라우저에서 편집하며 문서를 절대 업로드하지 않는 오픈소스(AGPL-3.0) 편집기입니다.
+description: office.inled.es을 만드는 사람은 누구인지, 실제로 무엇을 하는지, 어떻게 만들어졌는지, 소스 코드는 어디에 있는지. Word·Excel·PowerPoint·CSV·PDF 파일을 브라우저에서 편집하며 문서를 절대 업로드하지 않는 오픈소스(AGPL-3.0) 편집기입니다.
 eyebrow: 소개
 breadcrumb: 소개
 h1: 이 편집기에 대하여

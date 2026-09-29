@@ -16,10 +16,15 @@ import {
   MAX_SNAPSHOT_INTERVAL_MS,
   MIN_SNAPSHOT_INTERVAL_MS,
   SNAPSHOT_INTERVAL_MS,
+  TICK_MS,
+  UNPROTECTED_TICK_MS,
   snapshotInterval,
+  tickInterval,
   beginAutosaveSession,
   getAutosaveDocId,
+  getLastSnapshotAt,
   isAutosaveSessionActive,
+  onSnapshotStored,
   setAutosaveEnabled,
   shouldSnapshot,
   stopAutosaveSession,
@@ -29,6 +34,7 @@ import { DB_NAME, resetHistoryDbForTests } from '../../lib/history/db';
 import { getLatestSnapshot, listDocs, resetHistoryClockForTests } from '../../lib/history/store';
 import { markDocumentDirty, resetUnsavedGuardForTests } from '../../lib/unsaved-guard';
 
+/** A document that already has a recovery point, so the interval rules apply. */
 const ready: import('../../lib/history/autosave').SnapshotDecision = {
   now: 1_000_000,
   enabled: true,
@@ -38,6 +44,15 @@ const ready: import('../../lib/history/autosave').SnapshotDecision = {
   lastSnapshotAt: 1_000_000 - SNAPSHOT_INTERVAL_MS,
   lastEditAt: 1_000_000 - IDLE_GRACE_MS,
   exporting: false,
+  lastExportMs: 200,
+};
+
+/** The same document, one tick after its first edit and before its first export. */
+const firstLull: import('../../lib/history/autosave').SnapshotDecision = {
+  ...ready,
+  // Opened, then edited a moment ago: the interval has barely started, and
+  // there is nothing stored to fall back on.
+  lastSnapshotAt: 1_000_000 - 1_000,
   lastExportMs: null,
 };
 
@@ -88,6 +103,17 @@ describe('snapshot interval', () => {
 describe('autosave scheduling rule', () => {
   it('fires when there is work, a lull, and time since the last snapshot', () => {
     expect(shouldSnapshot(ready)).toBe(true);
+  });
+
+  it('takes the first snapshot of a session on the first lull, not a minute in', () => {
+    // The bug this pins. A document with nothing stored has no interval to
+    // respect -- there is no cost measurement yet and nothing to lose but the
+    // work in front of the user -- so the lull in the typing is the condition.
+    // Waiting a minute for the first snapshot is how a twenty-second editing
+    // session loses all twenty seconds while the UI says it is being saved.
+    expect(shouldSnapshot(firstLull)).toBe(true);
+    // It is still not on top of active typing, and still waits for the lull.
+    expect(shouldSnapshot({ ...firstLull, lastEditAt: firstLull.now })).toBe(false);
   });
 
   it('holds off for every reason on its own', () => {
@@ -147,6 +173,63 @@ describe('autosave session', () => {
     expect(second?.id).toBe(first?.id);
     expect(second?.revCount).toBe(2);
     expect((await listDocs()).total).toBe(1);
+  });
+
+  it('reports when a copy landed, and nothing before one has', async () => {
+    requestSaveDocument.mockResolvedValue(fileOf([1]));
+    await beginAutosaveSession({ docId: 'report', title: 'Report.docx', origin: 'local' });
+
+    // 0, not the session's start time: the pacing clock has a value from the
+    // first millisecond, but nothing is stored until an export finishes, and a
+    // watcher told otherwise would believe in a recovery point that is not there.
+    expect(getLastSnapshotAt()).toBe(0);
+
+    await takeSnapshot();
+
+    expect(getLastSnapshotAt()).toBeGreaterThan(0);
+  });
+
+  it('announces a landed copy, and the end of a session, to whoever watches', async () => {
+    requestSaveDocument.mockResolvedValue(fileOf([1]));
+    await beginAutosaveSession({ docId: 'report', title: 'Report.docx', origin: 'local' });
+
+    const seen: string[] = [];
+    const unsubscribe = onSnapshotStored(() => seen.push('changed'));
+
+    await takeSnapshot();
+    stopAutosaveSession();
+    unsubscribe();
+    // A session that ends is the other moment a watcher has to hear about: the
+    // document still has edits and nothing is copying them any more.
+    expect(seen).toEqual(['changed', 'changed']);
+  });
+
+  it('takes a snapshot on its own within seconds of the first edit', async () => {
+    // The scheduling rule and the poll that runs it are two halves of the same
+    // promise. Even with the rule fixed, a 15 s poll would leave a first edit
+    // unprotected for up to a quarter of a minute -- and the user closes tabs
+    // without warning. Real timers here on purpose: faking them stalls
+    // fake-indexeddb, which drives its transactions through the same queue.
+    requestSaveDocument.mockResolvedValue(fileOf([1]));
+    await beginAutosaveSession({ docId: 'quick', title: 'Quick.docx', origin: 'local' });
+
+    // The user types, and stops.
+    markDocumentDirty();
+
+    await vi.waitFor(async () => expect((await listDocs()).total).toBe(1), {
+      timeout: UNPROTECTED_TICK_MS + IDLE_GRACE_MS + 5_000,
+    });
+    expect(requestSaveDocument).toHaveBeenCalledTimes(1);
+  });
+
+  it('polls fast only while there is nothing stored, and slowly once there is', () => {
+    // Otherwise every document re-exports on a 3 s beat for the whole session,
+    // which is the cost the adaptive interval exists to avoid.
+    expect(tickInterval(null)).toBe(UNPROTECTED_TICK_MS);
+    expect(tickInterval(200)).toBe(TICK_MS);
+    // Still comfortably inside the "no reason to hurry" range, but short
+    // enough that a first edit is not left unprotected for a quarter minute.
+    expect(UNPROTECTED_TICK_MS).toBeLessThan(TICK_MS);
   });
 
   it('does not start in embed mode', async () => {

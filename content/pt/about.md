@@ -1,6 +1,6 @@
 ---
 title: Sobre — quem faz este editor e por quê
-description: Quem está por trás do edit.chaxus.com, o que ele realmente faz, como é construído e onde fica o código-fonte. Um editor de código aberto (AGPL-3.0) que roda no navegador para arquivos do Word, Excel, PowerPoint, CSV e PDF e nunca envia seus documentos.
+description: Quem está por trás do office.inled.es, o que ele realmente faz, como é construído e onde fica o código-fonte. Um editor de código aberto (AGPL-3.0) que roda no navegador para arquivos do Word, Excel, PowerPoint, CSV e PDF e nunca envia seus documentos.
 eyebrow: Sobre
 breadcrumb: Sobre
 h1: Sobre este editor

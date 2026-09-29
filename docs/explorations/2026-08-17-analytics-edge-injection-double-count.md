@@ -8,7 +8,7 @@
 
 | 检查                                        | 结果                                                       |
 | ------------------------------------------- | ---------------------------------------------------------- |
-| `curl https://edit.chaxus.com/` 里的 beacon | **0**（`/editor`、`/editor?embed=1` 同样 0）               |
+| `curl https://office.inled.es/` 里的 beacon | **0**（`/editor`、`/editor?embed=1` 同样 0）               |
 | 真实浏览器打开同一批 URL                    | **有** `static.cloudflareinsights.com/beacon.min.js/v451…` |
 | `VITE_CF_BEACON_TOKEN`                      | 未配置 → `lib/analytics.ts` 整段是死代码                   |
 

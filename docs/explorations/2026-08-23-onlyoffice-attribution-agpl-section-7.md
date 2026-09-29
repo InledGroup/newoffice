@@ -22,7 +22,7 @@ vendor 源码头（`public/web-apps/apps/common/main/lib/util/fix-ie-compat.js`�
 
 1. `lib/onlyoffice/guards/chrome.ts` 往编辑器 iframe 注入
    `#header-logo, .btn-current-user, #tlb-box-users { display: none !important }`。
-   线上实测 edit.chaxus.com：`#header-logo` 计算样式确为 `display: none`；手动放出来
+   线上实测 office.inled.es：`#header-logo` 计算样式确为 `display: none`；手动放出来
    是官方 logo（背景图 `web-apps/apps/common/main/resources/img/header/header-logo_s.svg`，
    86×20），资源一直在，只是不显示。
 2. `lib/onlyoffice-editor.ts` 的 DocEditor 配置里 `customization.about: false`。

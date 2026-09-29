@@ -66,10 +66,10 @@ test('the editor page fits the viewport and renders in the ranui typeface', asyn
   expect(layout.fontFamily).toMatch(/Geist/);
 });
 
-test('bare /editor with nothing to open goes back to the landing', async ({ page }) => {
+test('bare /editor with nothing to open goes back to the app homepage', async ({ page }) => {
   await page.goto('/editor');
-  await page.waitForURL((u) => u.pathname === '/');
-  await expect(page.locator('#landing-hero')).toBeVisible();
+  await page.waitForURL((u) => u.pathname === '/home');
+  await expect(page.locator('#home-root')).toBeVisible();
 });
 
 test('manifest and service worker assets are reachable', async ({ request }) => {

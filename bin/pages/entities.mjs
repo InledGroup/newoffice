@@ -30,10 +30,10 @@ export const siteEntities = () => [
   {
     '@type': 'Organization',
     '@id': ID.org,
-    name: 'ranuts',
+    name: 'Inled Group',
     url: ORIGIN + '/',
     logo: `${ORIGIN}/img/pwa-512.png`,
-    sameAs: [REPO, 'https://github.com/ranuts', 'https://ran.chaxus.com'],
+    sameAs: [REPO, 'https://github.com/InledGroup', 'https://inled.es'],
   },
   {
     '@type': 'WebSite',

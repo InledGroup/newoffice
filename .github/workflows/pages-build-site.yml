@@ -1,6 +1,6 @@
 name: pages-build-site
 on:
-  # The editor now lives at https://edit.chaxus.com (Cloudflare Pages).
+  # The editor now lives at https://office.inled.es (Cloudflare Pages).
   # GitHub Pages publishes ONLY a client-side redirector (redirect/), so old
   # ranuts.github.io/document/* links keep working (path + query preserved).
   # The app now deploys to Cloudflare Pages from `main`, so GitHub Pages is

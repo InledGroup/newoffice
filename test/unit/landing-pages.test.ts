@@ -13,7 +13,7 @@ import { LOCALES, MENU_ORDER, generate } from '../../bin/build-pages.mjs';
  */
 const ROOT = resolve(__dirname, '../..');
 const PUBLIC = resolve(ROOT, 'public');
-const ORIGIN = 'https://edit.chaxus.com';
+const ORIGIN = 'https://office.inled.es';
 const NOT_LANDING = new Set(['404.html', 'embed-demo.html']);
 // Pages rendered from markdown at build time (not committed under public/):
 // the same contract applies, so they are validated from a fresh in-memory render.
@@ -332,15 +332,20 @@ describe('landing pages', () => {
    * cannot handle, a workflow it does not support -- so the boundaries are part
    * of the contract, not an afterthought.
    */
-  it('both homepages answer what happens to unsaved edits, and name the retention window', () => {
+  it('both homepages answer what happens to unsaved edits, and promise no deadline', () => {
     // The single highest-value question this site can answer for a search engine
     // or an assistant ("I closed the tab -- did I lose my work?"), and the one
-    // place the seven-day promise has to be machine-readable. Losing it to a
-    // copy edit would cost the answer, not just the wording.
-    for (const [rel, ask, days] of [
-      ['index.html', /tab|refresh/i, '7 days'],
-      ['zh-CN/index.html', /标签页|刷新/, '7 天'],
-    ] as Array<[string, RegExp, string]>) {
+    // place the retention rule has to be machine-readable. Losing it to a copy
+    // edit would cost the answer, not just the wording.
+    //
+    // What the answer has to say is that the copies stay until they are deleted.
+    // A page that named a window would be naming a promise the app does not
+    // keep, and the test is what stops a well-meaning copy edit from putting
+    // one back -- so it checks the number is gone, not that a phrase arrived.
+    for (const [rel, ask, stays] of [
+      ['index.html', /tab|refresh/i, /until you delete/],
+      ['zh-CN/index.html', /标签页|刷新/, /直到你自己删除/],
+    ] as Array<[string, RegExp, RegExp]>) {
       const html = generated(rel);
       const faqs = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
         .flatMap((m) => {
@@ -353,7 +358,11 @@ describe('landing pages', () => {
       );
       const answer = questions.find((q) => ask.test(q.name))?.acceptedAnswer.text;
       expect(answer, `${rel} has no question about closing the tab`).toBeTruthy();
-      expect(answer).toContain(days);
+      // No deadline, in any language's numerals: "7 days", "7 天", "7 Tage".
+      expect(answer, `${rel} names no retention window`).not.toMatch(/\d+\s*(day|days|天|日|Tage|tag)/i);
+      // And it says what is true instead, so the answer is not merely silent
+      // on the point -- which is the failure a subtraction alone would let past.
+      expect(answer, `${rel} says the copies stay`).toMatch(stays);
     }
   });
 
@@ -570,13 +579,13 @@ describe('llms.txt', () => {
     const unlinked = linkBullets.filter((line) => !/^- \[[^\]]+\]\(\S+\)/.test(line));
     // The Docker image is named, not linked -- ghcr.io/... is a pull target.
     expect(unlinked).toEqual([
-      '- Self-host Docker image: ghcr.io/ranuts/document (static site, any static host works too)',
+      '- Self-host Docker image: ghcr.io/inled/newoffice (static site, any static host works too)',
     ]);
   });
 
   it('links only to pages that exist', () => {
     const site = linkBullets
-      .flatMap((line) => [...line.matchAll(/\((https:\/\/edit\.chaxus\.com([^)]*))\)/g)].map((m) => m[2]))
+      .flatMap((line) => [...line.matchAll(/\((https:\/\/office\.inled\.es([^)]*))\)/g)].map((m) => m[2]))
       .map((path) => (path === '' ? '/' : path));
     expect(site.length).toBeGreaterThan(20);
     for (const path of site) {

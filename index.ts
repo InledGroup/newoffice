@@ -22,6 +22,7 @@ import 'ranui/select';
 import { initWebMcp } from './lib/web-mcp';
 import { hasUnsavedChanges, installUnsavedChangesGuard } from './lib/unsaved-guard';
 import { initDocumentHistory } from './lib/history';
+import { updateAutosaveIndicator } from './lib/autosave-indicator';
 import '@khmyznikov/pwa-install';
 import './styles/base.css';
 
@@ -164,9 +165,24 @@ const isEmbedded = document.body.classList.contains('embed-mode');
 if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam) {
   hideLanding();
 } else {
-  // Bare /editor with nothing to open: the landing lives at / now.
-  window.location.replace('/');
+  // Bare /editor with nothing to open: the app homepage lives at /home now
+  // (the static landing is at /). Same for the stale-deep-link cases below.
+  window.location.replace('/home');
 }
+
+// The autosave status pill. Created on first refresh and then updated only
+// while a document is open: it mirrors the unsaved-changes bit, whose flips
+// are the moments the user needs to hear from (started editing / nothing left
+// unsaved). A cheap interval re-checks the session state (lock lost to a
+// second tab, autosave turned off in /history, readonly) without asking the
+// autosave module to know about the UI.
+let autosaveIndicatorTimer = 0;
+const startAutosaveIndicator = (): void => {
+  updateAutosaveIndicator();
+  if (!autosaveIndicatorTimer) {
+    autosaveIndicatorTimer = window.setInterval(updateAutosaveIndicator, 5_000);
+  }
+};
 
 void (async () => {
   // A stored snapshot wins over every other way of opening: it is strictly
@@ -178,7 +194,10 @@ void (async () => {
       import('./lib/history/recovery'),
     ]);
     const doc = await getDoc(savedParam);
-    if (doc && (await restoreDocument(doc))) return;
+    if (doc && (await restoreDocument(doc))) {
+      startAutosaveIndicator();
+      return;
+    }
     // No snapshot yet (nothing was edited before the reload) or it expired:
     // fall through and open the same document again under the same id.
   }
@@ -192,11 +211,13 @@ void (async () => {
       console.warn('Failed to decode URL, using original:', error);
       await openDocumentFromUrl(documentUrl, undefined, { readonly: isReadonly, docId: savedParam || undefined });
     }
+    startAutosaveIndicator();
     return;
   }
 
   if (createNewOnLoad && !isEmbedded) {
     await onCreateNew(`.${newExt}`, { docId: savedParam || undefined });
+    startAutosaveIndicator();
     return;
   }
 
@@ -210,16 +231,18 @@ void (async () => {
     window.history.replaceState(null, '', cleaned);
     if (file) {
       await openLocalFile(file, { historyId: savedParam || undefined });
+      startAutosaveIndicator();
       return;
     }
-    // Stale deep link (reload, bookmarked URL): nothing pending -- back to the landing.
-    window.location.replace('/');
+    // Stale deep link (reload, bookmarked URL): nothing pending -- back to the
+    // app homepage.
+    window.location.replace('/home');
     return;
   }
 
   // `?saved=` on its own and nothing stored under it: the document it names was
   // deleted or has expired, so there is nothing here to show.
-  if (savedParam && !isEmbedded) window.location.replace('/');
+  if (savedParam && !isEmbedded) window.location.replace('/home');
 })();
 
 // No boot-time recovery offer here on purpose. /editor never opens empty (a

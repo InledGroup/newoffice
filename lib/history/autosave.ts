@@ -6,13 +6,21 @@
  * server behind it, it takes a fake save success and greys out the Save button
  * forever. So the app keeps its own beat.
  *
- * The beat is slow, and that is the design. One snapshot is a full export --
- * the SDK serialises the document, x2t converts it, and the bytes come back
- * across the frame boundary, with x2t asking for its 283 MB heap on the way.
- * Editors whose snapshot is a JSON.stringify can afford to write on every
+ * The steady-state beat is slow, and that is the design. One snapshot is a full
+ * export -- the SDK serialises the document, x2t converts it, and the bytes come
+ * back across the frame boundary, with x2t asking for its 283 MB heap on the
+ * way. Editors whose snapshot is a JSON.stringify can afford to write on every
  * keystroke; this one cannot, and a phone that is exporting while its user
- * types is a phone about to lose its canvas (#145). Snapshots therefore need
- * all of: something to save, a lull in the typing, and time since the last one.
+ * types is a phone about to lose its canvas (#145). Once there is a recovery
+ * point to lose, snapshots need all of: something to save, a lull in the
+ * typing, and time since the last one.
+ *
+ * The first snapshot of a session is the exception, and the exception is the
+ * whole point. There is nothing to lose yet, which is precisely why there is
+ * nothing to come back to: a user who types for twenty seconds and closes the
+ * tab has to lose all twenty. So the first one waits only for the typing to
+ * stop, and the poll that notices it runs every few seconds until it lands
+ * (UNPROTECTED_TICK_MS). Pacing starts once there is something to pace.
  *
  * What this produces is a recovery point, not a save -- Office draws the same
  * line between AutoRecover and Save, and everything here follows it: snapshots
@@ -60,10 +68,31 @@ export function snapshotInterval(exportMs: number | null): number {
 }
 /** How often the conditions are re-checked. Cheap: it is a handful of comparisons. */
 export const TICK_MS = 15_000;
+/**
+ * How often they are re-checked while this document has no recovery point yet.
+ *
+ * Short, and deliberately not derived from an export cost: nothing has been
+ * exported yet, so there is nothing to pace against -- and a document with no
+ * recovery point is the one state that is worth polling for aggressively. The
+ * user can close the tab at any moment, and a tab that is gone cannot be asked.
+ */
+export const UNPROTECTED_TICK_MS = 3_000;
 /** Quiet time after the last edit before an export is allowed to start. */
 export const IDLE_GRACE_MS = 2_000;
 /** Consecutive export failures before this session gives up. */
 export const MAX_CONSECUTIVE_FAILURES = 3;
+
+/**
+ * How often to re-check the conditions, given whether this session has ever
+ * exported. Fast while there is nothing stored, ordinary once there is.
+ *
+ * Pure and exported so the choice can be pinned without a running editor: the
+ * whole point of the fast beat is that it stops exactly when it should, and a
+ * test that had to wait out both cadences to prove that would not run.
+ */
+export function tickInterval(lastExportMs: number | null): number {
+  return lastExportMs === null ? UNPROTECTED_TICK_MS : TICK_MS;
+}
 
 const AUTOSAVE_PREF_KEY = 'document-autosave-enabled';
 
@@ -105,8 +134,14 @@ export interface SnapshotDecision {
  */
 export function shouldSnapshot(state: SnapshotDecision): boolean {
   if (!state.enabled || !state.dirty || state.readonly || !state.holdsLock || state.exporting) return false;
-  if (state.now - state.lastSnapshotAt < snapshotInterval(state.lastExportMs)) return false;
-  return state.now - state.lastEditAt >= IDLE_GRACE_MS;
+  if (state.now - state.lastEditAt < IDLE_GRACE_MS) return false;
+  // The first recovery point of a session is not paced by an interval, because
+  // there is no measurement to pace it by and nothing to fall back on. The lull
+  // in the typing is the whole condition: a document that has been edited and
+  // then left alone for two seconds is a document the user is about to walk
+  // away from, and waiting a minute for it is how that minute is lost.
+  if (state.lastExportMs === null) return true;
+  return state.now - state.lastSnapshotAt >= snapshotInterval(state.lastExportMs);
 }
 
 export function isAutosaveEnabled(): boolean {
@@ -128,6 +163,17 @@ interface ActiveSession {
   ext: string;
   timer: number;
   lastSnapshotAt: number;
+  /**
+   * When a copy of this session finished landing in IndexedDB, or 0 before the
+   * first one.
+   *
+   * Deliberately not `lastSnapshotAt`, which starts at the session's start time
+   * because the pacing clock has to have something to measure from. This one
+   * answers a different question -- has a recovery point actually been written
+   * yet? -- and only something that finished a `putSnapshot` may answer it, so
+   * it stays at 0 until then. The status pill is what reads it.
+   */
+  lastStoredAt: number;
   exporting: boolean;
   lastExportMs: number | null;
   failures: number;
@@ -138,6 +184,21 @@ interface ActiveSession {
 }
 
 let session: ActiveSession | null = null;
+
+/**
+ * Listeners told that the scheduler's own state changed underneath them.
+ *
+ * One-way on purpose. The scheduler has no business knowing who is listening --
+ * a status pill, a future log line, a test -- so it emits a fact and the
+ * subscriber decides what to do with it. The alternative, having every consumer
+ * poll, is what made the pill sit on screen for a poll interval after the very
+ * moment it exists to report.
+ */
+const storedListeners = new Set<() => void>();
+
+function announce(): void {
+  for (const listener of storedListeners) listener();
+}
 
 function notify(kind: 'warning' | 'error', text: string): void {
   (window as unknown as { message?: Record<string, ((msg: string) => void) | undefined> }).message?.[kind]?.(text);
@@ -202,10 +263,12 @@ export async function takeSnapshot(): Promise<HistoryDoc | null> {
     }
     active.docId = doc.id;
     active.lastSnapshotAt = Date.now();
+    active.lastStoredAt = active.lastSnapshotAt;
     // What this export cost sets the next interval: a slow device asks for
     // snapshots less often without anyone having to identify it as slow.
     active.lastExportMs = active.lastSnapshotAt - startedAt;
     active.failures = 0;
+    announce();
     return doc;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -238,6 +301,24 @@ function tick(): void {
     lastExportMs: active.lastExportMs,
   };
   if (shouldSnapshot(decision)) void takeSnapshot();
+}
+
+/**
+ * Re-arm the tick.
+ *
+ * A chained timeout rather than a fixed interval, because the period depends
+ * on the state this call is re-reading: an unprotected document is checked
+ * every UNPROTECTED_TICK_MS until it has a recovery point, and every TICK_MS
+ * after that. One loop, one decision per wake-up, and the frequency follows the
+ * risk rather than being the worst case all session long.
+ */
+function scheduleTick(): void {
+  const active = session;
+  if (!active) return;
+  active.timer = window.setTimeout(() => {
+    tick();
+    scheduleTick();
+  }, tickInterval(active.lastExportMs));
 }
 
 /**
@@ -278,9 +359,11 @@ export async function beginAutosaveSession(input: AutosaveSessionInput): Promise
     origin: input.origin,
     docId: input.docId,
     ext,
-    // Not "now": a document that opens and is edited immediately should get
-    // its first snapshot one interval in, not two.
+    // Only consulted for the steady-state cadence. The first snapshot of the
+    // session is not interval-gated at all (see shouldSnapshot), so this is a
+    // starting point for a clock that has not been asked to keep time yet.
     lastSnapshotAt: Date.now(),
+    lastStoredAt: 0,
     exporting: false,
     lastExportMs: null,
     failures: 0,
@@ -288,12 +371,13 @@ export async function beginAutosaveSession(input: AutosaveSessionInput): Promise
     releaseLock: release,
     onVisibility,
     stopped: false,
-    timer: window.setInterval(tick, TICK_MS),
+    timer: 0,
   };
 
+  scheduleTick();
   document.addEventListener('visibilitychange', onVisibility);
-  // No-op until this document has a row; from then on it restarts the
-  // seven-day clock every time the document is opened.
+  // No-op until this document has a row; from then on it marks the document as
+  // the warmest thing in the library, which is what eviction gives up last.
   void markOpened(input.docId);
 }
 
@@ -302,14 +386,45 @@ export function stopAutosaveSession(): void {
   session = null;
   if (!active || active.stopped) return;
   active.stopped = true;
-  window.clearInterval(active.timer);
+  window.clearTimeout(active.timer);
   document.removeEventListener('visibilitychange', active.onVisibility);
   active.releaseLock?.();
+  // A session that ends on failure is the other moment worth repainting for: the
+  // document still has edits in it that nothing is copying any more, and that is
+  // exactly what a subscriber deciding between "working" and "not being saved"
+  // cannot work out on its own.
+  announce();
 }
 
 /** The history row this session writes to. Known from the start, row or not. */
 export function getAutosaveDocId(): string | null {
   return session?.docId ?? null;
+}
+
+/**
+ * When this session last finished writing a copy into IndexedDB, or 0 if it
+ * never has.
+ *
+ * Read by the status pill to answer one question: is there an edit in the
+ * document that this browser has not taken yet? That is a comparison against
+ * when the editor last reported a change, and getting it from the scheduler
+ * rather than from the store is what keeps the pill from claiming a save the
+ * scheduler never made.
+ */
+export function getLastSnapshotAt(): number {
+  return session?.lastStoredAt ?? 0;
+}
+
+/**
+ * Be told when the scheduler's state changes in a way a watcher cares about: a
+ * copy landed, or the session ended (and may have ended on failure).
+ *
+ * Returns an unsubscribe, because the only current subscriber is a page-level
+ * widget that outlives documents.
+ */
+export function onSnapshotStored(listener: () => void): () => void {
+  storedListeners.add(listener);
+  return () => storedListeners.delete(listener);
 }
 
 /** Test seam: inspect whether a session is running. */

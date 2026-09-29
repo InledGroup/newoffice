@@ -166,14 +166,14 @@ export const PAGES = [
       en: {
         title: 'Changelog — what changed in the online document editor',
         description:
-          'User-facing release notes for edit.chaxus.com: new formats, editor fixes, performance and privacy changes, in reverse chronological order.',
+          'User-facing release notes for office.inled.es: new formats, editor fixes, performance and privacy changes, in reverse chronological order.',
         eyebrow: 'Changelog',
         breadcrumb: 'Changelog',
       },
       ko: {
         title: '변경 내역 — 온라인 문서 편집기가 무엇이 달라졌나',
         description:
-          'edit.chaxus.com의 사용자 대상 릴리스 노트: 새 형식, 편집기 수정, 성능과 프라이버시 변경 사항을 최신순으로 정리했습니다.',
+          'office.inled.es의 사용자 대상 릴리스 노트: 새 형식, 편집기 수정, 성능과 프라이버시 변경 사항을 최신순으로 정리했습니다.',
         eyebrow: '변경 내역',
         breadcrumb: '변경 내역',
         notice: '변경 내역은 영어로 관리됩니다(단일 출처 CHANGELOG.md). 한국어판은 추후 추가됩니다.',
@@ -181,7 +181,7 @@ export const PAGES = [
       pt: {
         title: 'Novidades — o que mudou no editor de documentos online',
         description:
-          'Notas de versão do edit.chaxus.com: novos formatos, correções do editor, mudanças de desempenho e privacidade, em ordem cronológica inversa.',
+          'Notas de versão do office.inled.es: novos formatos, correções do editor, mudanças de desempenho e privacidade, em ordem cronológica inversa.',
         eyebrow: 'Novidades',
         breadcrumb: 'Novidades',
         notice: 'As novidades são mantidas em inglês (fonte única, CHANGELOG.md). A versão em português virá depois.',
@@ -189,7 +189,7 @@ export const PAGES = [
       de: {
         title: 'Änderungen — was sich im Online-Dokumenteneditor geändert hat',
         description:
-          'Versionshinweise für edit.chaxus.com: neue Formate, Korrekturen im Editor, Änderungen an Leistung und Datenschutz, in umgekehrt chronologischer Reihenfolge.',
+          'Versionshinweise für office.inled.es: neue Formate, Korrekturen im Editor, Änderungen an Leistung und Datenschutz, in umgekehrt chronologischer Reihenfolge.',
         eyebrow: 'Änderungen',
         breadcrumb: 'Änderungen',
         notice:
@@ -198,7 +198,7 @@ export const PAGES = [
       es: {
         title: 'Novedades — qué ha cambiado en el editor de documentos en línea',
         description:
-          'Notas de versión de edit.chaxus.com: formatos nuevos, correcciones del editor, cambios de rendimiento y privacidad, en orden cronológico inverso.',
+          'Notas de versión de office.inled.es: formatos nuevos, correcciones del editor, cambios de rendimiento y privacidad, en orden cronológico inverso.',
         eyebrow: 'Novedades',
         breadcrumb: 'Novedades',
         notice:
@@ -207,14 +207,14 @@ export const PAGES = [
       ja: {
         title: '変更履歴 — オンラインドキュメントエディタの更新内容',
         description:
-          'edit.chaxus.com のユーザー向けリリースノート: 新しい形式、エディタの修正、パフォーマンスとプライバシーの変更を、新しい順に掲載しています。',
+          'office.inled.es のユーザー向けリリースノート: 新しい形式、エディタの修正、パフォーマンスとプライバシーの変更を、新しい順に掲載しています。',
         eyebrow: '変更履歴',
         breadcrumb: '変更履歴',
         notice: '変更履歴は英語で管理されています（単一の情報源 CHANGELOG.md）。日本語版は今後追加します。',
       },
       'zh-CN': {
         title: '更新日志——在线文档编辑器改了什么',
-        description: 'edit.chaxus.com 面向用户的版本记录：新增格式、编辑器修复、性能与隐私改动，按时间倒序。',
+        description: 'office.inled.es 面向用户的版本记录：新增格式、编辑器修复、性能与隐私改动，按时间倒序。',
         eyebrow: '更新日志',
         breadcrumb: '更新日志',
         notice: '更新日志以英文维护（单一数据源 CHANGELOG.md），中文版稍后补充。',

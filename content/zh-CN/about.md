@@ -1,6 +1,6 @@
 ---
 title: 关于 — 这个文档编辑器是谁做的、为什么这么做
-description: edit.chaxus.com 背后是谁、它到底做什么、怎么实现的、源码在哪。一个开源（AGPL-3.0）的浏览器内 Word / Excel / PowerPoint / CSV / PDF 编辑器，文件全程不上传。
+description: office.inled.es 背后是谁、它到底做什么、怎么实现的、源码在哪。一个开源（AGPL-3.0）的浏览器内 Word / Excel / PowerPoint / CSV / PDF 编辑器，文件全程不上传。
 eyebrow: 关于
 breadcrumb: 关于
 h1: 关于这个编辑器

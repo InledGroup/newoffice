@@ -64,6 +64,62 @@ describe('styles/base.css stands in for the preflight it replaced', () => {
 });
 
 /**
+ * Every token a stylesheet reads has to exist somewhere.
+ *
+ * A missing custom property is not a wrong value, it is *no* value: with a
+ * fallback the property quietly takes the fallback, and without one the whole
+ * declaration is invalid at computed-value time and the element renders
+ * unstyled. Neither shows in a diff, and neither throws. Two landed that way on
+ * `app-shell.css` before this check existed -- `.app-card` had no rounding and
+ * `.app-row` had no padding at all, so the document list read as a 43px strip
+ * with its icon and buttons flush against the edges. The tokens were the
+ * reference's Tailwind names (`--ran-space-5`, `--radius-lg`) written from
+ * memory into a scale that skips 5 and starts at a different base.
+ *
+ * So: collect every `--x` some stylesheet or ranui defines, then assert that
+ * every `var(--x)` in the app's own sheets is in that set. A var() with a
+ * fallback is exempt -- it is already a decision, not an accident.
+ */
+describe('every custom property the app styles read is actually defined', () => {
+  const appStyles = ['app-shell.css', 'home-page.css', 'history.css', 'base.css'];
+  const tokenHolders = [
+    ...appStyles.map((name) => `styles/${name}`),
+    'public/ran-tokens.css',
+    'node_modules/ranui/dist/ranui.css',
+  ];
+
+  const defined = new Set<string>();
+  for (const file of tokenHolders) {
+    for (const [, name] of readFileSync(resolve(ROOT, file), 'utf8').matchAll(/(--[\w-]+)\s*:/g)) {
+      defined.add(name);
+    }
+  }
+
+  for (const name of appStyles) {
+    it(`${name} reads no token it does not declare`, () => {
+      const source = readFileSync(resolve(ROOT, `styles/${name}`), 'utf8');
+      // Values only: a declaration's own left-hand side is a definition, not a
+      // read, and counting those would hide exactly what is being checked.
+      const values = source.replace(/[^{}]*\{[^}]*\}/g, (block) => block.slice(block.indexOf('{')));
+      const read = [...values.matchAll(/var\((--[\w-]+)([^)]*)\)/g)].filter(([, , tail]) => !tail.includes(','));
+      expect(read.length, `${name} should still be reading tokens`).toBeGreaterThan(0);
+      const missing = [...new Set(read.map(([, token]) => token))].filter((t) => !defined.has(t)).sort();
+      expect(missing, `${name} reads undefined custom properties`).toEqual([]);
+    });
+  }
+
+  it('declares the reference radius scale, so the card and the rows can round', () => {
+    // Declared rather than guessed per rule: a `var(--radius-lg, 16px)` fallback
+    // hides the missing token instead of surfacing it, and 16px was not the
+    // reference's value anyway.
+    const shell = readFileSync(resolve(ROOT, 'styles/app-shell.css'), 'utf8');
+    for (const step of ['--radius', '--radius-sm', '--radius-md', '--radius-lg', '--radius-xl']) {
+      expect(shell, `styles/app-shell.css must still declare ${step}`).toMatch(new RegExp(`^\\s*${step}:`, 'm'));
+    }
+  });
+});
+
+/**
  * The same reset, where the components that need it actually live.
  *
  * `.cui-send` / `.cui-scroll-bottom` are fixed-size circles in

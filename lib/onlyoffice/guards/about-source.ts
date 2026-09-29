@@ -18,7 +18,7 @@
  * Additive only: nothing the vendor renders is moved, restyled or removed.
  */
 const NOTICE_ID = 'oo-source-notice';
-const SOURCE_URL = 'https://github.com/ranuts/document';
+const SOURCE_URL = 'https://github.com/InledGroup/newoffice';
 const WATCHED = '__ranSourceNoticeWatched';
 
 function renderNotice(doc: Document, panel: HTMLElement): void {

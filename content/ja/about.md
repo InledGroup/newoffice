@@ -1,6 +1,6 @@
 ---
 title: このエディタについて — 誰が作っているのか、なぜこの作りなのか
-description: edit.chaxus.com を作っているのは誰か、実際に何ができるのか、どう作られていて、ソースコードはどこにあるのか。Word・Excel・PowerPoint・CSV・PDF をブラウザ内で編集でき、ファイルを一切アップロードしないオープンソース（AGPL-3.0）のエディタです。
+description: office.inled.es を作っているのは誰か、実際に何ができるのか、どう作られていて、ソースコードはどこにあるのか。Word・Excel・PowerPoint・CSV・PDF をブラウザ内で編集でき、ファイルを一切アップロードしないオープンソース（AGPL-3.0）のエディタです。
 eyebrow: このサイトについて
 breadcrumb: このエディタについて
 h1: このエディタについて

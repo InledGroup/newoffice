@@ -3,7 +3,7 @@
  * `window.confirm`.
  *
  * The native dialog was never a styling decision, it was a shortcut, and it
- * shows: it renders as the browser's chrome ("edit.chaxus.com says"), it cannot
+ * shows: it renders as the browser's chrome ("office.inled.es says"), it cannot
  * carry the site's typography or theme, and on a page whose whole subject is
  * the user's own documents it looks like something the page did not mean to
  * say. It is also modal to the whole tab, which is more interruption than

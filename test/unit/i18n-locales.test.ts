@@ -48,15 +48,48 @@ const CORE_KEYS: Array<keyof I18nMessages> = [
 /**
  * Strings that are legitimately identical to English in a given locale --
  * same word, not a missing translation. Anything else matching English fails.
+ *
+ * The /home keys are written for en, es, de, ja, ko and zh; Portuguese still
+ * shows the English wording, so it is declared here rather than being filled in
+ * with a translation nobody has proofread. Adding a real one means dropping the
+ * key from this list.
  */
+const HOME_KEYS: Array<keyof I18nMessages> = [
+  'homeNew',
+  'homeDocument',
+  'homeSpreadsheet',
+  'homePresentation',
+  'homeChooseFile',
+  'homeDropHere',
+  'homeDropHint',
+  'homeSupports',
+  'homeRecent',
+  'homeRecentLoading',
+  'homeRecentEmpty',
+  'homeRecentEmptyHint',
+  'homeReopenTip',
+  'homeRemoveRecent',
+  'homeNavOpen',
+  'homeNavSaved',
+  'homeNavHelp',
+  'homeNavAbout',
+  'homeDropOverlay',
+  'homeDropOverlayHint',
+  'homeNoScript',
+];
+
 const SAME_AS_ENGLISH: Partial<Record<string, Array<keyof I18nMessages>>> = {
   de: ['themeSystem'],
   es: ['themeSystem', 'agentRoleError'],
-  pt: ['themeSystem'],
+  pt: ['themeSystem', ...HOME_KEYS],
 };
 
-/** The product name, which reads the same in every language. */
-const NEVER_TRANSLATED: Array<keyof I18nMessages> = ['webOffice'];
+/**
+ * The product name, which reads the same in every language, and the "PDF"
+ * acronym on the /home tile: the letters are the expansion, so a table that
+ * spelled it out would be the one that was wrong.
+ */
+const NEVER_TRANSLATED: Array<keyof I18nMessages> = ['webOffice', 'homePdf'];
 
 const restore = () => {
   setLanguage(LanguageCode.EN);

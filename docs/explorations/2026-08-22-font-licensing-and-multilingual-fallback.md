@@ -30,7 +30,7 @@
 | Monotype          | 15   | 3.5 MB  | Arial、Times New Roman、Courier New、Impact、Andale Mono   |
 
 这批是 OnlyOffice Docs **服务器**会从宿主机上取到的字体集，第三方打离线包时一并
-带进来了。本仓库与 edit.chaxus.com 都是公开的，托管即再分发。
+带进来了。本仓库与 office.inled.es 都是公开的，托管即再分发。
 
 分类过程中有三处初判有误，逐个读 nameID 13 后修正（都是**开源**，予以保留）：
 

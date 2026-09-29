@@ -2,31 +2,9 @@
   "title": "Abrir DOCX, XLSX e PPTX no navegador — visualizador e editor de documentos grátis",
   "description": "Abra e veja arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV direto no navegador — sem Office instalado, sem upload, sem cadastro. Também dá para editar e salvar. Grátis, com privacidade em primeiro lugar e funcionando offline. Com OnlyOffice.",
   "ogDescription": "Abra, veja e edite DOCX, XLSX, PPTX e CSV no seu navegador — sem Office, sem upload, sem cadastro. Grátis e disponível offline.",
-  "chip": "Local primeiro · <b>código aberto</b>",
-  "h1": {
-    "plain": "Abra arquivos do Word, Excel e PowerPoint,",
-    "accent": "direto no navegador."
-  },
-  "sub": "Sem Office instalado? Veja qualquer DOCX, XLSX ou PPTX na hora — e edite quando precisar. Tudo roda no seu dispositivo: sem upload, sem cadastro, funciona offline.",
-  "cta": {
-    "open": "Abrir um arquivo",
-    "docx": "Novo Word",
-    "xlsx": "Novo Excel",
-    "pptx": "Novo PowerPoint"
-  },
   "recent": {
     "label": "Continuar editando",
-    "note": "Fechou a aba sem querer e nada se perdeu: suas edições são salvas neste navegador enquanto você trabalha. As cópias salvas ficam por 7 dias e depois são apagadas sozinhas — ou você as apaga quando quiser.",
     "all": "Documentos salvos"
-  },
-  "trust": ["0 byte enviado", "sem conta", "funciona offline", ".docx .xlsx .pptx .csv"],
-  "docwin": {
-    "file": "report.docx",
-    "badge": "salvo localmente ✓",
-    "selected": "Tudo o que você digita fica neste dispositivo.",
-    "noteAuthor": "Você · agora mesmo",
-    "noteBody": "0 byte enviado — confira na aba de rede.",
-    "net": "network · 0 requisições · 0 byte enviado"
   },
   "nav": [
     {
@@ -87,56 +65,6 @@
         }
       ]
     },
-    "pillars": {
-      "eyebrow": "O que muda aqui",
-      "h2": "Privacidade por construção, não por promessa",
-      "items": [
-        {
-          "k": "100% no cliente",
-          "h3": "Os arquivos nunca saem do seu dispositivo",
-          "p": "Cada documento é aberto, editado e salvo localmente. Não existe servidor para onde enviar."
-        },
-        {
-          "k": "Sem conta",
-          "h3": "Não há nada para cadastrar",
-          "p": "Sem e-mail, sem muro de login. Abra a página e comece a editar."
-        },
-        {
-          "k": "PWA · offline",
-          "h3": "Instale e use até no avião",
-          "p": "Adicione à tela de início e ele continua funcionando sem conexão."
-        },
-        {
-          "k": "AGPL-3.0",
-          "h3": "Código aberto e auto-hospedável",
-          "p": "Audite exatamente o que roda, ou hospede a sua própria cópia. Com OnlyOffice."
-        }
-      ]
-    },
-    "steps": {
-      "eyebrow": "Processo",
-      "h2": "Como funciona",
-      "items": [
-        {
-          "n": "01",
-          "h3": "Abra um arquivo",
-          "p": "Arraste um DOCX, XLSX, PPTX ou CSV — ou comece em branco.",
-          "loc": "fica no dispositivo"
-        },
-        {
-          "n": "02",
-          "h3": "Edite de verdade",
-          "p": "Formatação completa, tabelas, gráficos e fórmulas com o OnlyOffice.",
-          "loc": "fica no dispositivo"
-        },
-        {
-          "n": "03",
-          "h3": "Salve de volta",
-          "p": "Exporte no mesmo formato. Nada foi enviado em momento algum.",
-          "loc": "fica no dispositivo"
-        }
-      ]
-    },
     "faq": {
       "eyebrow": "FAQ",
       "h2": "Perguntas, respondidas",
@@ -156,7 +84,7 @@
         },
         {
           "q": "O que acontece se eu fechar a aba ou recarregar a página?",
-          "a": "Nada se perde. Suas edições são salvas neste navegador enquanto você trabalha, então ao reabrir o editor ele oferece o documento de volta e uma recarga retorna a ele. As cópias salvas ficam no seu dispositivo por 7 dias e depois são apagadas sozinhas; você também pode apagá-las quando quiser. Nada é enviado — as cópias existem apenas neste navegador."
+          "a": "Nada se perde. Suas edições são salvas neste navegador enquanto você trabalha, então ao reabrir o editor ele oferece o documento de volta e uma recarga retorna a ele. As cópias salvas ficam no seu dispositivo até você as apagar: nada aqui se apaga sozinho por tempo, e a única exceção automática é este navegador ficar sem espaço. Nada é enviado — as cópias existem apenas neste navegador."
         },
         {
           "q": "Funciona offline?",
@@ -167,18 +95,6 @@
           "a": "Sem conta, sem cadastro, sem e-mail. Abra a página e edite."
         }
       ]
-    }
-  },
-  "eco": {
-    "label": "Parte do ecossistema ran · tudo de código aberto",
-    "here": {
-      "name": "edit.chaxus.com",
-      "role": "Editor de Office"
-    },
-    "other": {
-      "href": "https://ran.chaxus.com",
-      "name": "ran.chaxus.com",
-      "role": "Componentes de UI"
     }
   },
   "foot": {
@@ -237,7 +153,7 @@
         "label": "XLSX → CSV"
       },
       {
-        "href": "https://github.com/ranuts/document",
+        "href": "https://github.com/InledGroup/newoffice",
         "label": "GitHub"
       }
     ],
@@ -253,8 +169,153 @@
     "Incorporável pela API postMessage",
     "Grátis e de código aberto (AGPL-3.0)"
   ],
-  "ecosystem": {
-    "name": "ran ecosystem",
-    "url": "https://ran.chaxus.com"
+  "hero": {
+    "beta": "Beta",
+    "h1": "The free, open Office",
+    "sub": "Total privacy without installations. Open, edit and save your documents directly in your browser. Your files never leave your computer.",
+    "start": "Start using for free",
+    "open": "Open a file",
+    "noSignup": "No sign-up required",
+    "free": "Free",
+    "wordCompatible": "Fully compatible with Word",
+    "tryIt": "Try it!",
+    "tabs": ["Word", "Excel", "PowerPoint"],
+    "noteLead": "Interact with the editor. It is a",
+    "noteStrong": "real instance",
+    "noteTail": "running 100% in your browser via WebAssembly.",
+    "selection": "Everything you type stays on this device.",
+    "openCta": "Open the real editor"
+  },
+  "features": {
+    "h2": "Why choose InSuite?",
+    "sub": "Because it is made thinking of you, not for profit. Because it is free, private and made in Spain.",
+    "items": [
+      {
+        "icon": "flag",
+        "title": "Made in Spain",
+        "desc": "The free, no-install, free of charge and 100% compatible office created in Spain for Spain."
+      },
+      {
+        "icon": "shield",
+        "title": "100% Private",
+        "desc": "Nothing is uploaded to the server. Everything stays in your browser. We comply with the strictest European and Spanish privacy regulations by not collecting a single piece of data."
+      },
+      {
+        "icon": "cloud",
+        "title": "No installation needed",
+        "desc": "Everything works in the browser, you only need a file explorer to upload documents and a browser to use the editor."
+      }
+    ]
+  },
+  "editors": {
+    "h2": "Professional Tools",
+    "sub": "Powerful desktop editors, now in your browser. 100% compatible with your usual files.",
+    "items": [
+      {
+        "name": "Documents",
+        "desc": "Compatible with .docx. The same power as Microsoft Word, but a thousand times better than Google Docs."
+      },
+      {
+        "name": "Spreadsheets",
+        "desc": "Compatible with .xlsx. Realize complex analysis and formulas with total compatibility."
+      },
+      {
+        "name": "Presentations",
+        "desc": "Compatible with .pptx. Create impactful slides directly in your browser."
+      }
+    ],
+    "plugins": {
+      "name": "Plugins",
+      "desc": "Translation, local AI, spell check and more. Customize your office with our catalog."
+    }
+  },
+  "comparison": {
+    "h2": "Honest Comparison",
+    "sub": "The best way for you to see why InSuite is the best option is by comparing it with the rest of the options in the market.",
+    "cols": ["Suite", "Privacy", "Auditable", "Compatibility", "No Install", "Price", "Key Differences"],
+    "local": "Local",
+    "free": "Free",
+    "rows": [
+      {
+        "name": "InSuite",
+        "logo": "/img/64.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 5,
+        "install": false,
+        "price": "Free",
+        "diff": "Supports Export PDF, IndexedDB",
+        "featured": true
+      },
+      {
+        "name": "Ziziyi Office",
+        "logo": "https://hosted.inled.es/ziziyi-office-insuite.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 5,
+        "install": false,
+        "price": "Freemium",
+        "diff": "Cannot export to PDF. No browser saving.",
+        "featured": false
+      },
+      {
+        "name": "OnlyOffice",
+        "logo": "https://hosted.inled.es/onlyoffice-insuite.png",
+        "privacy": "Cloud",
+        "auditable": false,
+        "comp": 5,
+        "install": true,
+        "price": "Freemium",
+        "diff": "Certain components are not auditable.",
+        "featured": false
+      },
+      {
+        "name": "LibreOffice",
+        "logo": "https://hosted.inled.es/libreoffice-insuite.png",
+        "privacy": "Local",
+        "auditable": true,
+        "comp": 3,
+        "install": true,
+        "price": "Free",
+        "diff": "Paltry interface, installation needed, low compatibility",
+        "featured": false
+      },
+      {
+        "name": "MS Office",
+        "logo": "https://hosted.inled.es/microslop-insuite.png",
+        "privacy": "Low (Cloud)",
+        "auditable": false,
+        "comp": 5,
+        "install": true,
+        "price": "Subscription",
+        "diff": "Proprietary, expensive, data spying",
+        "featured": false
+      }
+    ]
+  },
+  "about": {
+    "h2": "About Inled Group",
+    "p": "Inled Group is a software brand focused on privacy, Spanish technological sovereignty and local AI. We use free technologies, AI agents to develop and we are fans of Linux.",
+    "stats": [
+      {
+        "value": "100%",
+        "label": "Private"
+      },
+      {
+        "value": "Libre",
+        "label": "Free Open Source"
+      },
+      {
+        "value": "ES",
+        "label": "Made in Spain"
+      }
+    ]
+  },
+  "cta": {
+    "h2": "It's time, you decide.",
+    "sub": "Don't let your data stay in storage, be charged for simply editing documents, be forced to install something or be made to go through foreign countries' regulations.",
+    "start": "Start Now",
+    "code": "Review the code",
+    "note": "By using InSuite, you are using free, private and Spanish software"
   }
 }

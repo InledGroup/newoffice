@@ -13,6 +13,7 @@ import { releaseWasmBinary } from './guards/wasm-binary-release';
 import { installSingleUnloadPrompt } from './guards/unload-prompt';
 import { installHintFallbackGuard } from './guards/hint-fallback';
 import { installAboutSourceNotice } from './guards/about-source';
+import { installHomeBrand } from './guards/brand';
 import { installBadImageUrlGuard } from './guards/bad-image-url';
 import { installX2tWorkerProxy } from './guards/x2t-worker';
 
@@ -60,6 +61,7 @@ export function prepareEditorIframe(): boolean {
       installBadImageUrlGuard(win);
       const x2tWorkerProxied = installX2tWorkerProxy(win);
       installAboutSourceNotice(doc);
+      installHomeBrand(doc);
       const wasmBinaryHandled = releaseWasmBinary(win);
 
       if (

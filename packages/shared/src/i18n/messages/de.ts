@@ -79,13 +79,13 @@ export const de: Partial<I18nMessages> = {
   agentToolErrorPrefix: 'Werkzeugfehler: ',
   autosaveStopped:
     'Automatisches Speichern angehalten: In diesem Browser ist kein Speicherplatz mehr frei. Exportieren Sie dieses Dokument und löschen Sie dann einige ältere aus Ihren gespeicherten Dokumenten.',
+  autosaveWorking: 'Ihre Arbeit wird in diesem Browser gespeichert',
   historyTitle: 'Gespeicherte Dokumente',
   historyIntro:
     'Kopien der Dokumente, die Sie bearbeitet haben – in diesem Browser auf diesem Gerät, damit ein Neuladen, ein geschlossener Tab oder ein Absturz die Arbeit nicht kostet. Nichts davon wurde hochgeladen.',
   historyColDocument: 'Dokument',
   historyColEdited: 'Zuletzt bearbeitet',
   historyColSize: 'Größe',
-  historyColExpires: 'Wird gelöscht',
   historyNotBackup:
     'Diese Kopien sind dazu da, angefangene Arbeit wieder aufzunehmen. Sie sind keine Sicherung – exportieren Sie alles, was Sie behalten möchten.',
   historySearchPlaceholder: 'Nach Dateiname suchen',
@@ -109,10 +109,7 @@ export const de: Partial<I18nMessages> = {
   historyAutosaveOff:
     'Automatisches Speichern ist aus: Was Sie jetzt bearbeiten, wird nicht gespeichert und geht beim Schließen der Seite verloren.',
   historyRetention:
-    'Jedes Dokument wird 7 Tage nach der letzten Bearbeitung oder Öffnung automatisch gelöscht. Sie können hier auch selbst löschen – das wirkt sofort.',
-  historyExpiresIn: 'noch {days} Tage',
-  historyExpiresInOne: 'noch 1 Tag',
-  historyExpiresToday: 'heute',
+    'Nichts hier löscht sich nach Zeit. Ein Dokument bleibt, bis Sie es selbst löschen oder die Liste leeren; die einzige automatische Ausnahme ist, wenn diesem Browser der Speicher ausgeht – dann geht das Dokument, das Sie am längsten nicht geöffnet haben.',
   historyDownload: 'Herunterladen',
   historyDownloadFailed: 'Diese Kopie konnte nicht auf der Festplatte gespeichert werden.',
   historyOnlyUnsaved: 'Nicht exportiert',
@@ -126,4 +123,28 @@ export const de: Partial<I18nMessages> = {
   historyClearSearch: 'Suche zurücksetzen',
   historyDeleteTitle: 'Dieses Dokument löschen',
   historyClearTitle: 'Alles löschen',
+
+  // /home -- la página de inicio de la aplicación.
+  homeNew: 'Neu',
+  homeDocument: 'Dokument',
+  homeSpreadsheet: 'Tabelle',
+  homePresentation: 'Präsentation',
+  homePdf: 'PDF',
+  homeChooseFile: 'Datei auswählen',
+  homeDropHere: 'Datei hier ablegen',
+  homeDropHint: 'Ziehen Sie Ihr Office-Dokument hierher oder klicken Sie, um auf Ihrem Computer zu suchen',
+  homeSupports: 'Unterstützt: DOCX, DOC, XLSX, XLS, PPTX, PPT, PDF',
+  homeRecent: 'Zuletzt verwendet',
+  homeRecentLoading: 'Zuletzt verwendete Dateien werden geladen…',
+  homeRecentEmpty: 'Keine zuletzt verwendeten Dateien',
+  homeRecentEmptyHint: 'Dateien, die Sie öffnen, erscheinen hier für den schnellen Zugriff',
+  homeReopenTip: 'Klicken, um diese Datei erneut zu öffnen',
+  homeRemoveRecent: 'Aus „Zuletzt verwendet“ entfernen',
+  homeNavOpen: 'Öffnen',
+  homeNavSaved: 'Gespeicherte Dokumente',
+  homeNavHelp: 'Hilfe',
+  homeNavAbout: 'Über',
+  homeDropOverlay: 'Zum Öffnen ablegen',
+  homeDropOverlayHint: 'Word, Excel, PowerPoint und mehr',
+  homeNoScript: 'Diese Seite benötigt JavaScript, um die in Ihrem Browser gespeicherten Dokumente zu lesen.',
 };

@@ -65,8 +65,10 @@ test.describe('ONLYOFFICE branding (AGPL-3.0 Section 7(b))', () => {
     });
 
     expect(logo.hidden, 'the ONLYOFFICE header logo must not be hidden -- see NOTICE').toBe(false);
-    // Painted, not a zero-sized element that merely exists in the DOM.
-    expect(logo.image).toContain('header-logo');
+    // Painted, not a zero-sized element that merely exists in the DOM. Which
+    // variant is the theme's choice: the dark chrome paints dark-logo_s.svg,
+    // light chrome paints header-logo_s.svg -- both are the product mark.
+    expect(logo.image).toMatch(/(header|dark)-logo_s\.svg/);
     expect(logo.width).toBeGreaterThan(20);
     expect(logo.height).toBeGreaterThan(8);
   });
@@ -101,7 +103,7 @@ test.describe('ONLYOFFICE branding (AGPL-3.0 Section 7(b))', () => {
 
     expect(notice.height).toBeGreaterThan(0);
     expect(notice.text).toContain('not an official ONLYOFFICE product');
-    expect(notice.href).toBe('https://github.com/ranuts/document');
+    expect(notice.href).toBe('https://github.com/InledGroup/newoffice');
   });
 });
 

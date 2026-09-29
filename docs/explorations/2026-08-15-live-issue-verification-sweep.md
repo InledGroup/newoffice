@@ -1,7 +1,7 @@
 # v9 上线后 issue 验证清单实测（线上）
 
 日期：2026-08-15
-对象：https://edit.chaxus.com/ （main 已替换为 v9，`a4a58d5`）
+对象：https://office.inled.es/ （main 已替换为 v9，`a4a58d5`）
 方法：chrome-devtools MCP 驱动真实浏览器 + 隔离 profile（模拟首次访问），
 经线上 embed-demo.html 的 postMessage API 与编辑器 iframe 内部 API 验证。
 

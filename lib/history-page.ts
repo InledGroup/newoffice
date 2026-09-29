@@ -10,6 +10,24 @@
  * The page is an app surface, not a landing page: no per-language HTML file,
  * no sitemap entry, noindex. Its language follows the app's i18n the way the
  * editor's does.
+ *
+ * The frame is not this page's. It is built in lib/app-shell.ts and drawn by
+ * styles/app-shell.css, because /home is built in the same one and the two are
+ * reached from each other: the rail's "Saved documents" is how you get here, and
+ * the recent list's "Saved documents" is how you get back. So the rail, the
+ * card, the document rows, the phone bar and the drop-anywhere overlay are one
+ * implementation, and what is left in this file is the library: the search, the
+ * one filter, the pager, and the settings that govern the whole store.
+ *
+ * One consequence of sharing the frame is worth stating, because it moved a
+ * control: the autosave switch and the delete-everything used to sit in a rail
+ * beside the list. They are now the card's last section. That is not a
+ * demotion -- the rail is hidden below the breakpoint, and these are controls
+ * rather than navigation, so a version of this page that put them in the rail
+ * would lose them on a phone. Putting them at the foot of the card means they
+ * are where they were on a phone all along, and where the reading of the page
+ * has always put a decision about all of it: below the list, never beside the
+ * search box, where "delete everything" is a mis-click waiting to happen.
  */
 import 'ranui/button';
 import 'ranui/input';
@@ -18,14 +36,13 @@ import 'ranui/message';
 import { Div, View } from 'ranui/builder';
 import '../styles/history.css';
 import { saveFileToDisk } from 'ranuts/utils';
-import { applyDocumentLanguage, getLanguage, localeHomePath, t, withLocale } from '@ranuts/shared/i18n';
+import { applyDocumentLanguage, t } from '@ranuts/shared/i18n';
 import { getDocumentMimeType } from '@ranuts/shared/document-utils';
-import { formatRelativeTime } from './history/recovery';
-import { clearAllHistory, deleteDoc, getLatestSnapshot, historyUsage, listDocs, pruneExpired } from './history/store';
-import { stashPendingFile } from './pending-open';
+import { clearAllHistory, deleteDoc, getLatestSnapshot, historyUsage, listDocs } from './history/store';
 import { isAutosaveEnabled, setAutosaveEnabled } from './history/autosave';
-import { daysUntilExpiry, hasUnsavedWork, type HistoryDoc } from './history/types';
+import { type HistoryDoc } from './history/types';
 import { confirmDialog } from './confirm-dialog';
+import { card, docRow, emptyState, mountBarActions, mountShell, pickFile, section } from './app-shell';
 
 const SEARCH_DEBOUNCE_MS = 200;
 
@@ -100,112 +117,40 @@ async function downloadDoc(doc: HistoryDoc): Promise<void> {
   }
 }
 
-/** Ask for a document and hand it to the editor through the IndexedDB handoff. */
-function pickAndOpenFile(): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  // Same list the app's own picker offers (lib/document.ts).
-  input.accept = '.docx,.xlsx,.pptx,.doc,.xls,.ppt,.csv,.pdf';
-  input.style.display = 'none';
-  input.addEventListener('change', () => {
-    const file = input.files?.[0];
-    input.remove();
-    if (!file) return;
-    void stashPendingFile(file).then((stashed) => {
-      window.location.href = stashed ? '/editor?open=local' : '/editor';
-    });
-  });
-  document.body.appendChild(input);
-  input.click();
-}
-
 function buildRow(doc: HistoryDoc, refresh: () => void): HTMLElement {
-  const days = daysUntilExpiry(doc);
-  const expiry =
-    days === 0
-      ? t('historyExpiresToday')
-      : days === 1
-        ? t('historyExpiresInOne')
-        : t('historyExpiresIn', { days: String(days) });
-  // The countdown is the only thing on this page with a deadline, and it is
-  // the last day that matters: printed in the same grey as the file size, "1
-  // day left" reads like a fact rather than like a prompt to do something.
-  const expiryUrgent = days <= 1;
-
-  // Title line: what it is called, plus the one status worth interrupting for.
-  const titleLine = Div()
-    .class('history-row-title-line')
-    .children(
-      View('a')
-        .class('history-row-title history-open')
-        // Carry the language: this page knows which one it is in, and the
-        // editor should not have to guess it again from the browser.
-        .attr('href', withLocale(`/editor?saved=${encodeURIComponent(doc.id)}`, getLanguage()))
-        .text(doc.title)
-        .build(),
-      ...(hasUnsavedWork(doc)
-        ? [
-            Div()
-              .class('history-badge')
-              .children(View('i').class('history-dot').build(), View('span').text(t('historyUnsaved')).build())
-              .build(),
-          ]
-        : []),
-    )
-    .build();
-
-  // Facts line: read as one sentence, separated rather than aligned. Nobody
-  // compares 51 KB with 180 KB down a column; they look for their document.
-  const facts = Div()
-    .class('history-row-facts')
-    .children(
-      ...(
-        [
-          ['fact-time', formatRelativeTime(doc.updatedAt)],
-          ['fact-size', formatBytes(doc.size)],
-          ['fact-expiry' + (expiryUrgent ? ' fact-expiry-urgent' : ''), expiry],
-        ] as Array<[string, string]>
-      ).map(([kind, text]) => View('span').class(kind).text(text).build()),
-    )
-    .build();
-
-  return Div()
-    .class('history-row')
-    .data('id', doc.id)
-    .children(
-      Div().class('history-kind').text(doc.ext.toUpperCase()).build(),
-      Div().class('history-row-main').children(titleLine, facts).build(),
-      Div()
-        .class('history-row-actions')
-        .children(
-          // Getting the work out is the reason most people open this page, and
-          // until now the only way was to open the editor and save from there.
-          // The bytes are already in IndexedDB; this writes them straight to
-          // disk (File System Access where available, download elsewhere).
-          button(
-            t('historyDownload'),
-            () => {
-              void downloadDoc(doc);
-            },
-            { type: 'text', class: 'history-download' },
-          ),
-          button(
-            t('historyDelete'),
-            () => {
-              void confirmDialog({
-                title: t('historyDeleteTitle'),
-                body: t('historyDeleteConfirm', { title: doc.title }),
-                confirmLabel: t('historyDelete'),
-                cancelLabel: t('historyCancel'),
-                danger: true,
-              }).then((ok) => (ok ? deleteDoc(doc.id).then(refresh) : undefined));
-            },
-            { type: 'text', class: 'history-delete' },
-          ),
-        )
-        .build(),
-    )
-    .build();
+  return docRow(doc, {
+    className: 'history-row',
+    // `history-open` is the row's title as an action, and the name the e2e spec
+    // reaches it by; `history-badge` is the "only copy is here" flag it checks.
+    titleClass: 'history-row-title history-open',
+    badgeClass: 'history-badge',
+    // Size is worth a reader's time in a library of two hundred and not in the
+    // eight on /home, which is the only other place this row is drawn.
+    size: formatBytes(doc.size),
+    actions: [
+      // Getting the work out is the reason most people open this page, and
+      // until now the only way was to open the editor and save from there. The
+      // bytes are already in IndexedDB; this writes them straight to disk (File
+      // System Access where available, download elsewhere).
+      {
+        label: t('historyDownload'),
+        className: 'history-download',
+        icon: 'i-download',
+        onClick: () => void downloadDoc(doc),
+      },
+    ],
+    removeLabel: t('historyDelete'),
+    removeClass: 'history-delete',
+    onRemove: () => {
+      void confirmDialog({
+        title: t('historyDeleteTitle'),
+        body: t('historyDeleteConfirm', { title: doc.title }),
+        confirmLabel: t('historyDelete'),
+        cancelLabel: t('historyCancel'),
+        danger: true,
+      }).then((ok) => (ok ? deleteDoc(doc.id).then(refresh) : undefined));
+    },
+  });
 }
 
 function buildToolbar(refresh: () => void): HTMLElement {
@@ -240,7 +185,7 @@ function buildToolbar(refresh: () => void): HTMLElement {
       page = 1;
       refresh();
     })
-    .children(View('i').class('history-dot').build(), View('span').text(t('historyOnlyUnsaved')).build())
+    .children(View('i').class('app-dot history-dot').build(), View('span').text(t('historyOnlyUnsaved')).build())
     .build();
 
   return Div().class('history-toolbar').children(search, filter).build();
@@ -293,10 +238,6 @@ function buildAutosaveToggle(refresh: () => void): HTMLElement {
 }
 
 async function render(): Promise<void> {
-  // Sweep before reading: a row the user is shown must not be one the seven-day
-  // rule already deleted, and this page is the most likely thing to be open
-  // when that boundary is crossed.
-  await pruneExpired();
   const [{ items, total, page: current, pageSize }, usage] = await Promise.all([
     listDocs({ query, page, unsavedOnly }),
     historyUsage(),
@@ -306,161 +247,96 @@ async function render(): Promise<void> {
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const refresh = () => void render();
+  // How much is being kept is a fact about the store, not about the search, so
+  // it sits on the heading's own line rather than beside the search box, where
+  // it competed with the filter for the same row.
+  const usageLine = Div()
+    .class('history-usage')
+    .text(
+      total
+        ? `${t('historyCount', { count: String(total) })} · ${t('historyUsage', { size: formatBytes(usage) })}`
+        : '',
+    )
+    .build();
 
-  const header = Div()
-    .class('history-header')
-    .children(
-      // chip -> title -> intro: the homepage hero's own opening, so the page a
-      // visitor reaches from it is recognisably the same product rather than
-      // an admin screen that happens to share a header.
+  const narrowed = !!query || unsavedOnly;
+  const list = items.length
+    ? Div()
+        .class('app-list history-list')
+        .id('history-list')
+        .children(...items.map((doc) => buildRow(doc, refresh)))
+        .build()
+    : emptyState(
+        'i-folder',
+        narrowed ? t('historyEmptySearchTitle') : t('historyEmptyTitle'),
+        narrowed ? t('historyEmptySearch') : t('historyEmpty'),
+        button(
+          narrowed ? t('historyClearSearch') : t('historyOpenFile'),
+          () => {
+            if (!narrowed) {
+              pickFile();
+              return;
+            }
+            query = '';
+            unsavedOnly = false;
+            page = 1;
+            refresh();
+          },
+          {
+            type: narrowed ? 'text' : 'primary',
+            id: narrowed ? undefined : 'history-open-file',
+            class: 'history-empty-action',
+          },
+        ),
+        { className: 'history-empty', id: 'history-empty' },
+      );
+
+  mountShell(
+    root(),
+    'history',
+    card(
+      // chip -> title -> intro: the opening the homepage's own hero uses, so the
+      // page a visitor reaches from it is recognisably the same product rather
+      // than an admin screen that happens to share a header.
       Div()
         .class('history-chip')
         .children(View('i').class('history-chip-dot').build(), View('span').text(t('historyChip')).build())
         .build(),
-      Div()
-        .class('history-title-row')
-        .children(
-          View('h1').class('history-title').text(t('historyTitle')).build(),
-          Div()
-            .class('history-header-actions')
-            .children(
-              button(
-                t('historyBack'),
-                () => {
-                  // Back to the homepage the reader came from, not to English.
-                  window.location.href = localeHomePath(getLanguage());
-                },
-                { type: 'text', class: 'history-back' },
-              ),
-            )
-            .build(),
-        )
-        .build(),
-      View('p').class('history-intro').text(t('historyIntro')).build(),
-    )
-    .build();
-
-  const list = items.length
-    ? Div()
-        .class('history-list')
-        .id('history-list')
-        .children(...items.map((doc) => buildRow(doc, refresh)))
-        .build()
-    : Div()
-        .class('history-empty')
-        .id('history-empty')
-        .children(
-          Div()
-            .class('history-empty-mark')
-            .text(query || unsavedOnly ? '⌕' : '⌂')
-            .attr('aria-hidden', 'true')
-            .build(),
-          Div()
-            .class('history-empty-title')
-            .text(query || unsavedOnly ? t('historyEmptySearchTitle') : t('historyEmptyTitle'))
-            .build(),
-          Div()
-            .class('history-empty-body')
-            .text(query || unsavedOnly ? t('historyEmptySearch') : t('historyEmpty'))
-            .build(),
-          query || unsavedOnly
-            ? button(
-                t('historyClearSearch'),
-                () => {
-                  query = '';
-                  unsavedOnly = false;
-                  page = 1;
-                  refresh();
-                },
-                { type: 'text', class: 'history-empty-action' },
-              )
-            : // "Back to the homepage" made the reader take the long way round to
-              // the thing they came to do. This page cannot open a document
-              // itself -- it deliberately does not load the editor bundle --
-              // so it hands the file to the editor the same way the static
-              // landing pages do (lib/pending-open.ts).
-              button(
-                t('historyOpenFile'),
-                () => {
-                  pickAndOpenFile();
-                },
-                { type: 'primary', id: 'history-open-file', class: 'history-empty-action' },
-              ),
-        )
-        .build();
-
-  /**
-   * Everything that is about the feature rather than about one document:
-   * the switch that governs it, the single destructive action, and the rules
-   * they operate under.
-   *
-   * On a wide screen this is a rail beside the list -- the same shape the
-   * content pages use, and the reason the page can now afford the site's wide
-   * frame: the space to the right of a file name used to be dead. Below the
-   * breakpoint the rail is not hidden (unlike the rail on an article page,
-   * these are controls, not navigation) -- it falls to the bottom of the
-   * column, which is where it already was.
-   */
-  const rail = View('aside')
-    .class('history-rail')
-    .children(
-      // How much is being kept is a fact about the store, not about the
-      // search, so it sits at the top of the rail rather than beside the
-      // search box, where it competed with the filter for the same row.
-      Div()
-        .class('history-usage')
-        .text(
-          total
-            ? `${t('historyCount', { count: String(total) })} · ${t('historyUsage', { size: formatBytes(usage) })}`
-            : '',
-        )
-        .build(),
-      Div()
-        .class('history-rail-block')
-        .children(
-          Div().class('history-rail-label').text(t('historyRailSettings')).build(),
-          buildAutosaveToggle(refresh),
-          ...(isAutosaveEnabled()
-            ? []
-            : [Div().class('history-note history-note-warn').text(t('historyAutosaveOff')).build()]),
-          button(
-            t('historyClearAll'),
-            () => {
-              void confirmDialog({
-                title: t('historyClearTitle'),
-                body: t('historyClearConfirm'),
-                confirmLabel: t('historyClearAll'),
-                cancelLabel: t('historyCancel'),
-                danger: true,
-              }).then((ok) => (ok ? clearAllHistory().then(refresh) : undefined));
-            },
-            { type: 'text', id: 'history-clear-all', class: 'history-clear' },
-          ),
-        )
-        .build(),
-      Div()
-        .class('history-rail-block')
-        .children(
-          Div().class('history-rail-label').text(t('historyRailRetention')).build(),
-          Div().class('history-note').text(t('historyRetention')).build(),
-          Div().class('history-note').text(t('historyNotBackup')).build(),
-        )
-        .build(),
-    )
-    .build();
-
-  const pageEl = Div()
-    .class('history-shell')
-    .children(
-      Div()
-        .class('history-page')
-        .children(header, buildToolbar(refresh), list, ...(pages > 1 ? [buildPager(page, pages, refresh)] : []))
-        .build(),
-      rail,
-    )
-    .build();
-
-  root().replaceChildren(pageEl);
+      section(
+        t('historyTitle'),
+        [
+          View('p').class('history-intro').text(t('historyIntro')).build(),
+          buildToolbar(refresh),
+          list,
+          ...(pages > 1 ? [buildPager(page, pages, refresh)] : []),
+        ],
+        { tag: 'h1', titleClass: 'history-title', action: usageLine },
+      ),
+      section(t('historyRailSettings'), [
+        buildAutosaveToggle(refresh),
+        ...(isAutosaveEnabled()
+          ? []
+          : [Div().class('history-note history-note-warn').text(t('historyAutosaveOff')).build()]),
+        button(
+          t('historyClearAll'),
+          () => {
+            void confirmDialog({
+              title: t('historyClearTitle'),
+              body: t('historyClearConfirm'),
+              confirmLabel: t('historyClearAll'),
+              cancelLabel: t('historyCancel'),
+              danger: true,
+            }).then((ok) => (ok ? clearAllHistory().then(refresh) : undefined));
+          },
+          { type: 'text', id: 'history-clear-all', class: 'history-clear' },
+        ),
+      ]),
+      section(t('historyRailRetention'), [
+        Div().class('history-note').text(t('historyRetention')).build(),
+        Div().class('history-note').text(t('historyNotBackup')).build(),
+      ]),
+    ),
+  );
 }
 
 /**
@@ -491,5 +367,6 @@ function syncPageChrome(): void {
 
 applyDocumentLanguage();
 syncPageChrome();
+mountBarActions();
 readUrl();
 void render();

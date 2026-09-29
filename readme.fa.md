@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 <p align="center">
@@ -29,7 +29,7 @@
 کارسازی در میان نیست: موتور OnlyOffice و مبدل WASM آن روی دستگاه خود کاربر اجرا می‌شوند،
 بنابراین سندها هرگز بارگذاری نمی‌شوند و به هیچ حسابی هم نیاز نیست.
 
-**نشانی سایت: [edit.chaxus.com](https://edit.chaxus.com/)**
+**نشانی سایت: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -48,7 +48,7 @@
 
 ## 🚀 شروع سریع
 
-**همین‌طور استفاده کنید:** [edit.chaxus.com](https://edit.chaxus.com/) — چیزی برای نصب نیست.
+**همین‌طور استفاده کنید:** [office.inled.es](https://office.inled.es/) — چیزی برای نصب نیست.
 
 **میزبانی خودتان با Docker:**
 
@@ -117,7 +117,7 @@ pnpm run dev
 - **هفت روز، و بعد رفته.** هر سند هفت روز پس از آخرین ویرایش یا باز کردنش خودبه‌خود پاک
   می‌شود، چه برگردید و چه برنگردید.
 
-[`/history`](https://edit.chaxus.com/history) آنچه را ذخیره شده فهرست می‌کند؛ در هر سطر
+[`/history`](https://office.inled.es/history) آنچه را ذخیره شده فهرست می‌کند؛ در هر سطر
 دکمهٔ پاک کردن هست، یک «پاک کردن همه» و کلیدی برای خاموش کردن کامل ذخیرهٔ خودکار. پاک کردن
 از آنجا بی‌درنگ اثر می‌کند. روی رایانهٔ مشترک، همین صفحه جایی است که باید سر بزنید.
 

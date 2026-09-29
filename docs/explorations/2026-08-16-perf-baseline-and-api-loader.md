@@ -1,7 +1,7 @@
 # 性能基线 + 首页去掉渲染阻塞的 api.js（2026-08-16）
 
 路线图第 9 项（方向四 2 前半）。方法：chrome-devtools MCP 直接打线上
-edit.chaxus.com，冷 profile、无节流，performance trace + 逐帧
+office.inled.es，冷 profile、无节流，performance trace + 逐帧
 `performance.getEntriesByType('resource')`。数字与结论已写进路线图方向四 2
 "基线"小节，这里只记过程与首刀。
 

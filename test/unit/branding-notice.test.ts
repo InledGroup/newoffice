@@ -59,10 +59,28 @@ describe('ONLYOFFICE product logo (AGPL-3.0 Section 7(b))', () => {
     );
   });
 
+  it("is joined by this site's own mark, as the primary link home", () => {
+    const brand = read('lib/onlyoffice/guards/brand.ts');
+    // Ours is the one that navigates; the vendor mark is deliberately not a link.
+    expect(brand).toContain('/home');
+    expect(brand).toContain('https://hosted.inled.es/cdn/insuite.svg');
+    // Mounted, or it is a file nothing runs.
+    expect(read('lib/onlyoffice/iframe-guards.ts')).toContain('installHomeBrand(doc)');
+  });
+
+  it('is scaled down but not hidden by that same guard', () => {
+    const brand = read('lib/onlyoffice/guards/brand.ts');
+    // The one forbidden move. Sizing the vendor mark is allowed and intended;
+    // hiding it is the Section 7(b) violation this whole suite exists for.
+    expect(brand, 'the brand guard must never hide the header logo -- see NOTICE').not.toContain('display: none');
+    // The guard's rule has to be about the mark inside the logo box.
+    expect(brand).toContain('#header-logo i');
+  });
+
   it("is joined in the About pane by this build's own source offer (AGPL-3.0 Section 13)", () => {
     const guard = read('lib/onlyoffice/guards/about-source.ts');
     expect(guard).toContain('about-menu-panel');
-    expect(guard).toContain('https://github.com/ranuts/document');
+    expect(guard).toContain('https://github.com/InledGroup/newoffice');
     expect(guard).toMatch(/not an official ONLYOFFICE product/);
     // Mounted, or it is a file nothing runs.
     expect(read('lib/onlyoffice/iframe-guards.ts')).toContain('installAboutSourceNotice(doc)');

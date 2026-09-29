@@ -1,6 +1,6 @@
 ---
 title: About — who builds this document editor and why
-description: Who is behind edit.chaxus.com, what it does, how it is built, and where the source code lives. An open-source (AGPL-3.0) in-browser editor for Word, Excel, PowerPoint, CSV and PDF files that never uploads your documents.
+description: Who is behind office.inled.es, what it does, how it is built, and where the source code lives. An open-source (AGPL-3.0) in-browser editor for Word, Excel, PowerPoint, CSV and PDF files that never uploads your documents.
 eyebrow: About
 breadcrumb: About
 h1: About this editor

@@ -9,7 +9,6 @@ import {
   getDoc,
   getLatestSnapshot,
   historyUsage,
-  pruneExpired,
   listDocs,
   markOpened,
   markSavedToDisk,
@@ -17,7 +16,7 @@ import {
   resetHistoryClockForTests,
   storageBudget,
 } from '../../lib/history/store';
-import { MAX_AGE_MS, daysUntilExpiry, hasUnsavedWork } from '../../lib/history/types';
+import { hasUnsavedWork } from '../../lib/history/types';
 
 function bytes(size: number, fill = 65): Uint8Array {
   return new Uint8Array(size).fill(fill);
@@ -184,42 +183,22 @@ describe('history store', () => {
     expect((await listDocs()).items.map((row) => row.title)).toEqual(['New.docx']);
   });
 
-  it('deletes documents that went seven days without being touched', async () => {
-    const stale = await putSnapshot({ title: 'Stale.docx', origin: 'local', bytes: bytes(16) });
-    const fresh = await putSnapshot({ title: 'Fresh.docx', origin: 'local', bytes: bytes(16) });
-
-    // Only Date is faked: faking timers as well would stall fake-indexeddb,
-    // which drives its transactions through the macrotask queue.
-    vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(Date.now() + MAX_AGE_MS + 1000);
-    // Coming back to the fresh one restarts its clock; nobody touched the other.
-    await markOpened(fresh!.id);
-
-    expect(await pruneExpired()).toEqual([stale!.id]);
-    expect(await getDoc(stale!.id)).toBeNull();
-    expect(await getLatestSnapshot(stale!.id)).toBeNull();
-    expect(await getDoc(fresh!.id)).not.toBeNull();
-    vi.useRealTimers();
-  });
-
-  it('sweeps expired documents on the next write, without waiting for a visit', async () => {
+  it('keeps a document for as long as it is there, however long that is', async () => {
+    // The behaviour this file used to assert the opposite of. A document
+    // outliving any fixed window is the promise the site makes now, and it has
+    // to hold on the write path too -- a sweep on the next snapshot is exactly
+    // how a document used to disappear while somebody was still working.
     const stale = await putSnapshot({ title: 'Stale.docx', origin: 'local', bytes: bytes(16) });
 
     vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(Date.now() + MAX_AGE_MS + 1000);
-    await putSnapshot({ title: 'Later.docx', origin: 'local', bytes: bytes(16) });
+    vi.setSystemTime(Date.now() + 400 * 24 * 60 * 60 * 1000);
+    const later = await putSnapshot({ title: 'Later.docx', origin: 'local', bytes: bytes(16) });
 
-    expect(await getDoc(stale!.id)).toBeNull();
-    expect((await listDocs()).items.map((doc) => doc.title)).toEqual(['Later.docx']);
+    expect(await getDoc(stale!.id)).not.toBeNull();
+    expect(await getLatestSnapshot(stale!.id)).not.toBeNull();
+    expect((await listDocs()).items.map((doc) => doc.title).sort()).toEqual(['Later.docx', 'Stale.docx']);
+    expect(later).not.toBeNull();
     vi.useRealTimers();
-  });
-
-  it('counts the days a document has left', async () => {
-    const doc = await putSnapshot({ title: 'Counting.docx', origin: 'local', bytes: bytes(8) });
-
-    expect(daysUntilExpiry(doc!, doc!.updatedAt)).toBe(7);
-    expect(daysUntilExpiry(doc!, doc!.updatedAt + 6.5 * 24 * 60 * 60 * 1000)).toBe(1);
-    expect(daysUntilExpiry(doc!, doc!.updatedAt + MAX_AGE_MS + 1)).toBe(0);
   });
 
   it('marks work as unsaved until the bytes reach the disk', async () => {

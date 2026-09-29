@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 <p align="center">
@@ -29,7 +29,7 @@ Abre y edita archivos de Word, Excel y PowerPoint en una pestaña del navegador.
 servidor: el motor de OnlyOffice y su convertidor WASM se ejecutan en el propio dispositivo
 de quien visita la página, así que los documentos nunca se suben y no hace falta ninguna cuenta.
 
-**Sitio en línea: [edit.chaxus.com](https://edit.chaxus.com/)**
+**Sitio en línea: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -37,7 +37,7 @@ de quien visita la página, así que los documentos nunca se suben y no hace fal
 
 - 🔒 **No se sube nada** — cada conversión, edición y exportación ocurre dentro de la pestaña
 - 📝 **Edición de verdad, no una vista previa** — DOCX, XLSX, PPTX y CSV, además de ODF, RTF, TXT y los antiguos formatos binarios; los PDF se abren y se pueden anotar
-- 🕓 **Nada se pierde al cerrar la pestaña** — lo que editas se guarda solo en tu navegador, se conserva 7 días y puedes borrarlo cuando quieras ([detalles](#-tus-datos-se-quedan-en-tu-dispositivo))
+- 🕓 **Nada se pierde al cerrar la pestaña** — lo que editas se guarda solo en tu navegador, se conserva hasta que lo borres ([detalles](#-tus-datos-se-quedan-en-tu-dispositivo))
 - 📴 **Funciona sin conexión** — se instala como PWA; después de la primera visita no necesita red
 - 🌍 **Multilingüe** — 8 idiomas de interfaz para el sitio y 45 para el editor
 - 🧩 **Integrable** — API completa de postMessage para integrarlo en un iframe
@@ -48,7 +48,7 @@ de quien visita la página, así que los documentos nunca se suben y no hace fal
 
 ## 🚀 Empezar
 
-**Usarlo tal cual:** [edit.chaxus.com](https://edit.chaxus.com/) — nada que instalar.
+**Usarlo tal cual:** [office.inled.es](https://office.inled.es/) — nada que instalar.
 
 **Alojarlo tú con Docker:**
 
@@ -114,10 +114,11 @@ dos puedes borrarlas tú:
   trabajo. Al volver a abrir el editor te lo ofrece de nuevo. Estas copias existen para que
   puedas retomar lo que estabas haciendo: no son una copia de seguridad, así que sigue
   exportando lo que quieras conservar.
-- **Siete días y desaparecen.** Cada documento se borra automáticamente siete días después
-  de la última vez que lo editaste o lo abriste, vuelvas o no.
+- **Nada se borra solo.** Cada documento se queda aquí hasta que lo borres tú o vacíes la
+  lista, por mucho tiempo hace que no lo abras. La única excepción automática es que este
+  navegador se quede sin espacio, y entonces se va el documento que hace más que no abriste.
 
-[`/history`](https://edit.chaxus.com/history) muestra lo que hay guardado, con un botón de
+[`/history`](https://office.inled.es/history) muestra lo que hay guardado, con un botón de
 borrar en cada fila, otro para borrarlo todo y un interruptor para desactivar por completo
 el guardado automático. Borrar ahí surte efecto de inmediato. En un ordenador compartido,
 esa es la página a la que ir.

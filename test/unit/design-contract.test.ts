@@ -34,21 +34,22 @@ function declaration(css: string, selector: string, property: string): string | 
 describe('page width scale', () => {
   const home = read('public/home.css');
   const landing = read('public/landing.css');
-  const history = read('styles/history.css');
+  const appShell = read('styles/app-shell.css');
 
   it('has exactly two widths, and every page that declares one uses them', () => {
     const wide = declaration(home, '#landing-hero', '--maxw');
     const prose = declaration(landing, '.wrap', 'max-width');
     expect(wide, 'wide column').toBe('1152px');
     expect(prose, 'prose column').toBe('720px');
-    // /history takes the same frame as the content pages, and for the same
-    // reason: 1152 was mostly air while the list sat alone in it (236px of
-    // dead space between a file name and the first figure), and it stops
-    // being air once a rail is beside the list.
-    expect(declaration(history, '.history-shell', 'max-width'), 'history frame').toBe(wide);
+    // /home and /history take the same frame as the content pages, and for the
+    // same reason: 1152 was mostly air while a page's content sat alone in it.
+    // It stops being air once the rail is beside it, and it is the one frame
+    // both app pages are built in (styles/app-shell.css), so neither of them
+    // can be resized without the other.
+    expect(declaration(appShell, '.app-shell', 'max-width'), 'app frame').toBe(wide);
   });
 
-  /** Frame 1152, reading column ~660, rail takes the rest. */
+  /** Frame 1152, and the narrower column beside it. */
   function railFrame(css: string, selector: string): { frame: string; column: number } {
     const frame = new RegExp(`${selector.replace('.', '\\.')} \\{([^}]*)\\}`, 'g');
     // The frame's grid lives in a media query, so scan every block with this
@@ -59,24 +60,33 @@ describe('page width scale', () => {
       if (/max-width:\s*1152px/.test(match[1])) outer = match[1];
       if (/grid-template-columns/.test(match[1])) columns = match[1];
     }
-    return { frame: outer, column: Number(/minmax\(0,\s*(\d+)px\)/.exec(columns)?.[1] ?? 0) };
+    // Two shapes for the same idea, and both are "the narrow column": a content
+    // page states it as the flexible track (`minmax(0, 660px)`) beside a `1fr`
+    // rail, the app shell states it as the fixed rail itself (`224px
+    // minmax(0, 1fr)`) with the card taking what is left.
+    const column = /minmax\(0,\s*(\d+)px\)/.exec(columns)?.[1] ?? /grid-template-columns:\s*(\d+)px/.exec(columns)?.[1];
+    return { frame: outer, column: Number(column ?? 0) };
   }
 
   it.each([
-    ['content pages', 'landing.css', '.page'],
-    ['/history', 'history.css', '.history-shell'],
-  ])('%s: a rail beside the column, not a wider column', (_label, file, selector) => {
+    // Frame 1152, reading column ~660, rail takes the rest.
+    ['content pages', 'landing.css', '.page', 600, 680],
+    // Frame 1152, a 224px navigation rail, card takes the rest. The measure
+    // argument does not apply here: neither app page is prose, and the rail is
+    // navigation that has to be the same object on both of them.
+    ['app pages', 'app-shell.css', '.app-shell', 200, 240],
+  ])('%s: a rail beside the column, not a wider column', (_label, file, selector, min, max) => {
     // The wide viewport problem is not "the text is too narrow" -- 720px with
     // 56px gutters puts the measure at 66 characters, dead centre of the band.
     // It is that the page was a single column with nothing beside it. The frame
     // is 1152 (the site's wide width), the reading column is 660 so the measure
     // lands at ~72, and the rail takes the rest. Widening the column to fill
     // the frame would push the measure to 77.
-    const css = file === 'landing.css' ? landing : history;
+    const css = file === 'landing.css' ? landing : appShell;
     const { frame, column } = railFrame(css, selector);
     expect(frame, 'frame is the wide width').toMatch(/max-width:\s*1152px/);
-    expect(column, 'reading column').toBeLessThanOrEqual(680);
-    expect(column, 'reading column').toBeGreaterThanOrEqual(600);
+    expect(column, 'the narrow column beside it').toBeGreaterThanOrEqual(min);
+    expect(column, 'the narrow column beside it').toBeLessThanOrEqual(max);
   });
 
   it('themes the language menu identically in both stylesheets', () => {
@@ -91,7 +101,7 @@ describe('page width scale', () => {
   });
 
   it('bounds prose by characters, not by whatever the container happens to be', () => {
-    const intro = declaration(history, '.history-intro', 'max-width');
+    const intro = declaration(read('styles/history.css'), '.history-intro', 'max-width');
     expect(intro).toMatch(/^\d{2}ch$/);
     expect(Number.parseInt(intro!, 10)).toBeLessThanOrEqual(72);
   });
@@ -132,7 +142,7 @@ describe('page chrome', () => {
 
   /** Every user-facing page: the files on disk, plus the generated ones in memory. */
   const all = [
-    ...[...pages(PUBLIC), resolve(ROOT, 'history.html')].map((file) => ({
+    ...[...pages(PUBLIC), resolve(ROOT, 'history.html'), resolve(ROOT, 'home.html')].map((file) => ({
       label: relative(ROOT, file),
       html: readFileSync(file, 'utf8'),
     })),
@@ -161,6 +171,53 @@ describe('page chrome', () => {
       const shared = /landing\.css/.test(html) || /home\.css/.test(html);
       expect(shared, `${label} links home.css or landing.css`).toBe(true);
     }
+  });
+});
+
+/**
+ * The two app pages are one frame.
+ *
+ * /home and /history are the surfaces a visitor works in, and the rail's
+ * "Saved documents" is how you get from one to the other, so they are built in
+ * the same shell: one stylesheet, one module, one grid. Each page used to draw
+ * its own, and they drifted -- a card on one and a bare column on the other, a
+ * document row in one shape and a different one in the other shape. Copying a
+ * frame is a decision nobody makes on purpose and nobody reviews, so the frame
+ * is shared and these three things are pinned instead: both pages are built in
+ * it, and neither of them is allowed to declare a frame of its own.
+ */
+describe('the app shell', () => {
+  const APP_PAGES: ReadonlyArray<readonly [string, string]> = [
+    ['home.html', 'styles/home-page.css'],
+    ['history.html', 'styles/history.css'],
+  ];
+  const frames = APP_PAGES.map(([name, css]) => [name, read(name), read(css)] as const);
+
+  it.each(frames)('%s is built in the shared frame', (_name, html) => {
+    // Named in the HTML, not only set by the script: the class is what puts the
+    // page in the grid at first paint, and a page that only gets it at runtime
+    // reflows visibly once it arrives.
+    expect(html, 'the app frame is on <main>').toMatch(/<main[^>]*class="[^"]*\bapp-shell\b/);
+  });
+
+  it.each(frames)('%s declares no frame of its own', (name, _html, css) => {
+    // A page's own stylesheet may lay its own content out -- a two-column grid
+    // of editor tiles is a layout, not a frame. What it may not do is decide how
+    // wide the page is, which is most of what makes two app pages look like one.
+    expect(css, `${name} declares no frame width`).not.toMatch(/max-width:\s*1152px/);
+    expect(css, `${name} styles no shell of its own`).not.toMatch(/^\s*\.[a-z-]*shell\b/m);
+  });
+
+  it('is the one place the frame is declared', () => {
+    expect(read('styles/app-shell.css')).toMatch(/max-width:\s*1152px/);
+  });
+
+  it('mounts both pages from one module, not two', () => {
+    // The drift this prevents is not only in CSS: two copies of the rail means
+    // two copies of the list of destinations, and a fifth destination added to
+    // one of them is a link that exists on /home and not on /history.
+    expect(read('lib/home-page.ts')).toMatch(/from '\.\/app-shell'/);
+    expect(read('lib/history-page.ts')).toMatch(/from '\.\/app-shell'/);
   });
 });
 

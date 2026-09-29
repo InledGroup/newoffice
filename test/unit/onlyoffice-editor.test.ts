@@ -476,17 +476,19 @@ describe('onlyoffice-editor', () => {
       expect(config.editorConfig.customization.features.spellcheck).toEqual({ mode: false, change: false });
     });
 
-    it('defaults the interface theme to classic Office light', async () => {
+    it('defaults the interface theme to the modern flat light theme', async () => {
       window.localStorage.removeItem('ui-theme-id');
       const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });
-      expect(config.editorConfig.customization.uiTheme).toBe('theme-classic-light');
+      expect(config.editorConfig.customization.uiTheme).toBe('theme-white');
     });
 
     it('keeps a theme the user already picked inside the editor', async () => {
-      window.localStorage.setItem('ui-theme-id', 'theme-dark');
+      // `theme-night`, not `theme-dark`: the latter is a retired default the
+      // migration wipes, so it could no longer stand in for a user choice.
+      window.localStorage.setItem('ui-theme-id', 'theme-night');
       try {
         const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });
-        expect(config.editorConfig.customization.uiTheme).toBe('theme-dark');
+        expect(config.editorConfig.customization.uiTheme).toBe('theme-night');
       } finally {
         window.localStorage.removeItem('ui-theme-id');
       }
@@ -497,7 +499,7 @@ describe('onlyoffice-editor', () => {
       document.documentElement.setAttribute('data-ran-theme', 'dark');
       try {
         const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });
-        expect(config.editorConfig.customization.uiTheme).toBe('theme-dark');
+        expect(config.editorConfig.customization.uiTheme).toBe('theme-night');
       } finally {
         document.documentElement.removeAttribute('data-ran-theme');
         window.localStorage.removeItem('ui-theme-site-driven');

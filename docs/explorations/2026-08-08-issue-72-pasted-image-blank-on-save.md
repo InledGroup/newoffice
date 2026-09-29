@@ -22,7 +22,7 @@
 最终 docx/xlsx/pptx 的 WASM 转换器）跑在沙盒虚拟文件系统里，理论上没有能力访问
 浏览器的 Blob URL Store。
 
-**后来在生产环境（`edit.chaxus.com`）实测发现：这个"剪贴板截图粘贴 → 立刻保存"
+**后来在生产环境（`office.inled.es`）实测发现：这个"剪贴板截图粘贴 → 立刻保存"
 的简单场景，在修复前的旧代码上就已经工作正常**——用合成 `paste` 事件模拟纯字节
 截图粘贴，保存后图片是好的、尺寸和像素内容都对。这说明第一轮的假设不成立：
 SDK 在处理 `writeFile` 回调时，很可能已经把图片字节直接写进了 `.bin` 内部格式
@@ -94,7 +94,7 @@ Document Server 帮忙抓图，这个项目没有这个服务器。**
 
 ## 第二轮排查过程：真正定位到 `AscCommon.G2`
 
-在生产环境（`edit.chaxus.com`，未部署本次任何修复的旧代码）用 chrome-devtools
+在生产环境（`office.inled.es`，未部署本次任何修复的旧代码）用 chrome-devtools
 MCP 实测复现：
 
 1. 工具栏 "Insert → Image → Image from URL"，填一个真实外部图片 URL（Wikimedia，
@@ -104,7 +104,7 @@ MCP 实测复现：
    说明我们自己这边的 `handleWriteFile` 跑过了。
 3. 但文档里**什么都没插入**，光标停在原地。控制台額外出现 **3 次 404**：
    ```
-   GET https://edit.chaxus.com/web-apps/apps/documenteditor/main/undefined
+   GET https://office.inled.es/web-apps/apps/documenteditor/main/undefined
    ```
    路径里字面意义上的 `undefined`，说明代码某处该填真实路径的变量传成了
    `undefined`。
@@ -164,7 +164,7 @@ URL" patch (#72)` 一组用例（4 条）：`AscCommon` 尚未定义时轮询等
   `{url:'error', path:'error'}` 而不是抛异常；已经打过补丁的 `G2` 不会被重复
   替换。`pnpm run lint:ts && pnpm run format:check && pnpm run test:coverage`
   全绿（296 个单测）。
-- **生产环境（未修复的旧代码）复现**：如上，`edit.chaxus.com` 上确认了
+- **生产环境（未修复的旧代码）复现**：如上，`office.inled.es` 上确认了
   "Image from URL" 图片不显示、且有 3 次 `.../documenteditor/main/undefined`
   404，同时确认目标图片 URL 本身 200（排除 CORS 是这次复现的原因）。
 - **本地 dev server（应用了本次修复）部分验证**：同源拿到 iframe 内的
@@ -190,7 +190,7 @@ SDK 自己的 `Common.UI.LoadMask` 遮罩上（`asc-loadmask-body`，`z-index:11
 真的挡住点击，不是纯装饰），`asc_onDocumentContentReady` 从不触发（挂监听器
 实测等了 85 秒以上都没来）。排除过 Service Worker/缓存脏了、全新隔离浏览器
 上下文、生产构建 `preview` 服务器（三种环境现象一致）。**已确认线上
-`edit.chaxus.com` 完全正常**，所以这不是会影响部署的产品 bug，只是这次没能
+`office.inled.es` 完全正常**，所以这不是会影响部署的产品 bug，只是这次没能
 在本地环境里做完整的"点工具栏 → 看到图片 → 保存 → 检查 zip"端到端验证，
 只能退而求其次用同源 API 直调的方式验证到"补丁本身跑起来没问题"这一层。
 

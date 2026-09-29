@@ -161,7 +161,7 @@ test.describe('local history page', () => {
 
     // The confirmation is the design system's modal now, not the browser's:
     // a page about the user's own documents should not be interrupted by
-    // "edit.chaxus.com says".
+    // "office.inled.es says".
     await page.locator('.history-row', { hasText: 'Drop.docx' }).locator('.history-delete').click();
     await page.locator('r-modal .confirm-ok').click();
 
@@ -171,38 +171,42 @@ test.describe('local history page', () => {
     expect(await readHistoryKeys(page, 'blobs')).toHaveLength(1);
   });
 
-  test('says how long each document has left', async ({ page }) => {
+  test('keeps a document for as long as the browser keeps it', async ({ page }) => {
+    // Well past the seven days this page used to promise, and past the point
+    // where a countdown would have turned the last day red. Nothing about a
+    // document's age is a reason to delete it, so the row says no such thing.
     await seed(page, [
       { id: 'fresh', title: 'Fresh.docx' },
-      { id: 'old', title: 'Old.docx', ageMs: 6.5 * 24 * 60 * 60 * 1000 },
+      { id: 'ancient', title: 'Ancient.docx', ageMs: 400 * 24 * 60 * 60 * 1000 },
     ]);
     await page.reload();
 
-    await expect(page.locator('.history-row', { hasText: 'Fresh.docx' })).toContainText('7 days');
-    await expect(page.locator('.history-row', { hasText: 'Old.docx' })).toContainText('1 day');
-    // And the rule itself, not just its consequence.
-    await expect(page.locator('.history-note').first()).toContainText('7 days');
+    await expect(titles(page)).toHaveText(['Fresh.docx', 'Ancient.docx']);
+    await expect(page.locator('.history-row', { hasText: 'Ancient.docx' })).not.toContainText(/day/i);
+    // The rule itself, not just its consequence: no promise of a deadline.
+    await expect(page.locator('.history-note').first()).not.toContainText(/\d+\s*day/i);
   });
 
-  test('deletes documents past the retention window without being asked', async ({ page }) => {
+  test('deletes nothing on its own, however old the document is', async ({ page }) => {
     await seed(page, [
       { id: 'kept', title: 'Kept.docx' },
-      { id: 'expired', title: 'Expired.docx', ageMs: 8 * 24 * 60 * 60 * 1000 },
+      { id: 'ancient', title: 'Ancient.docx', ageMs: 400 * 24 * 60 * 60 * 1000 },
     ]);
     await page.reload();
 
-    await expect(titles(page)).toHaveText(['Kept.docx']);
+    await expect(titles(page)).toHaveText(['Kept.docx', 'Ancient.docx']);
 
-    // Gone from storage, not merely filtered out of the view.
-    expect(await readHistoryKeys(page, 'docs')).toEqual(['kept']);
+    // Still in storage, not merely filtered out of the view: the only things
+    // that remove a document are the user, the quota, and clearing the lot.
+    expect((await readHistoryKeys(page, 'docs')).sort()).toEqual(['ancient', 'kept']);
   });
 
-  test('the homepage says what autosave keeps, for how long, and where to look', async ({ page }) => {
+  test('the homepage says what autosave keeps, and where to look', async ({ page }) => {
     // Served HTML, not drawn by script: a promise about someone's documents
     // has to hold for a first-time visitor and with JavaScript off.
     await page.goto('/');
-    const line = page.locator('#landing-hero .recent');
-    await expect(line).toContainText('7 days');
+    const line = page.locator('#landing-hero .lp-recent');
+    await expect(line).not.toContainText(/\d+\s*day/i);
     await expect(line.locator('a.recent-all')).toHaveAttribute('href', '/history');
 
     await line.locator('a.recent-all').click();
@@ -284,26 +288,6 @@ test.describe('local history page', () => {
 
     await page.locator('#history-filter-unsaved').click();
     await expect(titles(page)).toHaveCount(2);
-  });
-
-  test('the last day of a document is not printed like every other fact', async ({ page }) => {
-    await seed(page, [
-      { id: 'fresh', title: 'Fresh.docx' },
-      { id: 'last-day', title: 'LastDay.docx', ageMs: 6.5 * 24 * 60 * 60 * 1000 },
-    ]);
-    await page.reload();
-
-    const urgent = page.locator('.history-row', { hasText: 'LastDay.docx' }).locator('.fact-expiry-urgent');
-    await expect(urgent).toHaveText(/1 day/);
-    // Not a class that happens to be there: it has to look different.
-    const [urgentColor, plainColor] = await Promise.all([
-      urgent.evaluate((el) => getComputedStyle(el).color),
-      page
-        .locator('.history-row', { hasText: 'Fresh.docx' })
-        .locator('.fact-expiry')
-        .evaluate((el) => getComputedStyle(el).color),
-    ]);
-    expect(urgentColor).not.toBe(plainColor);
   });
 
   test('an empty library offers the thing to do next, not the way back', async ({ page }) => {

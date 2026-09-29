@@ -59,16 +59,19 @@ test.describe('standalone site (real editor)', () => {
     expect(ooxmlText((await zipEntryText(bytes, 'word/document.xml')) || '')).toContain('main site paragraph typed');
   });
 
-  test('New Excel from the hero creates a blank workbook that saves via Ctrl+S', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('#hero-new-xlsx').click();
+  test('New Excel from the app homepage creates a blank workbook that saves via Ctrl+S', async ({ page }) => {
+    // The hero no longer carries a New button (the InSuite landing has two
+    // calls to action); creating a blank workbook starts from /home, whose
+    // quick actions link to /editor?new=xlsx.
+    await page.goto('/home');
+    await page.locator('.app-quick[data-type="xlsx"]').click();
     await waitForEditorReady(page);
     const frame = page.frameLocator('iframe[name="frameEditor"]');
     const sdk = frame.locator('#editor_sdk');
     await sdk.waitFor({ state: 'visible', timeout: 30_000 });
-    // Interface theme: classic Office look by default (the v9 loader would
-    // otherwise pick the flat theme-white).
-    await expect(frame.locator('body')).toHaveClass(/theme-classic-light/);
+    // Interface theme: the modern flat light theme by default (the v9 loader's
+    // own light default -- not the classic per-app coloured header).
+    await expect(frame.locator('body')).toHaveClass(/theme-white/);
     await sdk.click({ position: { x: 200, y: 150 } });
     await page.keyboard.type('hello', { delay: 60 });
     await page.keyboard.press('Enter');
@@ -80,5 +83,47 @@ test.describe('standalone site (real editor)', () => {
     const bytes = new Uint8Array(readFileSync(await download.path()));
     expect(bytes[0]).toBe(0x50);
     expect((await zipEntryText(bytes, 'xl/sharedStrings.xml')) || '').toContain('hello');
+  });
+
+  test('a browser holding the retired classic theme opens in the modern one', async ({ page }) => {
+    // The regression this pins: theme-classic-light used to be the default we
+    // drove, so browsers from before the retirement hold it in ui-theme-id --
+    // written by the editor persisting the value we sent. To the resolution
+    // logic that read as a deliberate pick, and every open kept the classic
+    // look forever. The one-shot migration clears it; after that, a genuine
+    // in-editor pick sticks (unit-tested), so this is the browser state the
+    // user reported from.
+    // Seed the top frame only: an unfiltered addInitScript runs in the editor
+    // iframe too and re-seeds the key AFTER the page's migration cleared it --
+    // an artifact no real browser has (the real value was written once by the
+    // editor itself, and the migration wipes it before the iframe boots).
+    await page.addInitScript(() => {
+      if (window !== window.top) return;
+      window.localStorage.setItem('ui-theme-id', 'theme-classic-light');
+      window.localStorage.setItem('ui-theme-site-driven', 'theme-classic-light');
+    });
+    await page.goto('/editor?new=docx');
+    await waitForEditorReady(page);
+    const frame = page.frameLocator('iframe[name="frameEditor"]');
+    await expect(frame.locator('body')).toHaveClass(/theme-white/, { timeout: 30_000 });
+  });
+
+  test('a browser holding the retired classic dark opens in the modern dark', async ({ page }) => {
+    // Same leak, and it lived longer: `theme-dark` is the classic family's dark
+    // despite the name, so it was our dark default and stayed on the old look
+    // after the light default went modern. It had to join the retirement set,
+    // not just the default change, or every dark site stayed pinned to a
+    // "preference" the editor wrote for us.
+    await page.addInitScript(() => {
+      if (window !== window.top) return;
+      window.localStorage.setItem('ui-theme-id', 'theme-dark');
+      window.localStorage.setItem('ui-theme-site-driven', 'theme-dark');
+    });
+    // A dark site, so the driven value is the modern dark.
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/editor?new=docx');
+    await waitForEditorReady(page);
+    const frame = page.frameLocator('iframe[name="frameEditor"]');
+    await expect(frame.locator('body')).toHaveClass(/theme-night/, { timeout: 30_000 });
   });
 });

@@ -1,4 +1,4 @@
-/* Landing hero for the homepage (edit.chaxus.com) — native ranui product style.
+/* Landing hero for the homepage (office.inled.es) — native ranui product style.
    home.css holds ONLY page layout/composition (grid, spacing rhythm, type scale,
    responsive) — the things tokens and components can't provide. Every design VALUE
    comes from the ranui token layer (public/ran-tokens.css): colours --ran-color-*,
@@ -93,22 +93,29 @@ body {
    rectangular shadow: a straight line under the button, poking out past both
    rounded ends. Barely visible at ranui's 6px default, obvious at --ran-radius-full.
    Give the host the same radius as the thing it wraps. */
-#landing-hero .cta r-button,
-#landing-hero .cta r-button::part(button) {
-  border-radius: var(--ran-radius-full);
+#landing-hero .lp-cta r-button,
+#landing-hero .lp-cta r-button::part(button) {
+  /* Same shape as the .lp-btn anchors beside it: the pill look is gone from
+     the hero on purpose -- both actions are rectangles with a 12px corner. */
+  border-radius: 12px;
 }
-#landing-hero .cta r-button::part(content) {
-  border-radius: var(--ran-radius-full);
-  padding: var(--ran-space-3) var(--ran-space-6);
-  font-size: 15.5px;
-  font-weight: 600;
+#landing-hero .lp-cta r-button::part(content) {
+  border-radius: 12px;
+  /* Same box as the .lp-btn anchors beside it: two actions, two weights,
+     one size. ranui's own content line-height is 22px, which made this button
+     ~5px shorter than the anchor next to it; 1.65 is the hero's line-height,
+     so both boxes resolve to the same height. */
+  padding: 16px 32px;
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.65;
 }
 
 /* Pre-upgrade fallbacks: the static localized pages register components via
    the deferred /ranui-iife/<name>.iife.js bundles, so :not(:defined) keeps the
    CTAs styled and clickable before (or without) them — progressive enhancement,
    not a parallel hand-built component set. */
-#landing-hero .cta a {
+#landing-hero .lp-cta a {
   text-decoration: none;
 }
 #landing-hero r-button:not(:defined) {
@@ -116,14 +123,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--ran-space-2);
-  padding: var(--ran-space-3) var(--ran-space-6);
-  border-radius: var(--ran-radius-full);
+  padding: 16px 32px;
+  border-radius: 12px;
   border: 1px solid var(--ran-color-border);
   background: var(--ran-color-bg-elevated);
   color: var(--ran-color-text);
-  font-weight: 600;
-  font-size: 15.5px;
-  line-height: 22px; /* matches .ran-btn-content's default line-height */
+  font-weight: 700;
+  font-size: 16.5px;
+  line-height: 1.65; /* same box as .lp-btn and as the upgraded component */
 }
 #landing-hero r-button[type='primary']:not(:defined) {
   background: var(--ran-color-primary);
@@ -255,9 +262,17 @@ body {
   }
 }
 
-/* ---------- top bar ---------- */
+/* ---------- top bar ----------
+   Sticky, translucent, blurred -- the reference chrome (InSuite Office):
+   a white/80 bar with a hairline under it that content scrolls behind. */
 #landing-hero .bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   border-bottom: 1px solid var(--ran-color-border);
+  background: color-mix(in srgb, var(--ran-color-bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 #landing-hero .bar .wrap {
   display: flex;
@@ -275,17 +290,25 @@ body {
   font-size: 16px;
   letter-spacing: -0.01em;
 }
+/* The mark is the hosted Insuite glyph (an <img>, not the old letter tile):
+   no fill behind it, it only has to be square and round its own corners. */
 #landing-hero .brand .logo {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--ran-radius-sm);
-  /* monochrome mark (Geist): ink on page bg, inverts with the theme */
-  background: var(--ran-color-text);
-  display: inline-grid;
-  place-items: center;
-  color: var(--ran-color-bg);
-  font-size: 13px;
-  font-weight: 700;
+  display: inline-block;
+}
+/* Two-line lockup, as in the reference header: name over a whisper-small tagline. */
+#landing-hero .brand .wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+#landing-hero .brand .tagline {
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: 0.7;
+  letter-spacing: 0.02em;
 }
 #landing-hero .bar nav {
   display: flex;
@@ -318,306 +341,136 @@ body {
   flex: none;
 }
 
-/* ---------- hero: copy left, document window right ---------- */
-#landing-hero .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
-  gap: clamp(32px, 5vw, 72px);
-  align-items: center;
-  padding-top: clamp(48px, 7vw, 96px);
-  /* Less than the top: the section below opens with its own clamp(56..104px)
-     of air, and stacking two full-size paddings left a band of nothing between
-     the trust row and the first heading. */
-  padding-bottom: clamp(32px, 4vw, 56px);
+/* ---------- hero: the reference's centred opening ---------- */
+#landing-hero .lp-hero {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 80px) clamp(20px, 5vw, 56px) clamp(48px, 6vw, 96px);
+  text-align: center;
 }
-#landing-hero .chip {
+/* The one local colour on this page: the reference's flag blue. Everything
+   else reads the token layer (light and dark come along for free); the blue
+   below is the same hex the reference hard-codes in its own stylesheet, and it
+   is what buys the likeness. */
+#landing-hero .lp-hero,
+#landing-hero .lp-section {
+  --lp-blue: #43bbfe;
+}
+#landing-hero .lp-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--ran-space-2);
   padding: var(--ran-space-1) var(--ran-space-3);
-  border: 1px solid var(--ran-color-border);
   border-radius: var(--ran-radius-full);
-  /* bordered pill on the plain page bg (Geist badge), no fill */
-  background: transparent;
-  font: 500 12px/1.8 var(--ran-font-mono);
-  color: var(--ran-color-text-secondary);
+  background: color-mix(in srgb, var(--lp-blue) 12%, transparent);
+  color: var(--lp-blue);
+  font-size: 12px;
+  font-weight: 700;
   margin-bottom: var(--ran-space-6);
 }
-#landing-hero .chip b {
-  color: var(--success-text);
-  font-weight: 600;
-}
-#landing-hero .chip .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--ran-radius-full);
-  background: var(--ran-color-success);
-}
-#landing-hero h1 {
+#landing-hero .lp-hero h1 {
   margin: 0;
-  font-size: clamp(36px, 5vw, 64px);
-  /* 1.1, not tighter: the .accent selection paints the full line box, so at
-     1.05 it clips the descenders of the line above (glyphs overlapped). */
+  font-size: clamp(36px, 5.2vw, 60px);
   line-height: 1.1;
-  letter-spacing: -0.045em;
-  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-weight: 800;
   text-wrap: balance;
 }
-/* The key phrase reads as text selected in an editor — the product's own way of
-   emphasising — instead of a plain accent colour.
-   The highlight is a gradient rect inset 0.14em from the fragment's top, not a
-   full background: at tight leading a later line's inline background paints
-   OVER the previous line's descenders (the "g" of "right" was clipped by the
-   next fragment). The inset stays above cap height, so glyph coverage is
-   unchanged while the line above keeps its descenders. */
-#landing-hero h1 .accent {
-  background: linear-gradient(var(--sel), var(--sel)) 0 0.14em / 100% calc(100% - 0.14em) no-repeat;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  padding: 0 0.08em;
-}
-#landing-hero .sub {
-  margin: clamp(18px, 2.2vw, 26px) 0 0;
-  max-width: 46ch;
+/* The flag stamp is gone from the hero. Keep the rule out rather than an
+   empty selector: nothing renders .lp-flag any more. */
+#landing-hero .lp-sub {
+  margin: clamp(18px, 2.2vw, 26px) auto 0;
+  max-width: 44rem;
   font-size: clamp(16.5px, 1.5vw, 19px);
-  color: var(--ran-color-text-secondary);
-}
-/* Four buttons never fit one line in this column, so they always broke 3 + 1 and left the
-   fourth stranded. Give the primary action its own row and let the three "new document"
-   actions sit together underneath: the same two rows, but now they read as a hierarchy
-   (one primary path, three peers) instead of an accident. `max-content` columns keep each
-   button its natural width — a stretched full-width primary would read as a form submit. */
-#landing-hero .cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ran-space-3);
-  margin-top: clamp(24px, 2.8vw, 36px);
-}
-@media (min-width: 700px) {
-  #landing-hero .cta {
-    display: grid;
-    grid-template-columns: repeat(3, max-content);
-    justify-content: start;
-  }
-  #landing-hero .cta > :first-child {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
-}
-#landing-hero .trust {
-  margin-top: var(--ran-space-6);
-  font: 500 12.5px/1.6 var(--ran-font-mono);
-  color: var(--ran-color-text-secondary);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ran-space-1) var(--ran-space-3);
-}
-/* Separators are generated, not authored. Two reasons, and the second is the important one:
-   as their own flex items they could land at the end of a wrapped line, leaving a stranded
-   "·"; as a ::before they belong to the item that follows and wrap with it. And they no
-   longer appear in the DOM text, so a crawler or an LLM reads
-   "0 bytes uploaded no account works offline" instead of that string glued together by
-   decorative punctuation. */
-/* This line carries two different kinds of thing: three claims, and a format list. Giving
-   the list its own row says so, and it also removes the reason the separators kept landing
-   at a line edge — first stranded at the end, then leading the next line once they became
-   ::before. A separator has to sit *between* two items, so whenever the line wraps one of
-   them is at an edge; the fix is to stop the wrap happening between separated items, not to
-   move the separator. Below 700px the claims themselves wrap, so the dots go away entirely
-   and the gap does the separating. */
-#landing-hero .trust > span:last-child {
-  flex-basis: 100%;
-}
-@media (min-width: 700px) {
-  #landing-hero .trust > span:not(:first-child):not(:last-child)::before {
-    content: '·';
-    margin-right: var(--ran-space-3);
-    color: var(--ran-color-border);
-  }
-}
-/* ---------- document window (decorative, pure CSS — runs on static pages too) ---------- */
-#landing-hero .docwin {
-  border: 1px solid var(--ran-color-border);
-  border-radius: var(--ran-radius-lg);
-  background: var(--ran-color-bg-elevated);
-  /* in-flow bordered surface → the quiet elevated tier, not the overlay tier */
-  box-shadow: var(--ran-shadow-elevated);
-  overflow: hidden;
-  font-family: var(--ran-font-mono);
-}
-#landing-hero .dw-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--ran-space-3);
-  padding: var(--ran-space-3) var(--ran-space-4);
-  border-bottom: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-subtle);
-  font-size: 11.5px;
-  color: var(--ran-color-text-secondary);
-}
-#landing-hero .dw-dots {
-  display: inline-flex;
-  gap: 6px;
-  flex: none;
-}
-#landing-hero .dw-dots i {
-  width: 9px;
-  height: 9px;
-  border-radius: var(--ran-radius-full);
-  background: var(--ran-color-border-hover);
-}
-#landing-hero .dw-file {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-#landing-hero .dw-badge {
-  margin-left: auto;
-  flex: none;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--success-text);
-}
-#landing-hero .dw-tabs {
-  display: flex;
-  gap: 3px;
-  padding: var(--ran-space-2) var(--ran-space-4) 0;
-  border-bottom: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-subtle);
-  font-size: 11px;
-}
-#landing-hero .dw-tabs span {
-  padding: 6px 12px;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: var(--ran-radius-sm) var(--ran-radius-sm) 0 0;
-  color: var(--ran-color-text-secondary);
-}
-#landing-hero .dw-tabs .on {
-  position: relative;
-  top: 1px;
-  background: var(--ran-color-bg-elevated);
-  border-color: var(--ran-color-border);
-  color: var(--ran-color-text);
-  font-weight: 600;
-}
-#landing-hero .dw-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 148px;
-  gap: var(--ran-space-4);
-  padding: clamp(18px, 2vw, 28px) var(--ran-space-4);
-}
-#landing-hero .dw-sheet {
-  display: grid;
-  gap: 12px;
-  align-content: start;
-  padding-top: var(--ran-space-1);
-}
-/* skeleton text lines — the surrounding "document" the real line sits in */
-#landing-hero .dw-sheet .dl {
-  height: 9px;
-  border-radius: 3px;
-  background: var(--ran-color-bg-active);
-}
-#landing-hero .dw-sheet .dl.t {
-  height: 15px;
-  width: 52%;
-  border-radius: 4px;
-  background: var(--ran-color-border-hover);
-  margin-bottom: var(--ran-space-2);
-}
-#landing-hero .dw-sheet .w92 {
-  width: 92%;
-}
-#landing-hero .dw-sheet .w85 {
-  width: 85%;
-}
-#landing-hero .dw-sheet .w78 {
-  width: 78%;
-}
-#landing-hero .dw-sheet .w60 {
-  width: 60%;
-}
-#landing-hero .dw-sheet .w70 {
-  width: 70%;
-}
-#landing-hero .dw-sheet .w88 {
-  width: 88%;
-}
-/* second-level heading further down the page: the sheet reads as a document
-   with more than one paragraph, which is what fills the hero's right column --
-   at four skeleton lines the window sat as a small chip against a 700px column
-   of copy. */
-#landing-hero .dw-sheet .dl.t2 {
-  height: 12px;
-  width: 38%;
-  border-radius: 4px;
-  background: var(--ran-color-border-hover);
-  margin: var(--ran-space-3) 0 var(--ran-space-1);
-}
-/* the one real line: selected text + live caret */
-#landing-hero .dw-text {
-  margin: 2px 0;
-  font-size: 13px;
   line-height: 1.7;
-  color: var(--ran-color-text);
-}
-#landing-hero .dw-text mark {
-  background: var(--sel);
-  color: inherit;
-  padding: 2px 0;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-/* A text caret is ink, not an accent — matching what the mocked-up editor would really show.
-   The selection ground below stays blue, because that is what a real editor's selection is. */
-#landing-hero .dw-text .caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.05em;
-  margin-left: 1px;
-  vertical-align: -0.15em;
-  background: var(--ran-color-text);
-}
-/* margin annotation, styled like a review comment */
-#landing-hero .dw-note {
-  align-self: start;
-  border: 1px solid var(--ran-color-border);
-  border-left: 3px solid var(--ran-color-success);
-  border-radius: var(--ran-radius-sm);
-  background: var(--ran-color-bg-subtle);
-  padding: var(--ran-space-2) var(--ran-space-3);
-  font-size: 10.5px;
-  line-height: 1.6;
   color: var(--ran-color-text-secondary);
 }
-#landing-hero .dw-note b {
-  display: block;
-  margin-bottom: 2px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--success-text);
-}
-/* status strip: the proof, spelled out */
-#landing-hero .dw-net {
+/* The two calls, side by side on a row and stacked on a phone -- the
+   reference's own arrangement. */
+#landing-hero .lp-cta {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ran-space-4);
+  margin-top: clamp(28px, 3vw, 40px);
+}
+@media (min-width: 640px) {
+  #landing-hero .lp-cta {
+    flex-direction: row;
+  }
+}
+#landing-hero .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ran-space-2);
+  width: 100%;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16.5px;
+  font-weight: 700;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+@media (min-width: 640px) {
+  #landing-hero .lp-btn {
+    width: auto;
+  }
+}
+/* The three hero claims, one line under the calls. An inline list, not cards:
+   these are facts, not features to explore (the grid for that is the next
+   section down). A check marks each claim, and the line sits a full beat
+   below the buttons -- tight under them it read as a stray caption. */
+#landing-hero .lp-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ran-space-2) var(--ran-space-6);
+  margin: clamp(30px, 4vw, 48px) auto 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ran-color-text);
+}
+#landing-hero .lp-points li {
+  display: inline-flex;
   align-items: center;
   gap: var(--ran-space-2);
-  padding: var(--ran-space-2) var(--ran-space-4);
-  border-top: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-subtle);
-  font-size: 11px;
-  color: var(--ran-color-text-secondary);
 }
-#landing-hero .dw-net .ok {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--ran-radius-full);
-  background: var(--ran-color-success);
+#landing-hero .lp-points li::before {
+  content: '✓';
+  color: var(--lp-blue);
+  font-weight: 700;
+}
+#landing-hero .lp-btn .ic {
+  width: 20px;
+  height: 20px;
   flex: none;
 }
+#landing-hero .lp-btn-primary {
+  background: var(--lp-blue);
+  color: #fff;
+  box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--lp-blue) 70%, transparent);
+}
+#landing-hero .lp-btn-primary:hover {
+  transform: translateY(-2px);
+}
+#landing-hero .lp-btn-ghost {
+  border: 1px solid var(--ran-color-border);
+  background: var(--ran-color-bg-muted);
+  color: var(--ran-color-text);
+}
+#landing-hero .lp-btn-ghost:hover {
+  background: var(--ran-color-bg-hover);
+}
 
-/* ---------- section scaffolding: left-aligned head on a hairline ---------- */
+/* ---------- section scaffolding: centred heads, breathing bands ----------
+   The reference's sections are centred: a big bold heading, one grey line
+   under it, and the cards below. Every band gets the same vertical rhythm. */
 #landing-hero .section {
   padding-top: clamp(56px, 7vw, 104px);
 }
@@ -635,9 +488,6 @@ body {
   /* gray mono label — blue is reserved for links and the hero selection */
   color: var(--ran-color-text-secondary);
 }
-/* Only the FAQ head uses this today: its column is short and the answers next
-   to it are long, so the space under the heading is where the pointer to the
-   longer-form help belongs. */
 #landing-hero .section-head .head-note {
   margin: var(--ran-space-4) 0 0;
   max-width: 34ch;
@@ -656,57 +506,365 @@ body {
   font-weight: 700;
   text-wrap: balance;
 }
-
-/* ---------- pillars: newspaper columns, not boxes ----------
-   Four claims that are read once and not compared cell-by-cell, so they get
-   column rules instead of card chrome: a box per claim asks the eye to parse a
-   container before it reads a sentence, and four of them next to seven format
-   rows and three process steps turned the page into a wall of rounded
-   rectangles. The rule between columns does the same grouping job with one
-   pixel and no interior padding to pay for. */
-#landing-hero .pillars {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  /* label / claim / prose share rows across all four columns (subgrid), so a
-     two-line claim in one column does not push its paragraph out of line with
-     the others -- the ragged baselines were what made the un-boxed version
-     look unfinished. */
-  grid-template-rows: auto auto auto;
-  gap: clamp(24px, 3vw, 44px);
+#landing-hero .lp-section {
+  padding: clamp(56px, 8vw, 96px) 0;
 }
-#landing-hero .pillar {
-  display: grid;
-  grid-row: span 3;
-  grid-template-rows: subgrid;
-  row-gap: 0;
-  align-content: start;
+#landing-hero .lp-section-alt {
+  background: var(--ran-color-bg-muted);
 }
-/* The rule belongs *between* columns, so the first one goes without. */
-#landing-hero .pillar + .pillar {
-  border-left: 1px solid var(--ran-color-border);
-  padding-left: clamp(24px, 3vw, 44px);
-  /* the gap already spaces them; the padding above is what the rule needs */
-  margin-left: calc(-1 * clamp(24px, 3vw, 44px) / 2);
-}
-#landing-hero .pillar .k {
+#landing-hero .lp-eyebrow {
   display: block;
-  font: 600 11px/1 var(--ran-font-mono);
-  letter-spacing: 0.08em;
+  margin-bottom: var(--ran-space-3);
+  font: 700 12px/1 var(--ran-font-mono);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ran-color-text-secondary);
 }
-#landing-hero .pillar h3 {
-  margin: var(--ran-space-4) 0 var(--ran-space-2);
-  font-size: 17px;
-  letter-spacing: -0.015em;
+#landing-hero .lp-head {
+  max-width: 44rem;
+  margin: 0 auto clamp(32px, 4vw, 56px);
+  text-align: center;
+}
+#landing-hero .lp-head h2 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -0.03em;
+  font-weight: 800;
   text-wrap: balance;
 }
-#landing-hero .pillar p {
-  margin: 0;
+#landing-hero .lp-head p {
+  margin: var(--ran-space-4) 0 0;
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.7;
   color: var(--ran-color-text-secondary);
-  font-size: 14.5px;
-  line-height: 1.6;
-  max-width: 42ch;
+}
+
+/* ---------- cards: the white grid the reference lives on ---------- */
+#landing-hero .lp-grid {
+  display: grid;
+  gap: var(--ran-space-6);
+}
+#landing-hero .lp-grid-3 {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 760px) {
+  #landing-hero .lp-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+#landing-hero .lp-grid-4 {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  #landing-hero .lp-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1000px) {
+  #landing-hero .lp-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+#landing-hero .lp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px;
+  border: 1px solid var(--ran-color-border);
+  border-radius: 24px;
+  background: var(--ran-color-bg-elevated);
+  text-align: center;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+#landing-hero a.lp-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--lp-blue) 45%, transparent);
+  box-shadow: var(--ran-shadow-elevated);
+}
+#landing-hero .lp-card-mark {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--lp-blue) 12%, transparent);
+  color: var(--lp-blue);
+}
+#landing-hero .lp-card-mark .ic {
+  width: 32px;
+  height: 32px;
+}
+#landing-hero .lp-card h3 {
+  margin: 0 0 var(--ran-space-2);
+  font-size: 20px;
+  letter-spacing: -0.015em;
+}
+#landing-hero .lp-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .lp-card-plugins {
+  background: color-mix(in srgb, var(--lp-blue) 5%, transparent);
+  border-color: color-mix(in srgb, var(--lp-blue) 22%, transparent);
+}
+#landing-hero .lp-card-plugins h3 {
+  color: var(--lp-blue);
+}
+/* Document-type marks echo the product: documents blue, spreadsheets green,
+   presentations orange. The fourth tile is the plugin tile, which keeps the
+   reference blue. */
+#landing-hero .lp-card-link:nth-of-type(1) .lp-card-mark {
+  background: #eff6ff;
+  color: #2563eb;
+}
+#landing-hero .lp-card-link:nth-of-type(2) .lp-card-mark {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+#landing-hero .lp-card-link:nth-of-type(3) .lp-card-mark {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+/* ---------- the honest comparison: one wide table ----------
+   A table, not cards: these are seven columns of facts meant to be read
+   against each other, and five cards would hide the columns that make the
+   comparison legible. On a phone it scrolls sideways inside its own scroll
+   region rather than squeezing into a column of cards. */
+#landing-hero .lp-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--ran-color-border);
+  border-radius: 16px;
+  background: var(--ran-color-bg-elevated);
+}
+#landing-hero .lp-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+#landing-hero .lp-table th {
+  padding: 20px 16px;
+  border-bottom: 2px solid var(--ran-color-border);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ran-color-text-secondary);
+  white-space: nowrap;
+}
+#landing-hero .lp-table td {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--ran-color-border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+#landing-hero .lp-table tbody tr:last-child td {
+  border-bottom: none;
+}
+#landing-hero .lp-table tbody tr.is-featured {
+  background: color-mix(in srgb, var(--lp-blue) 5%, transparent);
+}
+#landing-hero .lp-table tbody tr:not(.is-featured):hover {
+  background: var(--ran-color-bg-muted);
+}
+#landing-hero .lp-suite {
+  display: flex;
+  align-items: center;
+  gap: var(--ran-space-3);
+}
+#landing-hero .lp-suite img {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex: none;
+}
+#landing-hero .lp-table tr.is-featured .lp-suite b {
+  color: var(--lp-blue);
+}
+#landing-hero .lp-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--ran-radius-full);
+  background: var(--ran-color-bg-hover);
+  color: var(--ran-color-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+#landing-hero .lp-pill-ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+#landing-hero .lp-center {
+  text-align: center;
+}
+#landing-hero .lp-table .ic.lp-yes {
+  width: 20px;
+  height: 20px;
+  color: #22c55e;
+}
+#landing-hero .lp-table .ic.lp-no {
+  width: 20px;
+  height: 20px;
+  color: #ef4444;
+}
+#landing-hero .lp-stars {
+  white-space: nowrap;
+}
+#landing-hero .lp-star {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: var(--ran-color-border);
+}
+#landing-hero .lp-star.on {
+  background: #facc15;
+}
+#landing-hero .lp-free {
+  color: #15803d;
+  font-weight: 700;
+}
+#landing-hero .lp-diff {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ran-color-text-secondary);
+  white-space: normal;
+}
+
+/* ---------- the closing call: one rounded frame ---------- */
+#landing-hero .lp-final {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ran-color-border);
+  border-radius: 48px;
+  background: var(--ran-color-bg-muted);
+  overflow: hidden;
+}
+#landing-hero .lp-final-media {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--ran-color-border);
+  background: #000;
+}
+#landing-hero .lp-final-body {
+  padding: clamp(32px, 5vw, 64px) clamp(24px, 5vw, 64px);
+  text-align: center;
+}
+#landing-hero .lp-final-body h2 {
+  margin: 0;
+  font-size: clamp(32px, 4.4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+#landing-hero .lp-final-body > p {
+  margin: var(--ran-space-6) auto 0;
+  max-width: 46rem;
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.7;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .lp-final .lp-cta {
+  margin-top: clamp(24px, 3vw, 36px);
+}
+#landing-hero .lp-final-note {
+  margin: var(--ran-space-6) 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ran-color-text-secondary);
+  opacity: 0.75;
+}
+
+/* ---------- about Inled: the sign-off ---------- */
+#landing-hero .lp-about {
+  max-width: 52rem;
+  margin: 0 auto;
+  text-align: center;
+}
+#landing-hero .lp-about img {
+  height: 80px;
+  width: auto;
+  margin: 0 auto 36px;
+  filter: grayscale(1);
+  transition: filter 0.4s ease;
+}
+#landing-hero .lp-about img:hover {
+  filter: none;
+}
+#landing-hero .lp-about h2 {
+  margin: 0;
+  font-size: clamp(24px, 2.8vw, 32px);
+  font-weight: 700;
+}
+#landing-hero .lp-about p {
+  margin: var(--ran-space-6) 0 0;
+  font-size: clamp(16px, 1.6vw, 18px);
+  line-height: 1.8;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .lp-about-stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(32px, 6vw, 64px);
+  margin-top: var(--ran-space-8);
+}
+#landing-hero .lp-about-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ran-space-2);
+}
+#landing-hero .lp-about-stats b {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--lp-blue);
+}
+#landing-hero .lp-about-stats span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* The autosave promise, now with the InSuite spacing instead of the marginal
+   note's left rule. Its top margin keeps "Saved documents" a beat apart from
+   the claims line above instead of crowding the CTA block. */
+#landing-hero .lp-recent {
+  max-width: 62ch;
+  margin: clamp(18px, 2.5vw, 30px) auto 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .lp-recent a {
+  color: var(--ran-color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+#landing-hero .lp-recent a:hover {
+  color: var(--lp-blue);
+}
+#landing-hero .lp-recent .recent-resume {
+  display: block;
+  margin-bottom: var(--ran-space-2);
+  font-weight: 600;
+  color: var(--ran-color-text);
 }
 
 /* ---------- format index: one row per entry point ----------
@@ -1024,6 +1182,23 @@ body {
   font-size: 12.5px;
   line-height: 1.6;
 }
+/* Discreet derivative credit: same row treatment as .tm so it reads as part of
+   the footer's fine print rather than as another navigation link. */
+#landing-hero .foot .deriv {
+  flex: 1 0 100%;
+  margin: 0;
+  max-width: 72ch;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+#landing-hero .foot .deriv a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#landing-hero .foot .deriv a:hover {
+  color: var(--ran-color-text);
+}
 
 /* ---------- theme switch (footer) ----------
    Real ranui <r-theme-switch> (three-state pill wired to setTheme). The
@@ -1038,9 +1213,9 @@ body {
 }
 
 /* ---------- motion ---------- */
-/* Pure CSS, no JS: a load-in stagger on the hero, a live caret in the document
-   window, and a pulse on the status dot. All gated
-   behind prefers-reduced-motion (the caret stays visible, just static). */
+/* Pure CSS, no JS: a load-in stagger on the hero and a live caret in the
+   preview window. All gated behind prefers-reduced-motion (the caret stays
+   visible, just static). */
 @media (prefers-reduced-motion: no-preference) {
   /* orchestrated hero load-in */
   #landing-hero .reveal {
@@ -1069,51 +1244,10 @@ body {
       transform: none;
     }
   }
-
-  /* live caret in the document window */
-  /* A text caret is ink, not an accent — matching what the mocked-up editor would really show.
-   The selection ground below stays blue, because that is what a real editor's selection is. */
-  #landing-hero .dw-text .caret {
-    animation: lh-blink 1.1s steps(2, start) infinite;
-  }
-  @keyframes lh-blink {
-    to {
-      visibility: hidden;
-    }
-  }
-
-  /* live status dot on the chip */
-  #landing-hero .chip .dot {
-    animation: lh-pulse 2.2s ease-out infinite;
-  }
-  @keyframes lh-pulse {
-    0% {
-      box-shadow: 0 0 0 0 var(--ran-green-500);
-    }
-    70% {
-      box-shadow: 0 0 0 6px transparent;
-    }
-    100% {
-      box-shadow: 0 0 0 0 transparent;
-    }
-  }
 }
 
 /* ---------- responsive ---------- */
-@media (max-width: 1020px) {
-  #landing-hero .hero {
-    grid-template-columns: 1fr;
-    gap: clamp(32px, 6vw, 48px);
-  }
-  #landing-hero .docwin {
-    max-width: 640px;
-  }
-}
 @media (max-width: 900px) {
-  #landing-hero .steps {
-    grid-template-columns: 1fr;
-    gap: var(--ran-space-6);
-  }
   #landing-hero .faq-sec {
     grid-template-columns: 1fr;
   }
@@ -1126,67 +1260,37 @@ body {
   }
 }
 
-@media (max-width: 560px) {
-  #landing-hero .dw-body {
-    grid-template-columns: 1fr;
-  }
-  #landing-hero .dw-note {
-    justify-self: start;
-  }
-}
-
-/* The autosave line.
- *
- * It answers "what happens to what I type here?", so it leads with the reason
- * (a refresh does not cost you the work) rather than with the mechanism, and
- * it is served HTML rather than script output -- a promise about someone's
- * data has to hold for a first-time visitor and with JavaScript off.
- *
- * Sits between the CTAs and the trust row as its own bounded block, because
- * the first draft had it as two loose lines that read as a footnote to the
- * buttons and collided with the row below.
- */
+/* The autosave line. Retained selectors: `recent-*` never match the page, but
+ * the note, the saved-documents link and the injected resume link do. */
 #landing-hero .recent {
-  margin-top: var(--ran-space-4);
-  /* A text block, not a flex row: the sentence and the link that follows it
-     belong to the same reading line and should wrap together. The first draft
-     flexed them apart and left "Local history" stranded on its own line. */
-  display: block;
-  max-width: 62ch;
-  /* A marginal note, not a panel: one rule down the left edge is enough to
-     bound it against the buttons above and the trust row below, and it keeps
-     the hero free of filled surfaces. */
-  padding-left: var(--ran-space-4);
-  border-left: 2px solid var(--ran-color-border);
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--ran-color-text-secondary);
+  display: none;
 }
 /* The retention window is the load-bearing half of the sentence: the difference
    between "the browser keeps my documents" and "keeps them for a week". */
 #landing-hero .recent-all {
   margin-left: var(--ran-space-2);
 }
-#landing-hero .recent a {
+#landing-hero .recent a,
+#landing-hero .lp-recent a {
   color: var(--ran-color-text);
   text-decoration: underline;
   text-underline-offset: 3px;
   white-space: nowrap;
 }
-#landing-hero .recent a:hover {
+#landing-hero .recent a:hover,
+#landing-hero .lp-recent a:hover {
   color: var(--ran-color-primary);
 }
 /* Only rendered when this browser is actually holding something (see
    /history-recent.js), and then it is the first thing in the block. */
-/* Only rendered when this browser is holding something, and then it leads. */
 #landing-hero .recent-resume {
   display: block;
   margin-bottom: var(--ran-space-1);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ran-color-text);
 }
 @media (max-width: 560px) {
-  #landing-hero .recent {
+  #landing-hero .lp-recent {
     font-size: 13px;
   }
 }

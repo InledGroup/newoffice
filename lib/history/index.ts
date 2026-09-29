@@ -6,13 +6,13 @@
 import { setDiskWriter, setSavedToDiskListener } from '../onlyoffice/save-stream';
 import { saveToDiskFile } from '../save-target';
 import { getAutosaveDocId } from './autosave';
-import { markSavedToDisk, pruneExpired } from './store';
+import { markSavedToDisk } from './store';
 
 export function initDocumentHistory(): void {
-  // Expiry has to happen on its own, not when someone thinks to visit the
-  // history page: "this browser forgets after seven days" is only a promise if
-  // nothing has to be done to collect on it.
-  void pruneExpired();
+  // Nothing is collected here, and that is the design: a document leaves the
+  // library when the user deletes it, clears the history, or the browser runs
+  // out of room for it. An earlier version swept rows seven days old on every
+  // boot, which meant the site quietly threw away work nobody had asked it to.
 
   // Saving writes back to the file the document came from, once the user has
   // pointed at one. The document id is what links the two, which is why this

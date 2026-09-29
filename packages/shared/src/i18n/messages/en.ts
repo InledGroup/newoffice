@@ -71,6 +71,7 @@ export const en: I18nMessages = {
 
   autosaveStopped:
     'Autosave stopped: this browser is out of storage room. Export this document, then delete a few old ones from your saved documents.',
+  autosaveWorking: 'Your work is being saved in this browser',
   historyChip: 'On this device · never uploaded',
   historyTitle: 'Saved documents',
   historyIntro:
@@ -78,7 +79,6 @@ export const en: I18nMessages = {
   historyColDocument: 'Document',
   historyColEdited: 'Last edited',
   historyColSize: 'Size',
-  historyColExpires: 'Auto-deletes',
   historyNotBackup:
     'These copies exist so you can pick up work you were in the middle of. They are not a backup -- export anything you want to keep.',
   historySearchPlaceholder: 'Search by file name',
@@ -105,14 +105,35 @@ export const en: I18nMessages = {
   historyAutosaveLabel: 'Autosave',
   historyAutosaveOff: 'Autosave is off: what you edit now is not being saved, and closing the page will lose it.',
   historyRetention:
-    'Each document is deleted automatically 7 days after you last edited or opened it. You can also delete anything here yourself, and that takes effect immediately.',
-  historyExpiresIn: '{days} days left',
-  historyExpiresInOne: '1 day left',
-  historyExpiresToday: 'today',
+    'Nothing here deletes itself on a timer. A document stays until you delete it or clear the list; the one automatic exception is this browser running out of space, and then the document you opened least recently is the one that goes.',
   historyDownload: 'Download',
   historyDownloadFailed: 'That copy could not be saved to disk.',
   historyOnlyUnsaved: 'Not exported',
   historyOpenFile: 'Open a file',
   historyRailSettings: 'Settings',
   historyRailRetention: 'Retention',
+
+  // /home -- the app's home page.
+  homeNew: 'New',
+  homeDocument: 'Document',
+  homeSpreadsheet: 'Spreadsheet',
+  homePresentation: 'Presentation',
+  homePdf: 'PDF',
+  homeChooseFile: 'Choose a file',
+  homeDropHere: 'Drop your file here',
+  homeDropHint: 'Drag and drop your Office document here, or click to browse from your computer',
+  homeSupports: 'Supports: DOCX, DOC, XLSX, XLS, PPTX, PPT, PDF',
+  homeRecent: 'Recent',
+  homeRecentLoading: 'Loading recent files…',
+  homeRecentEmpty: 'No recent files',
+  homeRecentEmptyHint: 'Files you open will appear here for quick access',
+  homeReopenTip: 'Click to reopen this file',
+  homeRemoveRecent: 'Remove from recent',
+  homeNavOpen: 'Open',
+  homeNavSaved: 'Saved documents',
+  homeNavHelp: 'Help',
+  homeNavAbout: 'About',
+  homeDropOverlay: 'Drop to open',
+  homeDropOverlayHint: 'Word, Excel, PowerPoint & more',
+  homeNoScript: 'This page needs JavaScript to read the documents stored in your browser.',
 };

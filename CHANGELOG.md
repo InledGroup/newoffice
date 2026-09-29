@@ -1,6 +1,6 @@
 # Changelog
 
-User-facing changes to the document editor ([edit.chaxus.com](https://edit.chaxus.com/)).
+User-facing changes to the document editor ([office.inled.es](https://office.inled.es/)).
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/); this
 file is the single source for the site changelog page and GitHub release
 notes. Entries describe what users experience, not internal refactors.
@@ -8,6 +8,44 @@ notes. Entries describe what users experience, not internal refactors.
 ## [Unreleased]
 
 ### Added
+
+- **You can now see the autosave working.** Recovery points were always being
+  written into the browser as you edited, but nothing on screen said so. A
+  small status line now sits below the editor, and it only appears while there
+  is an edit this browser has not taken yet -- it goes away the moment the copy
+  lands and comes back when you type again, in your language, in all seven of
+  them. It steps aside in embedded views and read-only documents, where there
+  is nothing to promise, and it says out loud (rather than going quietly) when
+  autosave is switched off while your document has unsaved changes in it.
+- **InSuite has an app homepage at `/home`**, and visiting `/editor` with
+  nothing to open now lands there instead of bouncing you to the marketing
+  page: your open/save/new actions one click apart.
+- **The editor header now has a way home.** The Insuite mark sits at the top
+  left of the editor, next to the ONLYOFFICE one, and clicking it takes you
+  back to `/home`. The ONLYOFFICE logo stays where it is -- this editor is a
+  modified version of ONLYOFFICE and its license requires the product logo to
+  remain -- but it is drawn smaller so the header reads as one product built on
+  another rather than two logos competing for the same corner.
+- **The footers credit the two projects this one owes, and ask for a star on
+  both.** One line names ONLYOFFICE and Ascensio System SIA, who wrote the
+  editors; the other names [ranuts/document](https://github.com/ranuts/document),
+  the project this site was forked from. Both are links, and both are asks: a
+  star is the only payment projects like these get. In all seven languages.
+
+### Removed
+
+- **The hero is down to two buttons.** "Start using" stays primary, "Open a
+  file" stays secondary and now matches its neighbour's size exactly, and the
+  "View features" link is gone -- the feature list is a section below, not a
+  call to action. The "Made in Spain" stamp is gone from the headline with it,
+  and the three things a first-time visitor needs -- no sign-up, free,
+  Word-compatible -- are now a line of their own under the buttons.
+- **The classic Office toolbar look is retired -- for everyone.** The editor
+  now opens in the modern flat light theme by default. Browsers that had opened
+  the editor before kept running the classic look even after the change,
+  because the old default had been written down as if it were a preference;
+  that stale value is cleared once on the next visit, and a theme you pick in
+  the editor afterwards is respected.
 
 - **Saving now writes back into your own file.** Pick the file once and every
   save after that goes straight into it -- no "save as" dialog each time, and
@@ -26,10 +64,12 @@ notes. Entries describe what users experience, not internal refactors.
   file name in any language, with a delete on every row and a delete-all below
   the list. Rows holding the only copy of your work -- edits that never reached
   your disk -- say so.
-- **It clears itself.** A document is deleted seven days after you last edit or
-  open it, automatically, whether or not you visit the page. The rule is stated
-  on the homepage and on that page, and every row shows how long it has left.
-  Autosave can also be switched off entirely.
+- **Nothing here deletes itself.** A saved document stays on your device until
+  you delete it or clear the list, however long ago you last opened it -- the
+  page used to promise a seven-day cut-off, and it no longer keeps one. The one
+  automatic exception is the browser running out of room, and then the document
+  you opened least recently is the one that goes. Autosave can also be switched
+  off entirely.
 - **Closing a tab with unsaved edits now asks first.** It never did, so a
   mistaken Cmd+W or Ctrl+R silently threw the session away.
 - **A reload comes back to the same document.** The address bar carries the
@@ -39,6 +79,17 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Changed
 
+- **The document library looks like the rest of the app now.** `/history` is
+  built in the same frame as `/home` -- the same side navigation, the same
+  white panel, the same document rows with their tinted type icons, the same
+  bar at the top with one button per editor and the same bar at the bottom on a
+  phone -- so the two pages you move between read as one place rather than
+  two. Your documents are listed the same way the homepage lists them; the
+  search, the "not exported" filter and the page selector are still there, and
+  a download button on every row writes the stored copy straight to your disk.
+  The autosave switch and "delete all" moved from the side panel into the
+  bottom of the list, which is where they stay visible on a phone instead of
+  disappearing with the navigation.
 - **The editor gives its memory back while you work.** Converting a document
   used to reserve a few hundred megabytes and hold them for as long as the tab
   was open; that work now happens off to one side and is released once it is

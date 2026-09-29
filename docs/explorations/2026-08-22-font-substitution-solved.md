@@ -209,7 +209,7 @@ Droid Sans Fallback（TrueType）上，中文立刻回来了（PDF 76 KB）。�
 /fonts/017（不带 cb）200   4,077,068  age=329273（3.8 天）  ← 旧 SimSun 的缓存副本
 ```
 
-`E2E_BASE_URL=https://edit.chaxus.com` 跑 `font-substitution` + `pdf-cjk-export`：
+`E2E_BASE_URL=https://office.inled.es` 跑 `font-substitution` + `pdf-cjk-export`：
 6 条全过（逐像素差 0.000%～0.044%，PDF 墨迹 1.04%）。Production smoke 与 Docker
 镜像构建都绿。
 

@@ -33,36 +33,53 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-/* ---------- top bar (mirrors the homepage bar) ---------- */
+/* ---------- top bar (mirrors the homepage bar) ----------
+   Sticky translucent blur, matching the reference chrome and the homepage's
+   own bar, so scrolling an article hides the copy behind the same frosted
+   strip rather than a hard opaque one. */
 header.bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--ran-space-4);
-  padding: var(--ran-space-4) clamp(20px, 5vw, 56px);
+  padding: var(--ran-space-3) clamp(20px, 5vw, 56px);
   border-bottom: 1px solid var(--ran-color-border);
+  background: color-mix(in srgb, var(--ran-color-bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 header.bar .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--ran-space-2);
+  gap: var(--ran-space-3);
   font-weight: 700;
   font-size: 16px;
   letter-spacing: -0.01em;
   color: var(--ran-color-text);
   text-decoration: none;
 }
+/* The hosted Insuite glyph replaces the old monochrome letter tile: no fill
+   behind it, it only has to be square and round its own corners. */
 header.bar .logo {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--ran-radius-sm);
-  /* monochrome mark (Geist): ink on page bg, inverts with the theme */
-  background: var(--ran-color-text);
-  display: inline-grid;
-  place-items: center;
-  color: var(--ran-color-bg);
-  font-size: 13px;
-  font-weight: 700;
+  display: inline-block;
+}
+/* Two-line lockup, as in the reference header: name over a whisper tagline. */
+header.bar .wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+header.bar .tagline {
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: 0.7;
+  letter-spacing: 0.02em;
 }
 header.bar nav {
   display: flex;
@@ -281,6 +298,23 @@ header.bar nav a:hover {
   color: var(--ran-color-text-secondary);
   font-size: 12.5px;
   line-height: 1.6;
+}
+/* Discreet derivative credit: same fine-print treatment as .tm, right above it,
+   so it reads as part of the footer's small print and not as a nav link. */
+.page-foot .deriv {
+  margin: var(--ran-space-4) 0 0;
+  max-width: 72ch;
+  color: var(--ran-color-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.page-foot .deriv a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.page-foot .deriv a:hover {
+  color: var(--ran-color-text);
 }
 @media (min-width: 1081px) {
   .page {

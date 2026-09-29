@@ -195,7 +195,7 @@ WebMCP 接入本质是把同一批能力换个注册方式暴露出来。
 
    - inputSchema 与"方向三 2"的机器可读消息目录同源，避免两份定义。
 
-2. **Origin trial 注册**：edit.chaxus.com 注册 token，经
+2. **Origin trial 注册**：office.inled.es 注册 token，经
    `public/_headers` 下发 `Origin-Trial` 头（CF Pages 支持）。
 3. **验证**：Chrome 带 flag/token 手测 5 个工具；E2E 暂不覆盖
    （API 在 CI Chromium 不可用，用单测覆盖注册逻辑的降级分支即可）。

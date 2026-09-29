@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 <p align="center">
@@ -29,7 +29,7 @@ Word, Excel, PowerPoint 파일을 브라우저 탭에서 바로 열고 편집합
 OnlyOffice 엔진과 WASM 변환기가 방문자의 기기에서 직접 돌아가므로 문서가 업로드되는 일이
 없고, 계정도 필요 없습니다.
 
-**서비스 주소: [edit.chaxus.com](https://edit.chaxus.com/)**
+**서비스 주소: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -37,7 +37,7 @@ OnlyOffice 엔진과 WASM 변환기가 방문자의 기기에서 직접 돌아�
 
 - 🔒 **아무것도 올라가지 않습니다** — 변환, 편집, 내보내기가 모두 탭 안에서 끝납니다
 - 📝 **미리보기가 아니라 진짜 편집** — DOCX, XLSX, PPTX, CSV와 함께 ODF, RTF, TXT 및 옛 바이너리 형식까지. PDF는 열어서 주석을 달 수 있습니다
-- 🕓 **탭을 닫아도 잃지 않습니다** — 편집 내용이 내 브라우저에 자동 저장되어 7일간 보관되고, 언제든 지울 수 있습니다 ([자세히](#-데이터는-기기-밖으로-나가지-않습니다))
+- 🕓 **탭을 닫아도 잃지 않습니다** — 편집 내용이 내 브라우저에 자동 저장되어 내가 지울 때까지 보관됩니다 ([자세히](#-데이터는-기기-밖으로-나가지-않습니다))
 - 📴 **오프라인에서도 동작** — PWA로 설치할 수 있고, 첫 방문 이후에는 네트워크가 필요 없습니다
 - 🌍 **다국어** — 사이트 인터페이스 8개 언어, 편집기 자체는 45개 언어
 - 🧩 **임베드 가능** — iframe 연동을 위한 완전한 postMessage API
@@ -48,7 +48,7 @@ OnlyOffice 엔진과 WASM 변환기가 방문자의 기기에서 직접 돌아�
 
 ## 🚀 빠른 시작
 
-**그냥 쓰기:** [edit.chaxus.com](https://edit.chaxus.com/) — 설치할 것이 없습니다.
+**그냥 쓰기:** [office.inled.es](https://office.inled.es/) — 설치할 것이 없습니다.
 
 **Docker로 직접 운영하기:**
 
@@ -112,10 +112,11 @@ GB18030, Latin-1을 판별합니다).
   새로 고침, 탭 닫기, 브라우저 멈춤이 작업을 앗아가지 않게 하기 위해서입니다. 편집기를 다시
   열면 그 사본을 되돌려 줍니다. 이 사본은 하던 일을 이어가기 위한 것이지 백업이 아닙니다.
   보관하고 싶은 것은 계속 내보내 두세요.
-- **7일 뒤에는 사라집니다.** 각 문서는 마지막으로 편집하거나 연 날로부터 7일 뒤, 다시 오지
-  않더라도 자동으로 삭제됩니다.
+- **스스로 지워지는 것은 없습니다.** 각 문서는 내가 지우거나 목록을 비울 때까지 그대로 남습니다.
+  마지막으로 연 지 얼마나 지났는지와 상관없습니다. 유일한 자동 예외는 이 브라우저의 저장 공간이
+  바닥나는 경우이며, 그때는 가장 오래전에 연 문서부터 지워집니다.
 
-[`/history`](https://edit.chaxus.com/history)에 보관 중인 목록이 있습니다. 줄마다 삭제
+[`/history`](https://office.inled.es/history)에 보관 중인 목록이 있습니다. 줄마다 삭제
 버튼이 있고, 전체 삭제와 자동 저장을 아예 끄는 스위치도 있습니다. 여기서 지우면 즉시
 반영됩니다. 공용 컴퓨터라면 먼저 들러야 할 페이지입니다.
 

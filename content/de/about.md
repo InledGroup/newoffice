@@ -1,6 +1,6 @@
 ---
 title: Über diesen Editor — wer ihn baut und warum
-description: Wer hinter edit.chaxus.com steht, was der Editor tatsächlich tut, wie er gebaut ist und wo der Quellcode liegt. Ein quelloffener (AGPL-3.0) Editor im Browser für Word-, Excel-, PowerPoint-, CSV- und PDF-Dateien, der Ihre Dokumente nie hochlädt.
+description: Wer hinter office.inled.es steht, was der Editor tatsächlich tut, wie er gebaut ist und wo der Quellcode liegt. Ein quelloffener (AGPL-3.0) Editor im Browser für Word-, Excel-, PowerPoint-, CSV- und PDF-Dateien, der Ihre Dokumente nie hochlädt.
 eyebrow: Über uns
 breadcrumb: Über diesen Editor
 h1: Über diesen Editor

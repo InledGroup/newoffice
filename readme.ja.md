@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 <p align="center">
@@ -29,7 +29,7 @@ Word・Excel・PowerPoint のファイルを、ブラウザーのタブだけで
 エンジンとその WASM コンバーターは訪問者自身の端末で動くので、ドキュメントがアップロードされることはなく、
 アカウントも不要です。
 
-**公開サイト: [edit.chaxus.com](https://edit.chaxus.com/)**
+**公開サイト: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -48,7 +48,7 @@ Word・Excel・PowerPoint のファイルを、ブラウザーのタブだけで
 
 ## 🚀 はじめかた
 
-**そのまま使う:** [edit.chaxus.com](https://edit.chaxus.com/) — インストール不要です。
+**そのまま使う:** [office.inled.es](https://office.inled.es/) — インストール不要です。
 
 **Docker で自分で動かす:**
 
@@ -116,7 +116,7 @@ UTF-8・GB18030・Latin-1 を判別します）。
 - **7 日で消えます。** 各ドキュメントは、最後に編集または開いた日から 7 日後に、
   あなたが戻ってこなくても自動的に削除されます。
 
-[`/history`](https://edit.chaxus.com/history) に保管中のものが一覧で表示されます。
+[`/history`](https://office.inled.es/history) に保管中のものが一覧で表示されます。
 各行の削除、まとめて削除、自動保存を完全に切るスイッチがあります。ここでの削除は
 すぐに反映されます。共用のパソコンでは、まずこのページをご覧ください。
 

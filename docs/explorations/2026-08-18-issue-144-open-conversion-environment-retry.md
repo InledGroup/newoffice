@@ -45,7 +45,7 @@ window.AscFonts.g_font_infos.forEach(function (w) {
 ```
 
 字体系统（`AscFonts.g_font_infos`、`g_font_loader.fontFiles`）与文档打开是**并行**
-初始化的，谁先到手取决于缓存冷热、网络与 CPU。线上实测（`edit.chaxus.com`，
+初始化的，谁先到手取决于缓存冷热、网络与 CPU。线上实测（`office.inled.es`，
 无痕 profile）能看到这段窗口：
 
 | t(ms) | g_font_infos | fontFiles | x2t 就绪 |

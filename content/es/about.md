@@ -1,6 +1,6 @@
 ---
 title: Acerca de — quién hace este editor y por qué
-description: Quién está detrás de edit.chaxus.com, qué hace realmente, cómo está construido y dónde vive el código fuente. Un editor de código abierto (AGPL-3.0) para archivos de Word, Excel, PowerPoint, CSV y PDF que funciona en el navegador y nunca sube tus documentos.
+description: Quién está detrás de office.inled.es, qué hace realmente, cómo está construido y dónde vive el código fuente. Un editor de código abierto (AGPL-3.0) para archivos de Word, Excel, PowerPoint, CSV y PDF que funciona en el navegador y nunca sube tus documentos.
 eyebrow: Acerca de
 breadcrumb: Acerca de
 h1: Acerca de este editor

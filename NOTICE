@@ -3,7 +3,7 @@ NOTICE
 
 This product is a derivative work of ONLYOFFICE.
 
-The site (https://edit.chaxus.com/, https://github.com/ranuts/document) is
+The site (https://office.inled.es/, https://github.com/ranuts/document) is
 licensed under the GNU Affero General Public License version 3 -- see LICENSE.
 It embeds the ONLYOFFICE document editors, which are distributed under the same
 license with the additional terms permitted by Section 7 of the GNU AGPL. Those
@@ -68,6 +68,14 @@ co-users widgets, which describe a collaboration session this serverless build
 cannot have, and lib/onlyoffice-editor.ts leaves `customization.about` at its
 default. test/unit/branding-notice.test.ts and
 test/e2e/vendor-branding.spec.ts keep both from being "cleaned up" again.
+
+This site's own mark is added beside it in that header
+(lib/onlyoffice/guards/brand.ts, guard 17) and links back to the site's home.
+The vendor logo is scaled to 15px tall from 20px -- the same image, the same
+aspect ratio, never cropped and never hidden -- so that the two marks read as
+this product and the one it is built on. Only the product logo is required to
+be retained; its size is not specified, and it remains on screen at every
+viewport and in both the light and the dark editor theme.
 
 Section 7(e) -- trademarks. ONLYOFFICE and the ONLYOFFICE logo are trademarks
 of Ascensio System SIA. No rights under trademark law are granted by the

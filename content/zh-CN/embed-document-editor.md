@@ -19,7 +19,7 @@ appDescription: 可嵌入的 DOCX/XLSX/PPTX/CSV 编辑器：用一个 iframe 嵌
 ```html
 <iframe
   id="documentEditor"
-  src="https://edit.chaxus.com/editor?embed=1&embedOrigin=https://your-app.example.com"
+  src="https://office.inled.es/editor?embed=1&embedOrigin=https://your-app.example.com"
   style="width: 100%; height: 720px; border: 0"
 ></iframe>
 ```
@@ -30,7 +30,7 @@ appDescription: 可嵌入的 DOCX/XLSX/PPTX/CSV 编辑器：用一个 iframe 嵌
 // 打开一个你的应用已经拉取好的文件（鉴权全在你这边）
 iframe.contentWindow.postMessage(
   { id, type: 'document:open-buffer', payload: { fileName: 'report.xlsx', buffer } },
-  'https://edit.chaxus.com',
+  'https://office.inled.es',
 );
 
 // 要回编辑后的文件，再由你自己上传

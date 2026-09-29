@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="img/64.png" rel="shortcut icon" />
-    <link rel="icon" type="image/png" href="img/64.png" />
+    <link rel="icon" href="https://hosted.inled.es/cdn/insuite.svg" />
+
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
 
@@ -49,9 +49,19 @@
     </svg>
 
     <header class="bar">
-      <a class="brand" href="/"><span class="logo">D</span><span class="wordmark">Document Editor</span></a>
+      <a class="brand" href="/"
+        ><img class="logo" src="https://hosted.inled.es/cdn/insuite.svg" alt="" width="40" height="40" /><span
+          class="wordmark"
+          >Insuite Office<span class="tagline">Docs · Sheets · Slides</span></span
+        ></a
+      >
       <nav>
-        <a class="gh" href="https://github.com/ranuts/document" rel="noopener" target="_blank">
+        <!-- The four quick actions from the reference's app header, one per
+             editor. Built by lib/app-shell.ts, the same code /home uses: the
+             bar is shared chrome, so its contents are one implementation
+             rather than a second copy of the same four SVGs. -->
+        <span class="app-bar-actions"></span>
+        <a class="gh" href="https://github.com/InledGroup/newoffice" rel="noopener" target="_blank">
           <svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> GitHub
         </a>
         <!-- Every target is this page; the locale rides in the query, which is
@@ -95,9 +105,13 @@
         </r-popover>
         <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
       </nav>
+      <a class="bar-cta" href="/editor">Open editor</a>
     </header>
 
-    <main id="history-root"></main>
+    <!-- The app frame (styles/app-shell.css) -- the rail, the card and the phone
+         bar are the same ones /home is built in, and are named here as well as
+         set by lib/app-shell.ts so the first paint is already in the grid. -->
+    <main id="history-root" class="app-shell"></main>
 
     <noscript>
       <p style="max-width: 720px; margin: 0 auto; padding: 24px; font-family: system-ui, sans-serif">

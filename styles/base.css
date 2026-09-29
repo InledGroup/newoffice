@@ -85,6 +85,86 @@ body.embed-mode #landing-hero {
   display: none !important;
 }
 
+/* The autosave status pill (lib/autosave-indicator.ts). It hangs below the
+   editor chrome, out of the canvas, and is deliberately modest: a promise kept
+   in the present tense, not a notification. States are set by the module via
+   data-state, and it carries no state at all when there is nothing pending --
+   hidden entirely in embed mode too, where the host page owns its own chrome.
+   Colors ride the ranui token ladder so dark mode needs no second rule. */
+#autosave-indicator {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ran-space-2);
+  padding: 4px 14px;
+  border-radius: var(--ran-radius-full);
+  border: 1px solid var(--ran-color-border);
+  background: var(--ran-color-bg-elevated);
+  color: var(--ran-color-text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  transition:
+    opacity var(--ran-motion-duration-fast) ease,
+    background var(--ran-motion-duration-fast) ease;
+}
+#autosave-indicator[hidden] {
+  display: none;
+}
+/* Two states, and only two. The pill is a promise in the present tense, so it
+   is only on screen while the promise is being kept -- an edit the browser has
+   not captured yet (a pulsing dot, reduced-motion users get a steady one via the
+   token's prefers-reduced-motion handling in the ranui layer), or edits in a
+   document nothing is copying any more (the same dot, in the warning colour,
+   because the one thing this widget must never do is go quiet over unsaved
+   work). There is deliberately no "saved" state: a line that stays on screen
+   saying everything is fine is a line nobody reads by the third document. */
+#autosave-indicator[data-state='working'],
+#autosave-indicator[data-state='off'] {
+  background: var(--ran-color-bg-muted);
+}
+#autosave-indicator[data-state='working']::before,
+#autosave-indicator[data-state='off']::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ran-color-primary);
+  animation: autosave-pulse 2.4s ease-in-out infinite;
+}
+#autosave-indicator[data-state='off']::before {
+  background: var(--ran-color-warning);
+}
+@keyframes autosave-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #autosave-indicator[data-state='working']::before {
+    animation: none;
+  }
+}
+body.embed-mode #autosave-indicator {
+  display: none !important;
+}
+/* Back at the home state (open failed, document gone): the pill speaks about a
+   document that is no longer on screen, so it goes with it. CSS, not JS, so it
+   stays in step with every landing show/hide path. */
+body.landing-active #autosave-indicator {
+  display: none !important;
+}
+
 /* While the landing hero is active, keep the legacy overlay out of the way
    (it stays in the DOM as a fallback) and let the page scroll past 100vh.
    Once a document opens, landing-active is removed and the editor reclaims

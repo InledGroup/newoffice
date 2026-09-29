@@ -58,7 +58,7 @@ node bin/font-license-sweep.mjs --check    # 只报告方案
 node bin/font-license-sweep.mjs            # 执行（源字体在 vendor-fonts/，不入库）
 npx vitest run test/unit/font-catalog-licensing.test.ts test/unit/font-selection-bin.test.ts
 npx playwright test test/e2e/font-substitution.spec.ts test/e2e/pdf-cjk-export.spec.ts
-E2E_BASE_URL=https://edit.chaxus.com npx playwright test test/e2e/font-substitution.spec.ts  # 打线上
+E2E_BASE_URL=https://office.inled.es npx playwright test test/e2e/font-substitution.spec.ts  # 打线上
 ```
 
 四层用例都做过反向验证（去掉修复即变红），阈值与实测值写在探索文档里。

@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="版本">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/在线-edit.chaxus.com-brightgreen" alt="在线站点">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/在线-office.inled.es-brightgreen" alt="在线站点">
   </a>
 </p>
 
@@ -29,7 +29,7 @@
 在浏览器标签页里打开和编辑 Word、Excel、PPT 文件。没有服务器：OnlyOffice 引擎和它的
 WASM 转换器都跑在访问者自己的设备上，文档不会被上传，也不需要注册账号。
 
-**线上地址：[edit.chaxus.com](https://edit.chaxus.com/)**
+**线上地址：[office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -38,7 +38,7 @@ WASM 转换器都跑在访问者自己的设备上，文档不会被上传，也
 - 🔒 **不上传任何文件** — 转换、编辑、导出全部发生在这个标签页里
 - 📝 **是编辑，不是预览** — DOCX、XLSX、PPTX、CSV，另支持 ODF、RTF、TXT 与旧版二进制格式；PDF 可打开并批注
 - 💾 **直接存回你自己的文件** — 选一次文件，之后每次保存都写回它（Chromium 系；其它浏览器仍是下载）
-- 🕓 **误关标签页也不会丢** — 编辑内容自动保存进你自己的浏览器，保留 7 天，随时可手动删除（[说明](#-数据只留在你的设备上)）
+- 🕓 **误关标签页也不会丢** — 编辑内容自动保存进你自己的浏览器，一直保留到你手动删除（[说明](#-数据只留在你的设备上)）
 - 📴 **可离线使用** — 可安装为 PWA，首次访问之后无需联网
 - 🌍 **多语言** — 站点界面 8 种语言，编辑器界面 45 种
 - 🧩 **可嵌入** — 完整的 iframe postMessage API
@@ -49,7 +49,7 @@ WASM 转换器都跑在访问者自己的设备上，文档不会被上传，也
 
 ## 🚀 快速开始
 
-**直接使用：**[edit.chaxus.com](https://edit.chaxus.com/)，无需安装。
+**直接使用：**[office.inled.es](https://office.inled.es/)，无需安装。
 
 **用 Docker 自建：**
 
@@ -113,9 +113,10 @@ pnpm run dev
 - **你编辑过的文档副本**：编辑过程中，编辑器会把文档保存进这个浏览器（IndexedDB），
   刷新、误关标签页、浏览器崩溃都不会让工作白做，重新打开编辑器会提示你接着编辑。
   这些副本是为了让你接着做没做完的事，不是备份——想长期保留请导出到电脑。
-- **七天后自动删除**：每篇文档在你最后一次编辑或打开的七天后自动删除，不需要你做任何事。
+- **不会自己删除**：每篇文档都会留在这里，直到你删掉它或者清空列表，不管你上一次打开它是多久
+  以前。唯一的自动例外是这个浏览器的存储空间不够，那时删掉的是最久没打开过的那一篇。
 
-[`/history`](https://edit.chaxus.com/history) 列出当前保存了哪些文档，每一行都能删除，
+[`/history`](https://office.inled.es/history) 列出当前保存了哪些文档，每一行都能删除，
 也可以一次全部删除，还能直接关掉自动保存。在那里删除立即生效。共用电脑上，先看这一页。
 
 ---

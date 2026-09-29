@@ -77,13 +77,13 @@ export const pt: Partial<I18nMessages> = {
   agentToolErrorPrefix: 'Erro da ferramenta: ',
   autosaveStopped:
     'O salvamento automático parou: este navegador ficou sem espaço. Exporte este documento e apague alguns dos que estão salvos.',
+  autosaveWorking: 'O seu trabalho está a ser guardado neste navegador',
   historyTitle: 'Documentos salvos',
   historyIntro:
     'Cópias dos documentos que editou, mantidas neste navegador e neste dispositivo, para que recarregar, fechar um separador ou uma falha não lhe custem o trabalho. Nada disto foi enviado para a Internet.',
   historyColDocument: 'Documento',
   historyColEdited: 'Última edição',
   historyColSize: 'Tamanho',
-  historyColExpires: 'Apaga-se',
   historyNotBackup:
     'Estas cópias servem para retomar o que ficou pela metade. Não são um backup — exporte tudo o que quiser manter.',
   historySearchPlaceholder: 'Buscar pelo nome do arquivo',
@@ -105,10 +105,7 @@ export const pt: Partial<I18nMessages> = {
   historyAutosaveOff:
     'O salvamento automático está desligado: o que você editar agora não fica salvo e se perde ao fechar a página.',
   historyRetention:
-    'Cada documento é eliminado automaticamente 7 dias depois de o ter editado ou aberto pela última vez. Também pode apagar aqui o que quiser, com efeito imediato.',
-  historyExpiresIn: 'faltam {days} dias',
-  historyExpiresInOne: 'falta 1 dia',
-  historyExpiresToday: 'hoje',
+    'Nada aqui se apaga por tempo. Um documento fica até você o apagar ou limpar a lista; a única exceção automática é este navegador ficar sem espaço, e então sai o documento que você abriu há mais tempo.',
   historyDownload: 'Baixar',
   historyDownloadFailed: 'Não foi possível salvar essa cópia no disco.',
   historyOnlyUnsaved: 'Não exportados',
@@ -122,4 +119,28 @@ export const pt: Partial<I18nMessages> = {
   historyClearSearch: 'Limpar a procura',
   historyDeleteTitle: 'Eliminar este documento',
   historyClearTitle: 'Eliminar tudo',
+
+  // /home -- pending translation, English stands in for now.
+  homeNew: 'New',
+  homeDocument: 'Document',
+  homeSpreadsheet: 'Spreadsheet',
+  homePresentation: 'Presentation',
+  homePdf: 'PDF',
+  homeChooseFile: 'Choose a file',
+  homeDropHere: 'Drop your file here',
+  homeDropHint: 'Drag and drop your Office document here, or click to browse from your computer',
+  homeSupports: 'Supports: DOCX, DOC, XLSX, XLS, PPTX, PPT, PDF',
+  homeRecent: 'Recent',
+  homeRecentLoading: 'Loading recent files…',
+  homeRecentEmpty: 'No recent files',
+  homeRecentEmptyHint: 'Files you open will appear here for quick access',
+  homeReopenTip: 'Click to reopen this file',
+  homeRemoveRecent: 'Remove from recent',
+  homeNavOpen: 'Open',
+  homeNavSaved: 'Saved documents',
+  homeNavHelp: 'Help',
+  homeNavAbout: 'About',
+  homeDropOverlay: 'Drop to open',
+  homeDropOverlayHint: 'Word, Excel, PowerPoint & more',
+  homeNoScript: 'This page needs JavaScript to read the documents stored in your browser.',
 };

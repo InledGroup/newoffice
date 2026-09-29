@@ -148,8 +148,8 @@ ${related}
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/img/64.png" rel="shortcut icon" />
-    <link rel="icon" type="image/png" href="/img/64.png" />
+    <link rel="icon" href="https://hosted.inled.es/cdn/insuite.svg" />
+    
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
@@ -202,13 +202,14 @@ ${jsonLd}
     </svg>
 
     <header class="bar">
-      <a class="brand" href="${L.home}"><span class="logo">D</span><span class="wordmark">${ui.siteName}</span></a>
+      <a class="brand" href="${L.home}"><img class="logo" src="https://hosted.inled.es/cdn/insuite.svg" alt="" width="40" height="40" /><span class="wordmark">Insuite Office<span class="tagline">Docs · Sheets · Slides</span></span></a>
       <nav>
         <a href="${REPO}" rel="noopener" target="_blank">
           <svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> GitHub
         </a>
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
       </nav>
+      <a class="bar-cta" href="${meta.ctaHref || L.home}">${escapeHtml(meta.cta || ui.openEditor)}</a>
     </header>
 
     <div class="page">
@@ -225,6 +226,11 @@ ${aside}    </div>
 ${footer}
       <a href="${REPO}" rel="noopener">GitHub</a>
       <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
+      <!-- The same two credits the homepage footer carries: the editors'
+           authors, and the project this one forked from. Both already carry
+           their anchors, so they are not escaped -- see bin/pages/ui.mjs. -->
+      <p class="deriv">${ui.vendorCredit}</p>
+      <p class="deriv">${ui.upstreamCredit}</p>
       <p class="tm">${escapeHtml(ui.trademark)}</p>
     </footer>
   </body>

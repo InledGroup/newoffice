@@ -41,7 +41,7 @@ agent 调一次；这是第 3 步，留给用户或下次带 flag 的会话。
 
 ## 待用户
 
-- Origin trial 注册 edit.chaxus.com 的 token，`public/_headers` 下发
+- Origin trial 注册 office.inled.es 的 token，`public/_headers` 下发
   `Origin-Trial:`（CF Pages 支持）；没有 token 时只有开 flag 的用户可见工具。
 
 ## 坑

@@ -3,7 +3,7 @@
  * than content. The pages themselves come from markdown; this is the frame
  * around them.
  */
-import { REPO } from './constants.mjs';
+import { REPO, UPSTREAM_REPO, VENDOR_REPO } from './constants.mjs';
 
 export const UI = {
   en: {
@@ -35,8 +35,13 @@ export const UI = {
       ['/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `Source: ${src} in the repository`,
-    ossNote: `<strong>Open source &amp; self-hostable.</strong> Under AGPL-3.0 — verify that nothing is uploaded, or run your own copy: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>.`,
+    ossNote: `<strong>Open source &amp; self-hostable.</strong> Under AGPL-3.0 — verify that nothing is uploaded, or run your own copy: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>.`,
     trademark: `ONLYOFFICE is a trademark of Ascensio System SIA. This site is not an official ONLYOFFICE product and is not affiliated with or endorsed by Ascensio System SIA.`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `The document editors are <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a>, by Ascensio System SIA. If they are useful to you, star their repository.`,
+    upstreamCredit: `This site is a fork of <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>, the project it started from. A star there is the credit that counts.`,
   },
   'zh-CN': {
     siteName: 'Document Editor',
@@ -67,8 +72,13 @@ export const UI = {
       ['/zh-CN/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `来源：仓库中的 ${src}`,
-    ossNote: `<strong>开源 · 可自托管。</strong>采用 AGPL-3.0——你可以核实没有任何上传，或者自建一份：<a href="${REPO}" rel="noopener">github.com/ranuts/document</a>。`,
+    ossNote: `<strong>开源 · 可自托管。</strong>采用 AGPL-3.0——你可以核实没有任何上传，或者自建一份：<a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>。`,
     trademark: `ONLYOFFICE 是 Ascensio System SIA 的商标。本站并非官方 ONLYOFFICE 产品，与 Ascensio System SIA 无隶属关系，也未获其背书。`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `文档编辑器是 Ascensio System SIA 出品的 <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a>。如果它对你有用，请给他们的仓库点一个 star。`,
+    upstreamCredit: `本站 fork 自 <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>，即最初的项目。给它点 star 就是最好的支持。`,
   },
   ja: {
     siteName: 'Document Editor',
@@ -98,8 +108,13 @@ export const UI = {
       ['/ja/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `ソース: リポジトリの ${src}`,
-    ossNote: `<strong>オープンソース・セルフホスト可能。</strong>AGPL-3.0 のもとで公開——何もアップロードされないことを自分で確認でき、自分で運用することもできます: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>。`,
+    ossNote: `<strong>オープンソース・セルフホスト可能。</strong>AGPL-3.0 のもとで公開——何もアップロードされないことを自分で確認でき、自分で運用することもできます: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>。`,
     trademark: `ONLYOFFICE は Ascensio System SIA の商標です。本サイトは公式の ONLYOFFICE 製品ではなく、Ascensio System SIA との提携も推奨関係もありません。`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `ドキュメントエディタは Ascensio System SIA の <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a> です。役に立ったら、ぜひリポジトリにスターを。`,
+    upstreamCredit: `このサイトは最初のプロジェクト <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a> のフォークです。スターが何よりの支えになります。`,
   },
   de: {
     siteName: 'Document Editor',
@@ -129,8 +144,13 @@ export const UI = {
       ['/de/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `Quelle: ${src} im Repository`,
-    ossNote: `<strong>Open Source &amp; selbst hostbar.</strong> Unter AGPL-3.0 — prüfen Sie selbst, dass nichts hochgeladen wird, oder betreiben Sie eine eigene Kopie: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>.`,
+    ossNote: `<strong>Open Source &amp; selbst hostbar.</strong> Unter AGPL-3.0 — prüfen Sie selbst, dass nichts hochgeladen wird, oder betreiben Sie eine eigene Kopie: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>.`,
     trademark: `ONLYOFFICE ist eine Marke von Ascensio System SIA. Diese Website ist kein offizielles ONLYOFFICE-Produkt und steht in keiner Verbindung zu Ascensio System SIA.`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `Die Dokument-Editoren sind <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a> von Ascensio System SIA. Wenn sie dir nützlich sind, gib ihrem Repository einen Stern.`,
+    upstreamCredit: `Diese Seite ist ein Fork von <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>, dem ursprünglichen Projekt. Ein Stern dort ist die Anerkennung, die zählt.`,
   },
   es: {
     siteName: 'Document Editor',
@@ -160,8 +180,13 @@ export const UI = {
       ['/es/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `Fuente: ${src} en el repositorio`,
-    ossNote: `<strong>Código abierto y autoalojable.</strong> Bajo AGPL-3.0: comprueba que no se sube nada, o ejecuta tu propia copia: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>.`,
+    ossNote: `<strong>Código abierto y autoalojable.</strong> Bajo AGPL-3.0: comprueba que no se sube nada, o ejecuta tu propia copia: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>.`,
     trademark: `ONLYOFFICE es una marca de Ascensio System SIA. Este sitio no es un producto oficial de ONLYOFFICE ni está afiliado a Ascensio System SIA ni respaldado por ella.`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `Los editores de documentos son <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a>, de Ascensio System SIA. Si te resultan útiles, dale una estrella a su repositorio.`,
+    upstreamCredit: `Este sitio es un fork de <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>, el proyecto del que nació. Una estrella allí es el reconocimiento que cuenta.`,
   },
   ko: {
     siteName: 'Document Editor',
@@ -191,8 +216,13 @@ export const UI = {
       ['/ko/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `출처: 저장소의 ${src}`,
-    ossNote: `<strong>오픈 소스이며 직접 호스팅할 수 있습니다.</strong> AGPL-3.0으로 공개되어 있어, 아무것도 업로드되지 않는다는 것을 직접 확인하거나 직접 운영할 수 있습니다: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>.`,
+    ossNote: `<strong>오픈 소스이며 직접 호스팅할 수 있습니다.</strong> AGPL-3.0으로 공개되어 있어, 아무것도 업로드되지 않는다는 것을 직접 확인하거나 직접 운영할 수 있습니다: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>.`,
     trademark: `ONLYOFFICE는 Ascensio System SIA의 상표입니다. 이 사이트는 공식 ONLYOFFICE 제품이 아니며 Ascensio System SIA와 제휴하거나 후원받지 않았습니다.`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `문서 편집기는 Ascensio System SIA의 <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a>입니다. 유용했다면 그들의 저장소에 스타를 남겨 주세요.`,
+    upstreamCredit: `이 사이트는 처음 시작된 프로젝트 <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>의 포크입니다. 그곳의 스타가 가장 큰 힘이 됩니다.`,
   },
   pt: {
     siteName: 'Document Editor',
@@ -222,8 +252,13 @@ export const UI = {
       ['/pt/embed-document-editor', 'Embed API'],
     ],
     generatedNote: (src) => `Fonte: ${src} no repositório`,
-    ossNote: `<strong>Código aberto e auto-hospedável.</strong> Sob a AGPL-3.0 — confira você mesmo que nada é enviado, ou rode a sua própria cópia: <a href="${REPO}" rel="noopener">github.com/ranuts/document</a>.`,
+    ossNote: `<strong>Código aberto e auto-hospedável.</strong> Sob a AGPL-3.0 — confira você mesmo que nada é enviado, ou rode a sua própria cópia: <a href="${REPO}" rel="noopener">github.com/InledGroup/newoffice</a>.`,
     trademark: `ONLYOFFICE é uma marca da Ascensio System SIA. Este site não é um produto oficial do ONLYOFFICE nem tem afiliação ou endosso da Ascensio System SIA.`,
+    // Two debts, stated separately: who built the editors, and the
+    // project this one forked from. Both get the ask, because a star
+    // is the only currency an AGPL project actually has.
+    vendorCredit: `Os editores de documentos são o <a href="${VENDOR_REPO}" rel="noopener" target="_blank">ONLYOFFICE</a>, da Ascensio System SIA. Se te forem úteis, deixa uma estrela no repositório deles.`,
+    upstreamCredit: `Este site é um fork do <a href="${UPSTREAM_REPO}" rel="noopener" target="_blank">ranuts/document</a>, o projeto de onde nasceu. Uma estrela lá é o reconhecimento que conta.`,
   },
 };
 

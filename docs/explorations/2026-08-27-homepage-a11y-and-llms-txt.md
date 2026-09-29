@@ -56,7 +56,7 @@ chip 里的"开源"、文档窗口的"已保存到本地"徽章、批注块的�
 ## 还剩一条：CLS —— 量了线上，不存在
 
 修完之后 Agentic Browsing 停在 83，剩的是首页 CLS 0.25（阈值 0.1）。
-但那是 dev server 上的数字。对**线上** `https://edit.chaxus.com/zh-CN/` 跑同一份审计：
+但那是 dev server 上的数字。对**线上** `https://office.inled.es/zh-CN/` 跑同一份审计：
 失败项只有上面这四条（线上还是旧构建），**CLS 通过**。所以那 0.25 是 vite dev
 的产物（模块未打包、字体加载时序不同），不是站点的问题，本轮不动它。
 

@@ -77,13 +77,13 @@ export const es: Partial<I18nMessages> = {
   agentToolErrorPrefix: 'Error de herramienta: ',
   autosaveStopped:
     'Se ha detenido el guardado automático: este navegador se ha quedado sin espacio. Exporta este documento y borra algunos de los que tienes guardados.',
+  autosaveWorking: 'Tu trabajo se está guardando en este navegador',
   historyTitle: 'Documentos guardados',
   historyIntro:
     'Copias de los documentos que has editado, conservadas en este navegador y en este dispositivo, para que recargar, cerrar una pestaña o un fallo no te cuesten el trabajo. Nada de esto se ha subido a ningún sitio.',
   historyColDocument: 'Documento',
   historyColEdited: 'Última edición',
   historyColSize: 'Tamaño',
-  historyColExpires: 'Se borra',
   historyNotBackup:
     'Estas copias existen para que puedas retomar lo que estabas haciendo. No son una copia de seguridad: exporta lo que quieras conservar.',
   historySearchPlaceholder: 'Buscar por nombre de archivo',
@@ -106,10 +106,7 @@ export const es: Partial<I18nMessages> = {
   historyAutosaveOff:
     'El guardado automático está desactivado: lo que edites ahora no se guarda y se perderá al cerrar la página.',
   historyRetention:
-    'Cada documento se elimina automáticamente 7 días después de la última vez que lo editaste o lo abriste. También puedes borrar lo que quieras desde aquí, y surte efecto de inmediato.',
-  historyExpiresIn: 'quedan {days} días',
-  historyExpiresInOne: 'queda 1 día',
-  historyExpiresToday: 'hoy',
+    'Nada de esto se borra solo por tiempo. Cada documento se queda hasta que lo borras tú o vacíes la lista; la única excepción automática es que a este navegador le falte espacio, y entonces se va el documento que menos has abierto.',
   historyDownload: 'Descargar',
   historyDownloadFailed: 'No se pudo guardar esa copia en el disco.',
   historyOnlyUnsaved: 'Sin exportar',
@@ -123,4 +120,28 @@ export const es: Partial<I18nMessages> = {
   historyClearSearch: 'Borrar la búsqueda',
   historyDeleteTitle: 'Eliminar este documento',
   historyClearTitle: 'Eliminarlo todo',
+
+  // /home -- la página de inicio de la aplicación.
+  homeNew: 'Nuevo',
+  homeDocument: 'Documento',
+  homeSpreadsheet: 'Hoja de cálculo',
+  homePresentation: 'Presentación',
+  homePdf: 'PDF',
+  homeChooseFile: 'Elegir un archivo',
+  homeDropHere: 'Suelta tu archivo aquí',
+  homeDropHint: 'Arrastra aquí tu documento de Office o haz clic para buscarlo en tu equipo',
+  homeSupports: 'Compatible con: DOCX, DOC, XLSX, XLS, PPTX, PPT, PDF',
+  homeRecent: 'Recientes',
+  homeRecentLoading: 'Cargando los archivos recientes…',
+  homeRecentEmpty: 'No hay archivos recientes',
+  homeRecentEmptyHint: 'Los archivos que abras aparecerán aquí para acceder rápido',
+  homeReopenTip: 'Haz clic para volver a abrir este archivo',
+  homeRemoveRecent: 'Quitar de recientes',
+  homeNavOpen: 'Abrir',
+  homeNavSaved: 'Documentos guardados',
+  homeNavHelp: 'Ayuda',
+  homeNavAbout: 'Acerca de',
+  homeDropOverlay: 'Suelta para abrir',
+  homeDropOverlayHint: 'Word, Excel, PowerPoint y más',
+  homeNoScript: 'Esta página necesita JavaScript para leer los documentos guardados en tu navegador.',
 };

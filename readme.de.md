@@ -10,8 +10,8 @@
   <a href="https://github.com/ranuts/document/releases">
     <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
   </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
+  <a href="https://office.inled.es/">
+    <img src="https://img.shields.io/badge/Live-office.inled.es-brightgreen" alt="Live site">
   </a>
 </p>
 <p align="center">
@@ -29,7 +29,7 @@ Word-, Excel- und PowerPoint-Dateien in einem Browser-Tab öffnen und bearbeiten
 Die OnlyOffice-Engine und ihr WASM-Konverter laufen auf dem Gerät der Besucherin selbst,
 Dokumente werden also nie hochgeladen, und ein Konto braucht es auch nicht.
 
-**Live-Website: [edit.chaxus.com](https://edit.chaxus.com/)**
+**Live-Website: [office.inled.es](https://office.inled.es/)**
 
 ---
 
@@ -37,7 +37,7 @@ Dokumente werden also nie hochgeladen, und ein Konto braucht es auch nicht.
 
 - 🔒 **Nichts wird hochgeladen** — jede Umwandlung, jede Änderung, jeder Export passiert im Tab
 - 📝 **Echtes Bearbeiten, keine Vorschau** — DOCX, XLSX, PPTX und CSV, dazu ODF, RTF, TXT und die alten Binärformate; PDFs lassen sich öffnen und kommentieren
-- 🕓 **Nichts geht verloren, wenn der Tab zugeht** — Änderungen werden im eigenen Browser gesichert, 7 Tage aufbewahrt, jederzeit löschbar ([Einzelheiten](#-ihre-daten-bleiben-auf-ihrem-gerät))
+- 🕓 **Nichts geht verloren, wenn der Tab zugeht** — Änderungen werden im eigenen Browser gesichert und bleiben, bis Sie sie löschen ([Einzelheiten](#-ihre-daten-bleiben-auf-ihrem-gerät))
 - 📴 **Funktioniert offline** — als PWA installierbar; nach dem ersten Besuch ist kein Netz nötig
 - 🌍 **Mehrsprachig** — 8 Oberflächensprachen für die Website, 45 für den Editor selbst
 - 🧩 **Einbettbar** — vollständige postMessage-API für die iframe-Integration
@@ -48,7 +48,7 @@ Dokumente werden also nie hochgeladen, und ein Konto braucht es auch nicht.
 
 ## 🚀 Schnellstart
 
-**Einfach nutzen:** [edit.chaxus.com](https://edit.chaxus.com/) — nichts zu installieren.
+**Einfach nutzen:** [office.inled.es](https://office.inled.es/) — nichts zu installieren.
 
 **Selbst betreiben mit Docker:**
 
@@ -114,10 +114,12 @@ können Sie selbst entfernen:
   oder ein Absturz die Arbeit nicht kostet. Beim nächsten Öffnen bietet er sie wieder an.
   Diese Kopien sind dazu da, dass Sie weitermachen können — sie sind keine Sicherung,
   exportieren Sie also weiterhin alles, was Sie behalten wollen.
-- **Sieben Tage, dann weg.** Jedes Dokument wird sieben Tage nach der letzten Bearbeitung
-  oder Öffnung automatisch gelöscht, ob Sie zurückkommen oder nicht.
+- **Nichts löscht sich selbst.** Ein Dokument bleibt hier, bis Sie es löschen oder die Liste
+  leeren, egal wie lange es her ist, dass Sie es zuletzt geöffnet haben. Die einzige
+  automatische Ausnahme ist, dass diesem Browser der Speicher ausgeht, und dann geht das
+  Dokument, das am längsten nicht geöffnet wurde.
 
-[`/history`](https://edit.chaxus.com/history) listet auf, was gespeichert ist, mit einem
+[`/history`](https://office.inled.es/history) listet auf, was gespeichert ist, mit einem
 Löschen pro Zeile, einem Alles-Löschen und einem Schalter, der das automatische Speichern
 ganz abstellt. Löschen wirkt dort sofort. Auf einem gemeinsam genutzten Rechner ist das
 die Seite, die man aufsucht.

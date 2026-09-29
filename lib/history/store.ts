@@ -5,9 +5,13 @@
  *
  * Retention. Snapshots are taken automatically, so without a ceiling the
  * database grows until the browser refuses a write -- and a write refused at
- * the wrong moment is exactly the edit the user wanted back. Each document
- * keeps a handful of revisions and the library as a whole keeps to a budget,
- * evicting whole documents by least-recently-opened.
+ * the wrong moment is exactly the edit the user wanted back. So the ceiling is
+ * the browser's own: each document keeps a handful of revisions, and the
+ * library as a whole keeps to a share of the space the origin was granted,
+ * evicting whole documents by least-recently-opened. There is no timer. A
+ * document stays until it is deleted, cleared, or squeezed out by its own
+ * size, because the alternative -- deleting someone's work because a week
+ * passed -- is not a retention policy anyone agreed to.
  *
  * Quota. `QuotaExceededError` is treated as "make room and try once more",
  * never as a crash: browsers hand out very different amounts of room (a share
@@ -19,7 +23,7 @@
  */
 import { BLOBS_BY_DOC, BLOBS_STORE, DOCS_STORE, requestToPromise, withStores } from './db';
 import type { HistoryDoc, HistoryOrigin, HistorySnapshot } from './types';
-import { MAX_AGE_MS, expiresAt, hasUnsavedWork } from './types';
+import { hasUnsavedWork } from './types';
 
 /** Revisions kept per document: the newest plus two recovery points behind it. */
 export const MAX_REVS_PER_DOC = 3;
@@ -27,8 +31,6 @@ export const MAX_REVS_PER_DOC = 3;
 export const MAX_TOTAL_BYTES = 500 * 1024 * 1024;
 /** Never claim more than this share of the origin's reported quota. */
 export const QUOTA_SHARE = 0.5;
-/** Re-exported so callers can state the retention window without importing types. */
-export { MAX_AGE_MS };
 /** Default page size for the history list. */
 export const DEFAULT_PAGE_SIZE = 20;
 
@@ -135,21 +137,6 @@ async function trimRevisions(tx: IDBTransaction, docId: string): Promise<number>
 }
 
 /**
- * Delete everything past its seven days. Runs inside whatever transaction the
- * caller already has: expiry has to be something the browser does on its own,
- * not something that waits for the user to visit a page.
- */
-async function sweepExpired(tx: IDBTransaction, now: number): Promise<string[]> {
-  const docs = await readAllDocs(tx);
-  const expired = docs.filter((doc) => expiresAt(doc) <= now);
-  for (const doc of expired) {
-    await deleteBlobsOf(tx, doc.id);
-    tx.objectStore(DOCS_STORE).delete(doc.id);
-  }
-  return expired.map((doc) => doc.id);
-}
-
-/**
  * Evict whole documents, least-recently-opened first, until the library fits
  * the budget. `protectedId` is the document being written right now: evicting
  * it to make room for itself would be a loop that ends in an empty database.
@@ -208,10 +195,6 @@ async function writeSnapshot(payload: Uint8Array, input: SnapshotInput, budget: 
     const rev = existing ? existing.nextRev : 0;
     const snapshot: HistorySnapshot = { docId: doc.id, rev, savedAt: now, bytes: payload, byteLength };
     tx.objectStore(BLOBS_STORE).put(snapshot);
-
-    // Expiry first: room freed by documents that were due to go anyway is room
-    // the budget does not have to take from documents that are still current.
-    await sweepExpired(tx, now);
 
     const freed = await trimRevisions(tx, doc.id);
     doc.totalBytes -= freed;
@@ -396,26 +379,13 @@ export function markSavedToDisk(id: string): Promise<HistoryDoc | null> {
 }
 
 /**
- * Delete expired documents now. Called when the app starts and when the
- * history page opens, so the seven days hold even for someone who edits
- * nothing (a write would otherwise be the only thing that sweeps).
- */
-/**
  * Test seam. The monotonic clock is module-wide and only ever moves forward,
  * which is right in a browser tab and wrong across tests: one case that winds
  * the system clock forward would otherwise stamp every later case's records
- * with a time in the future, and nothing would ever look expired again.
+ * with a time in the future, and the list would keep sorting them to the top.
  */
 export function resetHistoryClockForTests(): void {
   lastStamp = 0;
-}
-
-export async function pruneExpired(): Promise<string[]> {
-  try {
-    return (await withStores([DOCS_STORE, BLOBS_STORE], 'readwrite', (tx) => sweepExpired(tx, Date.now()))) ?? [];
-  } catch {
-    return [];
-  }
 }
 
 /** Total bytes the library currently occupies, metadata only. */

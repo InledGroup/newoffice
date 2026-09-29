@@ -74,13 +74,19 @@ export interface I18nMessages {
 
   // Local history: autosave and the history page
   autosaveStopped: string;
+  /**
+   * The editor's autosave status pill (lib/autosave-indicator.ts), shown while
+   * there is an edit this browser has not taken yet. It disappears when one
+   * lands, so it is the only sentence here about being saved -- there is no
+   * matching "and it is saved" state to keep on screen.
+   */
+  autosaveWorking: string;
   historyChip: string;
   historyTitle: string;
   historyIntro: string;
   historyColDocument: string;
   historyColEdited: string;
   historyColSize: string;
-  historyColExpires: string;
   historyNotBackup: string;
   historySearchPlaceholder: string;
   historyEmptyTitle: string;
@@ -108,12 +114,16 @@ export interface I18nMessages {
   historyNext: string;
   historyBack: string;
   historyAutosaveLabel: string;
+  /**
+   * Shown in two places that answer the same question -- the switch's own help
+   * text on /history, and the editor pill when autosave is off while the
+   * document has edits in it. One sentence for both, so the warning in the
+   * editor reads the way the page that owns the switch reads.
+   */
   historyAutosaveOff: string;
+  /** Why a document is still here: nothing deletes on a timer, only the user and
+   *  the browser's storage limit do. */
   historyRetention: string;
-  /** `{days}` is a whole number of days, always 2 or more (see historyExpiresInOne). */
-  historyExpiresIn: string;
-  historyExpiresInOne: string;
-  historyExpiresToday: string;
   /** Row action: write this snapshot straight to disk, without opening it. */
   historyDownload: string;
   historyDownloadFailed: string;
@@ -122,4 +132,31 @@ export interface I18nMessages {
   historyOpenFile: string;
   historyRailSettings: string;
   historyRailRetention: string;
+
+  // /home -- the app's home page: the InSuite layout (New, open a file, your
+  // saved documents read back out of this browser). Spanish and English are
+  // written; the other five tables carry the English string until someone
+  // translates them, which is what keeps the completeness check honest.
+  homeNew: string;
+  homeDocument: string;
+  homeSpreadsheet: string;
+  homePresentation: string;
+  homePdf: string;
+  homeChooseFile: string;
+  homeDropHere: string;
+  homeDropHint: string;
+  homeSupports: string;
+  homeRecent: string;
+  homeRecentLoading: string;
+  homeRecentEmpty: string;
+  homeRecentEmptyHint: string;
+  homeReopenTip: string;
+  homeRemoveRecent: string;
+  homeNavOpen: string;
+  homeNavSaved: string;
+  homeNavHelp: string;
+  homeNavAbout: string;
+  homeDropOverlay: string;
+  homeDropOverlayHint: string;
+  homeNoScript: string;
 }
