@@ -1,8 +1,7 @@
 import { createObjectURL } from 'ranuts/utils';
-import { View } from 'ranui/builder';
 import { getDocmentObj, setDocmentObj } from '@ranuts/shared/store';
 import { t } from '@ranuts/shared/i18n';
-import 'ranui/message';
+import './toast';
 import { handleDocumentOperation, loadEditorApi } from './converter';
 import { showLoading } from './loading';
 import { startDocumentSession } from './history/session';
@@ -17,22 +16,21 @@ export function setUICallbacks(callbacks: { hideControlPanel: () => void; showCo
   showControlPanelFn = callbacks.showControlPanel;
 }
 
-// Create a single hidden file input (ranui builder, ecosystem convention).
+// Create the single hidden file input every open path goes through.
 //
 // `display: none`, not `visibility: hidden`: the latter hides the control but
 // keeps it in flow, and it is a body child sitting after a 100%-height #app --
 // so it added its own 25px below the viewport and gave /editor a page
 // scrollbar. A file input is only ever opened programmatically here
 // (fileInput.click() below), which display: none does not prevent.
-const fileInput = View('input')
-  .attr('type', 'file')
-  // Must stay in step with DOCUMENT_TYPE_MAP (@ranuts/shared/document-utils): the
-  // engine reads OpenDocument and the legacy text formats too, and leaving them
-  // out here greys them out in the picker for no reason -- the file the user was
-  // sent is right there and cannot be selected.
-  .attr('accept', '.docx,.xlsx,.pptx,.doc,.xls,.ppt,.csv,.pdf,.odt,.ods,.odp,.rtf,.txt')
-  .attr('style', 'display: none')
-  .build() as HTMLInputElement;
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+// Must stay in step with DOCUMENT_TYPE_MAP (@ranuts/shared/document-utils): the
+// engine reads OpenDocument and the legacy text formats too, and leaving them
+// out here greys them out in the picker for no reason -- the file the user was
+// sent is right there and cannot be selected.
+fileInput.accept = '.docx,.xlsx,.pptx,.doc,.xls,.ppt,.csv,.pdf,.odt,.ods,.odp,.rtf,.txt';
+fileInput.style.display = 'none';
 document.body.appendChild(fileInput);
 
 export const onCreateNew = async (ext: string, options?: { docId?: string }): Promise<void> => {
@@ -148,7 +146,7 @@ function reportUrlOpenFailure(error: unknown): void {
   const unreachable = error instanceof TypeError;
   const detail = error instanceof Error ? error.message : String(error);
   const text = unreachable ? t('openUrlUnreachable') : `${t('openUrlFailed')}${detail}`;
-  // ranui/message registers a global `window.message` toast API (untyped).
+  // lib/toast.ts registers the global `window.message` toast API (untyped).
   const toast = (window as unknown as { message?: { error?: (msg: string) => void } }).message;
   if (toast?.error) toast.error(text);
   else console.error(text);

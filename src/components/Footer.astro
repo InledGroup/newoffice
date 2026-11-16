@@ -1,0 +1,105 @@
+---
+/**
+ * The footer, and the credits that must not be dropped.
+ *
+ * This site is a derivative of ONLYOFFICE, whose AGPL header carries section
+ * 7(b) (keep the product logo) and 7(e) (no trademark grant). The notices below
+ * are how that obligation is discharged on a page a visitor actually reads.
+ *
+ * The Microsoft notice is there for the opposite reason: the product names and
+ * the icon colours of Word, Excel and PowerPoint are Microsoft's marks. This
+ * site draws its own marks and displays the names only to say what a file is,
+ * which is a description, not a claim -- and saying so is cheaper than being
+ * asked.
+ */
+import { SITE_COPY, homePath, type SiteLocale } from '../i18n/site';
+
+export interface Props {
+  locale?: SiteLocale;
+}
+
+const { locale = 'en' } = Astro.props;
+const copy = SITE_COPY[locale];
+---
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="foot-main">
+      <p class="foot-line">© 2026 Insuite Office · {copy.footer.tagline}</p>
+      <nav class="foot-nav" aria-label="Footer">
+        <a href={homePath(locale)}>{copy.nav.home}</a>
+        <a href="/history">{copy.nav.saved}</a>
+        <a href="https://github.com/InledGroup/newoffice" rel="noopener" target="_blank">GitHub</a>
+      </nav>
+    </div>
+    <p class="foot-deriv">
+      The document editors are <a href="https://github.com/ONLYOFFICE/web-apps" rel="noopener" target="_blank">ONLYOFFICE</a
+      >, by Ascensio System SIA. If they are useful to you, star their repository.
+    </p>
+    <p class="foot-deriv">
+      This site is a fork of <a href="https://github.com/ranuts/document" rel="noopener" target="_blank">ranuts/document</a
+      >, the project it started from. A star there is the credit that counts.
+    </p>
+    <p class="foot-tm">
+      Microsoft, Word, Excel, PowerPoint, OneDrive and the Microsoft logo are trademarks of the Microsoft group of
+      companies. This site is not produced by, endorsed by or affiliated with Microsoft, and the icons shown here are
+      our own drawings used to identify a file type.
+    </p>
+    <p class="foot-tm">
+      ONLYOFFICE is a trademark of Ascensio System SIA. This site is not an official ONLYOFFICE product and is not
+      affiliated with or endorsed by Ascensio System SIA. Source available under AGPL-3.0.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    margin-top: 64px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .foot-inner {
+    max-width: var(--page);
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+
+  .foot-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .foot-line {
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  .foot-nav {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+  }
+
+  .foot-nav a {
+    color: var(--ink-2);
+  }
+
+  .foot-deriv,
+  .foot-tm {
+    max-width: 78ch;
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  .foot-tm {
+    color: var(--ink-4);
+  }
+</style>

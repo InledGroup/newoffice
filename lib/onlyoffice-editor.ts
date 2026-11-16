@@ -1,4 +1,4 @@
-import 'ranui/message';
+import './toast';
 import { getOnlyOfficeLang, t } from '@ranuts/shared/i18n';
 import { DOCUMENT_TYPE_MAP } from '@ranuts/shared/document-utils';
 import { prepareEditorIframe } from './onlyoffice/iframe-guards';

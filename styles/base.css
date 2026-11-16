@@ -1,15 +1,12 @@
-/* No CSS framework here: every design VALUE comes from the ranui token layer
-   (public/ran-tokens.css) and every piece of UI chrome is a real ranui component.
-   Tailwind used to be imported for its preflight plus exactly two utilities
-   (#app's w-full/h-full in editor.html); the preflight rules the editor page
-   actually depended on are spelled out below instead.
-
-   Preflight's `iframe { display: block }` is deliberately NOT one of them: the
-   editor frame is the only iframe here and the vendor already sets
-   `vertical-align: top` on it, so it contributes no baseline descender.
-   Measured, not assumed -- and the E2E case in app-smoke.spec.ts asserts the
-   page fits the viewport, so if that ever stops holding it fails there rather
-   than shipping a scrollbar. */
+/**
+ * The editor route.
+ *
+ * One screen: the editor iframe fills it. Everything around the frame -- the
+ * empty state, the loading mask, the autosave pill, the agent panel -- is
+ * chrome this page owns, drawn in the same light palette as the rest of the
+ * site (src/styles/tokens.css).
+ */
+@import '../src/styles/tokens.css';
 
 html,
 body {
@@ -17,441 +14,291 @@ body {
   margin: 0;
 }
 
-/* Preflight set a sans stack and a line-height on `html`, and nothing else does
-   it for this page: `ran-tokens.css` only DECLARES --ran-font-family, and the
-   rule that applies it lives in public/home.css, which /editor never loads.
-   Without this the whole editor page falls back to the UA default -- Times --
-   which the `font: inherit` below then propagates into the agent panel's
-   composer and native controls, while the ranui components beside them keep
-   rendering Geist (they resolve --ran-skin-font-family inside their shadow
-   DOM). Two typefaces in one panel. Tokens, not preflight's own values, so
-   the page agrees with the components. */
-html {
-  font-family: var(--ran-font-family);
-  line-height: var(--ran-line-height);
-}
-
-/* #app hosts the editor iframe and must fill the viewport (was w-full h-full). */
 #app {
   width: 100%;
   height: 100%;
 }
 
-/* Native controls default to the platform's own font; the panels below assume
-   they inherit the page's (ranui) typography.
+#app iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 
-   They also default to content-box sizing plus a UA padding, and the rules
-   below were written under preflight, which zeroed both: `.agent-launcher`
-   sets width/height 48px and border-radius 50%, so with the UA's 1px 6px
-   padding added outside them it renders as a 60x50 ellipse rather than a
-   circle. Border-box (and a zeroed button padding, since the buttons here
-   size themselves) is what those rules assume. Scoped to the four elements
-   the editor page actually uses rather than made global -- ranui's own
-   controls are custom elements with their own shadow DOM. */
 button,
 input,
 select,
 textarea {
   font: inherit;
-  box-sizing: border-box;
-}
-button {
-  padding: 0;
 }
 
 a {
-  color: unset;
-}
-
-input {
-  outline: unset;
+  color: inherit;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  width: 0px;
+  width: 0;
   display: none;
 }
 
-h2 {
-  font-size: 1.5rem;
-}
+/* ---- embed mode: the host page owns the chrome ---- */
 
-body.embed-mode #control-panel-container {
+body.embed-mode #control-panel-container,
+body.embed-mode #autosave-indicator,
+body.embed-mode .agent-launcher,
+body.embed-mode .agent-panel {
   display: none !important;
 }
 
-/* The landing hero is SEO/GEO content only — never show it inside an embed. */
-body.embed-mode #landing-hero {
-  display: none !important;
-}
+/* ---- the empty state ---- */
 
-/* The autosave status pill (lib/autosave-indicator.ts). It hangs below the
-   editor chrome, out of the canvas, and is deliberately modest: a promise kept
-   in the present tense, not a notification. States are set by the module via
-   data-state, and it carries no state at all when there is nothing pending --
-   hidden entirely in embed mode too, where the host page owns its own chrome.
-   Colors ride the ranui token ladder so dark mode needs no second rule. */
-#autosave-indicator {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 12px;
-  z-index: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ran-space-2);
-  padding: 4px 14px;
-  border-radius: var(--ran-radius-full);
-  border: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-elevated);
-  color: var(--ran-color-text-secondary);
-  font-size: 12px;
-  line-height: 1.6;
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-  transition:
-    opacity var(--ran-motion-duration-fast) ease,
-    background var(--ran-motion-duration-fast) ease;
-}
-#autosave-indicator[hidden] {
-  display: none;
-}
-/* Two states, and only two. The pill is a promise in the present tense, so it
-   is only on screen while the promise is being kept -- an edit the browser has
-   not captured yet (a pulsing dot, reduced-motion users get a steady one via the
-   token's prefers-reduced-motion handling in the ranui layer), or edits in a
-   document nothing is copying any more (the same dot, in the warning colour,
-   because the one thing this widget must never do is go quiet over unsaved
-   work). There is deliberately no "saved" state: a line that stays on screen
-   saying everything is fine is a line nobody reads by the third document. */
-#autosave-indicator[data-state='working'],
-#autosave-indicator[data-state='off'] {
-  background: var(--ran-color-bg-muted);
-}
-#autosave-indicator[data-state='working']::before,
-#autosave-indicator[data-state='off']::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ran-color-primary);
-  animation: autosave-pulse 2.4s ease-in-out infinite;
-}
-#autosave-indicator[data-state='off']::before {
-  background: var(--ran-color-warning);
-}
-@keyframes autosave-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  #autosave-indicator[data-state='working']::before {
-    animation: none;
-  }
-}
-body.embed-mode #autosave-indicator {
-  display: none !important;
-}
-/* Back at the home state (open failed, document gone): the pill speaks about a
-   document that is no longer on screen, so it goes with it. CSS, not JS, so it
-   stays in step with every landing show/hide path. */
-body.landing-active #autosave-indicator {
-  display: none !important;
-}
-
-/* While the landing hero is active, keep the legacy overlay out of the way
-   (it stays in the DOM as a fallback) and let the page scroll past 100vh.
-   Once a document opens, landing-active is removed and the editor reclaims
-   the fixed full-height #app layout. */
-body.landing-active #control-panel-container {
-  display: none !important;
-}
-
-/* A URL that already names a document (?file / ?src / ?new / ?saved /
-   ?open=local) goes straight into the editor, so the home-state panel is never
-   the answer -- and it must not be visible while the document loads. index.ts
-   sets this before the panel is built; showControlPanel() removes it if we end
-   up back at the home state after all. */
-body.opening-document #control-panel-container {
-  display: none !important;
-}
-body.landing-active,
-body.landing-active #app {
-  height: auto;
-  min-height: 100%;
-  overflow: visible;
-}
-
-/* Style for r-button webcomponent using ::part.
-   r-button exports parts "button" (container) and "content" (padding/border/
-   typography) — see node_modules/ranui/dist/button-*.js. */
-r-button[type='text']::part(content) {
-  font-size: 18px;
-  font-weight: 500;
-  padding: var(--ran-space-3) var(--ran-space-6);
-}
-
-@media (max-width: 480px) {
-  r-button[type='text']::part(content) {
-    font-size: 16px;
-    padding: 8px 16px;
-  }
-}
-
-/* Full-screen loading overlay (lib/loading.ts). gray-alpha rides the token
-   ladder, so the scrim stays a contrast veil in both themes. */
-.loading-mask {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ran-gray-alpha-500);
-  backdrop-filter: blur(2px);
-}
-.loading-mask r-loading {
-  /* Monochrome, per ranui's design standard: blue is reserved for links and the focus
-     ring; a loading indicator is neither. --ran-color-primary flips with the theme. */
-  color: var(--ran-color-primary);
-  font-size: 24px;
-}
-
-/* Control Panel */
 .control-panel-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  padding: var(--ran-space-6);
-  box-sizing: border-box;
+  background: var(--paper);
+}
+
+/* While a document is on its way, the panel must not paint over the loading
+   mask; index.ts sets this before the panel exists so the flash cannot happen. */
+body.opening-document .control-panel-container,
+.control-panel-container[hidden] {
+  display: none;
 }
 
 .control-panel-button-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
   justify-content: center;
-  pointer-events: auto;
-  max-width: 100%;
-  width: 100%;
+  gap: 8px;
+  max-width: 620px;
+  padding: 0 16px;
 }
 
 .control-panel-button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transform: scale(1);
-  transition: transform var(--ran-motion-duration-fast) ease;
-}
-.control-panel-button:hover {
-  transform: scale(1.05);
 }
 
-/* ── AI Agent panel (experimental, ?agent=1) ───────────────────────────── */
+.control-panel-button:hover {
+  background: var(--surface-2);
+}
+
+#upload-button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+#upload-button:hover {
+  background: var(--accent-hover);
+}
+
+/* ---- loading ---- */
+
+.loading-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgb(250 249 248 / 85%);
+  backdrop-filter: blur(1px);
+}
+
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: loading-spin 700ms linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- the autosave pill ---- */
+
+#autosave-indicator {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-3);
+  box-shadow: var(--shadow-2);
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+#autosave-indicator[hidden] {
+  display: none;
+}
+
+#autosave-indicator[data-state='off'] {
+  border-color: #f2c98a;
+  background: #fff8ea;
+  color: #8a5300;
+}
+
+/* ---- the agent panel ---- */
+
 .agent-panel {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 10000;
+  z-index: 800;
   display: flex;
   flex-direction: column;
-  width: 360px;
-  max-width: 90vw;
-  height: 100vh;
-  /* The 360px has to include the border, or the panel is 361px wide while the
-     editor below only gives up 360px and a hairline of document shows through. */
-  box-sizing: border-box;
-  background: var(--ran-color-bg-elevated);
-  border-left: 1px solid var(--ran-color-border);
-  box-shadow: var(--ran-shadow-menu);
-  font-size: 14px;
+  width: 380px;
+  max-width: 100vw;
+  height: 100%;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-3);
 }
-/* Dock mode: the editor gives up 360px so the panel sits beside it instead of
-   overlaying the document. DocsAPI REPLACES the #iframe placeholder div with the
-   editor <iframe> (name="frameEditor", no id) inside #app, so target that iframe
-   directly. Narrowing it makes OnlyOffice reflow its content. */
-#app iframe {
-  transition: width var(--ran-motion-duration-base) ease;
+
+body.agent-docked #app {
+  width: calc(100% - 380px);
 }
-body.agent-docked #app iframe {
-  width: calc(100% - 360px) !important;
-}
-@media (max-width: 480px) {
-  body.agent-docked #app iframe {
-    width: 100% !important;
-  }
-}
+
 .agent-panel-hidden {
   display: none;
 }
+
 .agent-panel-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--ran-color-border);
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
 }
+
 .agent-panel-title {
   font-weight: 600;
 }
+
+.agent-panel-settings-toggle,
 .agent-panel-close {
-  border: none;
-  background: none;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--ran-color-text-disabled);
-}
-.agent-panel-close:hover {
-  color: var(--ran-color-text);
-}
-/* Gear button: toggles the settings block. Sits left of the close button. */
-.agent-panel-settings-toggle {
+  width: 28px;
+  height: 28px;
   margin-left: auto;
-  margin-right: 8px;
-  border: none;
-  background: none;
-  font-size: 16px;
-  line-height: 1;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-3);
   cursor: pointer;
-  color: var(--ran-color-text-disabled);
 }
-.agent-panel-settings-toggle:hover {
-  color: var(--ran-color-text);
+
+.agent-panel-close {
+  margin-left: 0;
 }
+
+.agent-panel-settings-toggle:hover,
+.agent-panel-close:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
 .agent-panel-settings {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--ran-color-border);
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
 }
-/* Collapsed by default; the header gear toggles it. */
+
 .agent-panel-settings-hidden {
   display: none;
 }
+
 .agent-panel-key-label {
+  color: var(--ink-3);
   font-size: 12px;
-  color: var(--ran-color-text-secondary);
-}
-/* ranui r-input draws its own field — host carries layout only (no border). */
-.agent-panel-key-input,
-.agent-panel-ollama-model {
-  width: 100%;
-  box-sizing: border-box;
-}
-/* The conversation list, input box, and message bubbles now live in the
-   @ranuts/chat-ui ChatView (it injects its own `cui-*` styles). It must flex to
-   fill the panel's remaining height below the header/settings/toolbar. */
-.agent-panel .cui-root {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: auto;
 }
 
-/* r-select draws its own control — host carries layout only. */
-.agent-panel-provider {
-  width: 100%;
-  box-sizing: border-box;
-}
-.agent-panel-note {
-  font-size: 12px;
-  color: var(--ran-color-text-disabled);
-  white-space: pre-line; /* honour \n so multi-line hints (e.g. cache status + chat-only note) stack */
-}
-.agent-panel-note:empty {
-  display: none;
-}
-.agent-panel-link {
-  color: var(--ran-color-link);
-  cursor: pointer;
-  white-space: nowrap;
-  text-decoration: underline;
-}
-.agent-panel-link:hover,
-.agent-panel-link:focus-visible {
-  /* One step up the blue ladder from --ran-color-link. Not --ran-color-primary-hover:
-     since ranui 0.4 that is the near-black #383838, a light-only literal that would
-     leave the hover state invisible in dark mode. */
-  color: var(--ran-blue-900);
-}
-/* (Review / quote / clear moved into ChatView's `.cui-actions` slot above the
-   input; the old top toolbar is gone.) */
-
-/* ranui renders select dropdowns as a body-level <r-dropdown> portal at z-index
-   10, which the agent panel (z-index 10000) would otherwise cover — lift it. */
-r-dropdown[role='listbox'] {
-  z-index: 100000;
-}
-.agent-panel-review {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--ran-color-text-secondary);
-  cursor: pointer;
-}
 .agent-panel-model-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
-/* r-select / r-button below render themselves — host carries layout only. */
+
 .agent-panel-model {
   flex: 1;
   min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
-.agent-panel-load {
-  flex-shrink: 0;
+
+.agent-panel-note {
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.agent-panel-note:empty {
+  display: none;
+}
+
+.agent-panel-link {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.agent-panel .cui-root {
+  flex: 1;
+  min-height: 0;
 }
 
 .agent-launcher {
   position: fixed;
-  right: var(--ran-space-4);
-  /* Stacks above the main FAB: its 24 bottom + 40 height + a 16 gap. Derived, not arbitrary. */
-  bottom: 80px;
-  z-index: 9999;
-  width: 48px;
-  height: 48px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 810;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
   border-radius: 50%;
-  border: none;
-  /* Monochrome FAB, inverted against the page. ranui 0.4 renamed the contrast action
-     tokens: --ran-color-contrast-bg/-text are now --ran-color-primary/-primary-text,
-     and both flip with the theme. */
-  background: var(--ran-color-primary);
-  color: var(--ran-color-primary-text);
-  font-weight: 600;
-  font-size: 15px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--shadow-2);
   cursor: pointer;
-  box-shadow: var(--ran-shadow-menu);
 }
+
 .agent-launcher-hidden {
   display: none;
 }
-/* .agent-panel-quote / .agent-panel-clear are r-buttons — no host styling needed. */
 
-/* ranui DESIGN.md §5: motion is a preference, not a given. Everything animated here is
-   decoration on a state that is already visible from the layout change, so honouring the
-   setting costs nothing and removes the vestibular trigger. Kept to this file's own
-   selectors — ranui's components carry their own reduced-motion rules. */
 @media (prefers-reduced-motion: reduce) {
-  .loading-mask,
-  .agent-launcher {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+  .loading-spinner {
+    animation: none;
   }
 }

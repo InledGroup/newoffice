@@ -18,8 +18,7 @@ import { describe, expect, it } from 'vitest';
 const FONT_REGEX = /\.(ttf|woff2?|otf|eot)(\?.*)?$/;
 
 /** Keep in sync with DEPLOY_COUPLED in public/sw.js and the no-cache group in public/_headers. */
-const DEPLOY_COUPLED =
-  /^\/(?:home|landing)\.css$|^\/(?:lang-switch|sw-register|open-local|landing-prefetch|history-recent)\.js$|^\/ranui-iife\//;
+const DEPLOY_COUPLED = /^\/(?:sw-register|open-local|landing-prefetch|history-recent)\.js$/;
 
 const isHtmlRequest = (mode: string, pathname: string): boolean =>
   mode === 'navigate' || pathname.endsWith('.html') || pathname === '/' || pathname.endsWith('/');
@@ -172,20 +171,15 @@ describe('the hand-copied DEPLOY_COUPLED', () => {
 describe('deploy-coupled assets use network-first', () => {
   it('covers the other unhashed, deploy-coupled files', () => {
     for (const path of [
-      '/home.css',
-      '/landing.css',
-      '/lang-switch.js',
       '/sw-register.js',
-      // The landing pages' two other stable-named scripts. They were on SWR
-      // for the whole route-split era: editing either shipped a deploy whose
-      // landing pages kept running the previous copy, refilling itself from
-      // the browser's disk cache indefinitely.
+      // The landing page's stable-named scripts. They were on SWR for the whole
+      // route-split era: editing either shipped a deploy whose landing page kept
+      // running the previous copy, refilling itself from the browser's disk
+      // cache indefinitely.
       '/open-local.js',
       '/landing-prefetch.js',
       // Reads one history row so the homepage can offer the way back to it.
       '/history-recent.js',
-      '/ranui-iife/button.iife.js',
-      '/ranui-iife/card.iife.js',
     ]) {
       expect(strategyFor(path)).toBe('network-first');
     }

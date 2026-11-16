@@ -6,8 +6,8 @@ test('homepage is the static landing: hero present, no editor bundle', async ({ 
 
   await page.goto('/');
 
-  await expect(page.locator('#landing-hero')).toBeVisible();
-  await expect(page.locator('#hero-open')).toBeVisible();
+  await expect(page.locator('.hero')).toBeVisible();
+  await expect(page.locator('[data-open-local]').first()).toBeVisible();
   // Route split: / never mounts the editor shell, so nothing the editor
   // bundle builds is on the page.
   await expect(page.locator('#iframe')).toHaveCount(0);
@@ -63,13 +63,13 @@ test('the editor page fits the viewport and renders in the ranui typeface', asyn
   }));
 
   expect(layout.scrollHeight).toBe(layout.clientHeight);
-  expect(layout.fontFamily).toMatch(/Geist/);
+  expect(layout.fontFamily).toMatch(/Segoe UI|system-ui/);
 });
 
 test('bare /editor with nothing to open goes back to the app homepage', async ({ page }) => {
   await page.goto('/editor');
   await page.waitForURL((u) => u.pathname === '/home');
-  await expect(page.locator('#home-root')).toBeVisible();
+  await expect(page.locator('.app-main .page-title')).toBeVisible();
 });
 
 test('manifest and service worker assets are reachable', async ({ request }) => {

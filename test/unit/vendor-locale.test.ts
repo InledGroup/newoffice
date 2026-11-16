@@ -1,8 +1,11 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LOCALES } from '../../bin/build-pages.mjs';
+import { SHELL_LOCALES } from '@ranuts/shared/i18n';
 import { fill } from '../../bin/locale-fill.mjs';
+
+/** The languages the site ships, as the vendor's locale directory names. */
+const LOCALES = SHELL_LOCALES as readonly string[];
 
 /**
  * The vendor's translation files, for the languages this site claims to ship.
@@ -50,7 +53,7 @@ describe('vendor editor locales', () => {
 
   it('maps each site locale to a vendor file that exists', () => {
     const dir = resolve(APPS, 'documenteditor/main/locale');
-    for (const locale of Object.keys(LOCALES)) {
+    for (const locale of LOCALES) {
       const code = VENDOR_LOCALE[locale] ?? locale;
       expect(existsSync(resolve(dir, `${code}.json`)), `${locale} -> ${code}.json`).toBe(true);
     }

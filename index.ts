@@ -7,7 +7,6 @@ import {
   wireServiceWorkerUpdates,
 } from './lib/sw-update';
 import { getAllQueryString } from 'ranuts/utils';
-import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, onOpenDocument, openDocumentFromUrl, openLocalFile, setUICallbacks } from './lib/document';
@@ -15,10 +14,8 @@ import { parseReadonly } from '@ranuts/shared/document-utils';
 import { applyDocumentLanguage } from '@ranuts/shared/i18n';
 import { getDocmentObj } from '@ranuts/shared/store';
 import { initAnalytics } from './lib/analytics';
-import { createControlPanel, hideControlPanel, hideLanding, showControlPanel } from './lib/ui';
-import 'ranui/button';
-import 'ranui/card';
-import 'ranui/select';
+import { createControlPanel, hideControlPanel, showControlPanel } from './lib/ui';
+import './lib/toast';
 import { initWebMcp } from './lib/web-mcp';
 import { hasUnsavedChanges, installUnsavedChangesGuard } from './lib/unsaved-guard';
 import { initDocumentHistory } from './lib/history';
@@ -157,16 +154,11 @@ const openLocalOnLoad = openParam === 'local' && !documentUrl && !createNewOnLoa
 // saved on this device.
 const savedParam = params['saved'] ?? '';
 
-// Landing hero orchestration. Only the bare homepage (no ?file/?src/?new, not
-// embedded) shows the crawlable hero. If a document is about to load or be
-// created, or we're embedded, hide it immediately to avoid a flash before the
-// editor takes over.
 const isEmbedded = document.body.classList.contains('embed-mode');
-if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam) {
-  hideLanding();
-} else {
-  // Bare /editor with nothing to open: the app homepage lives at /home now
-  // (the static landing is at /). Same for the stale-deep-link cases below.
+if (!(documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam)) {
+  // Bare /editor with nothing to open: the app homepage is /home, and the
+  // marketing page is /. A stale deep link with no document named has nothing
+  // to show here either.
   window.location.replace('/home');
 }
 
@@ -339,24 +331,24 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Initialize PWA install component — built with the ranui builder (ecosystem
-// convention: no hand-rolled createElement/setAttribute chains).
+// Initialize the PWA install prompt. The element is a custom element from
+// @khmyznikov/pwa-install; its attributes are plain strings, so no builder is
+// needed for four of them.
 const initPwaInstall = () => {
-  // Use the browser's native resolution from the existing link tags
   const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
 
-  const builder = View('pwa-install')
-    .id('pwa-install')
-    // use-local-storage: avoid showing the prompt too often
-    .attr('use-local-storage', '')
-    .attr('name', 'Document Editor')
-    .attr('description', 'A privacy-focused, local web-based document editor.')
-    .attr('install-description', 'Install the App for a better offline experience and quick access.');
-  if (manifest?.href) builder.attr('manifest-url', manifest.href);
-  if (icon?.href) builder.attr('icon', icon.href);
+  const element = document.createElement('pwa-install');
+  element.id = 'pwa-install';
+  // use-local-storage: avoid showing the prompt too often
+  element.setAttribute('use-local-storage', '');
+  element.setAttribute('name', 'Insuite Office');
+  element.setAttribute('description', 'A privacy-focused, local web-based document editor.');
+  element.setAttribute('install-description', 'Install the App for a better offline experience and quick access.');
+  if (manifest?.href) element.setAttribute('manifest-url', manifest.href);
+  if (icon?.href) element.setAttribute('icon', icon.href);
 
-  document.body.appendChild(builder.build());
+  document.body.appendChild(element);
 };
 
 // Start PWA initialization after short delay to ensure everything is settled

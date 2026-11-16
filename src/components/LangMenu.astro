@@ -1,0 +1,143 @@
+---
+/**
+ * The language switcher.
+ *
+ * A native <details> rather than a component library's popover: it opens,
+ * closes and dismisses on Escape with no script, and it is keyboard reachable.
+ *
+ * The four marketed languages are real URLs (`/es/`, `/fr/`, `/it/`), so a
+ * shared link carries its language and an alternate is a page a crawler can
+ * follow. The app's remaining UI languages have no routes; they are applied to
+ * the current page with `?locale=`, which is what the app reads first.
+ */
+import { SITE_LOCALES, LOCALE_NAMES, landingPath, homePath, type SiteLocale } from '../i18n/site';
+
+export interface Props {
+  locale: SiteLocale;
+  /** Which family of routes this page belongs to. */
+  mode?: 'landing' | 'home' | 'query';
+}
+
+const { locale, mode = 'query' } = Astro.props;
+
+/**
+ * Every language the menu offers, in the order it shows them.
+ *
+ * `code` is the shell language the app's message table knows (`zh`), `tag` is
+ * the BCP 47 tag the editor and the `lang` attribute want (`zh-CN`), and `href`
+ * is how that language is asked for on a page that has no route of its own.
+ */
+const EXTRA: Array<{ code: string; tag: string; href: string; name: string }> = [
+  { code: 'zh', tag: 'zh-CN', href: '?locale=zh-CN', name: '中文' },
+  { code: 'ja', tag: 'ja', href: '?locale=ja', name: '日本語' },
+  { code: 'ko', tag: 'ko', href: '?locale=ko', name: '한국어' },
+  { code: 'de', tag: 'de', href: '?locale=de', name: 'Deutsch' },
+  { code: 'pt', tag: 'pt', href: '?locale=pt', name: 'Português' },
+];
+
+const hrefFor = (code: string): string => {
+  const extra = EXTRA.find((entry) => entry.code === code);
+  if (extra) return extra.href;
+  if (mode === 'landing') return landingPath(code as SiteLocale);
+  if (mode === 'home') return homePath(code as SiteLocale);
+  return `?locale=${code}`;
+};
+---
+
+<details class="lang-menu">
+  <summary class="lang-trigger" aria-label="Language">
+    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3">
+      <circle cx="8" cy="8" r="6.25"></circle>
+      <path d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 3.9 2.6 6.25S9.7 12.45 8 14.25M8 1.75c-1.7 1.8-2.6 3.9-2.6 6.25s.9 4.45 2.6 6.25"></path>
+    </svg>
+    <span class="lang-current">{LOCALE_NAMES[locale]}</span>
+  </summary>
+  <div class="lang-list">
+    {
+      SITE_LOCALES.map((code) => (
+        <a
+          class={`lang-option${code === locale && mode !== 'query' ? ' is-current' : ''}`}
+          href={hrefFor(code)}
+          lang={code}
+          hreflang={code}
+          data-locale={code}
+          data-route-current={code === locale && mode !== 'query' ? '' : undefined}
+          aria-current={code === locale && mode !== 'query' ? 'page' : undefined}
+        >
+          {LOCALE_NAMES[code]}
+        </a>
+      ))
+    }
+    {
+      EXTRA.map((entry) => (
+        <a class="lang-option" href={entry.href} lang={entry.tag} hreflang={entry.tag} data-locale={entry.code}>
+          {entry.name}
+        </a>
+      ))
+    }
+  </div>
+</details>
+
+<style>
+  .lang-menu {
+    position: relative;
+  }
+
+  .lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink-2);
+    font-size: 13px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .lang-trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang-trigger:hover {
+    background: var(--surface-2);
+  }
+
+  .lang-menu[open] .lang-trigger {
+    background: var(--surface-2);
+  }
+
+  .lang-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 40;
+    min-width: 168px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+  }
+
+  .lang-option {
+    display: block;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  .lang-option:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .lang-option.is-current {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

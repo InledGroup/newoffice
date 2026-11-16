@@ -30,10 +30,17 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LOCALES } from './build-pages.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const APPS_DIR = resolve(ROOT, 'public/web-apps/apps');
+
+/**
+ * The languages the site ships. Mirrors SHELL_LOCALES in
+ * packages/shared/src/i18n.ts (which the app's own UI reads); kept as a plain
+ * list here so this build script never has to import the browser-facing i18n
+ * module and boot an I18n instance inside Node.
+ */
+const LOCALES = ['en', 'zh-CN', 'ja', 'ko', 'de', 'es', 'pt'];
 
 /**
  * Site locale -> vendor locale file. The vendor uses bare language codes with a
@@ -62,7 +69,7 @@ function gaps(dir, code) {
 }
 
 export function fill({ check = false } = {}) {
-  const codes = Object.keys(LOCALES).map(vendorCodeFor);
+  const codes = LOCALES.map(vendorCodeFor);
   const report = [];
   for (const dir of localeDirs()) {
     for (const code of codes) {

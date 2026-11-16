@@ -1,0 +1,33 @@
+---
+/**
+ * A Fluent System Icon.
+ *
+ * Inline rather than an <img> because the colour has to come from CSS: the rail
+ * tints its icons with the current text colour, and a mask would cost a second
+ * paint pass on every hover. The path data lives in src/icons.ts.
+ */
+import { ICONS, type IconName } from '../icons';
+
+export interface Props {
+  name: IconName;
+  size?: number;
+  /** An accessible name. Without one the icon is decorative. */
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 20, label, class: className } = Astro.props;
+const icon = ICONS[name];
+---
+
+<svg
+  viewBox={icon.viewBox}
+  width={size}
+  height={size}
+  fill="currentColor"
+  class={className}
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  set:html={icon.body}
+/>

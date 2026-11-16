@@ -1,5 +1,4 @@
 import { isHtmlDocument, isZipContainer, saveFileToDisk as ranutsSaveFileToDisk } from 'ranuts/utils';
-import 'ranui/message';
 import { t } from '@ranuts/shared/i18n';
 import { getDocumentMimeType } from '@ranuts/shared/document-utils';
 
@@ -43,9 +42,10 @@ const FILE_DESCRIPTION_MAP: Record<string, string> = {
 /**
  * Save a finished file to the user's disk. Adapter over ranuts'
  * `saveFileToDisk` (File System Access API with an anchor fallback): this
- * build adds the document-flavoured type description the picker shows and the
- * ranui success toast. A dismissed dialog resolves without a toast; any other
- * failure rejects so the caller can surface it. Shared by the convert-and-
+ * build adds the document-flavoured type description the picker shows and a
+ * success toast through the host's `window.message` (installed by lib/toast.ts;
+ * a package must not reach into the host's DOM). A dismissed dialog resolves
+ * without a toast; any other failure rejects so the caller can surface it. Shared by the convert-and-
  * download path and the v9 file-stream save path (lib/onlyoffice-editor.ts).
  */
 export async function saveFileToDisk(data: Blob | Uint8Array, fileName: string, mimeType?: string): Promise<void> {
@@ -55,7 +55,7 @@ export async function saveFileToDisk(data: Blob | Uint8Array, fileName: string, 
     description: FILE_DESCRIPTION_MAP[extension] || 'Document',
   });
   if (!written) return;
-  // ranui/message registers a global `window.message` toast API (untyped).
+  // The host app installs the global `window.message` toast API (untyped).
   (window as unknown as { message?: { success?: (msg: string) => void } }).message?.success?.(
     `${t('fileSavedSuccess')}${fileName}`,
   );

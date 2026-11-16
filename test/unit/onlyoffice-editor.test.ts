@@ -494,14 +494,17 @@ describe('onlyoffice-editor', () => {
       }
     });
 
-    it('follows a dark site theme when the user has not picked one in the editor', async () => {
+    it('mounts light even when an old dark preference is left in localStorage', async () => {
+      // The site has one palette now (src/styles/tokens.css). A returning
+      // visitor whose localStorage still says `ran-theme=dark` must not open a
+      // dark editor on a light site.
       window.localStorage.removeItem('ui-theme-id');
-      document.documentElement.setAttribute('data-ran-theme', 'dark');
+      window.localStorage.setItem('ran-theme', 'dark');
       try {
         const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });
-        expect(config.editorConfig.customization.uiTheme).toBe('theme-night');
+        expect(config.editorConfig.customization.uiTheme).toBe('theme-white');
       } finally {
-        document.documentElement.removeAttribute('data-ran-theme');
+        window.localStorage.removeItem('ran-theme');
         window.localStorage.removeItem('ui-theme-site-driven');
       }
     });

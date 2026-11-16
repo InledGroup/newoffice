@@ -235,7 +235,16 @@ class I18n {
    * Get cookie value by name (using ranuts utility)
    */
   private getCookie(name: string): string | null {
+    // Server rendering has no cookie jar and no document; the module is
+    // imported by Astro pages at build time too, so this must not throw there.
+    if (typeof document === 'undefined') return null;
     return getCookie(name);
+  }
+
+  /** localStorage is browser-only for the same reason (Astro prerendering). */
+  private localStorage(name: string): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorageGetItem(name);
   }
 
   /**
@@ -265,7 +274,7 @@ class I18n {
     let editorLocale: string | null = null;
 
     // 1. Try to get from URL parameter 'locale' (highest priority)
-    const urlLocale = this.getUrlParameter('locale');
+    const urlLocale = typeof window === 'undefined' ? null : this.getUrlParameter('locale');
     detectedLang = this.normalizeLanguage(urlLocale);
     editorLocale = resolveEditorLocale(urlLocale);
 
@@ -275,7 +284,7 @@ class I18n {
     if (!editorLocale) editorLocale = resolveEditorLocale(cookieLang);
 
     // 3. If not found in cookies, try localStorage (an explicit shell choice)
-    const savedLang = this.normalizeLanguage(localStorageGetItem('document-lang'));
+    const savedLang = this.normalizeLanguage(this.localStorage('document-lang'));
     if (savedLang) {
       if (!detectedLang) detectedLang = savedLang;
       if (!editorLocale) editorLocale = resolveEditorLocale(savedLang);

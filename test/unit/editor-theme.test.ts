@@ -8,11 +8,9 @@ import {
 } from '../../lib/editor-theme';
 
 const LIGHT = 'theme-white';
-const html = document.documentElement;
 
 afterEach(() => {
-  html.removeAttribute('data-ran-theme');
-  for (const k of [
+  for (const key of [
     'ran-theme',
     'ui-theme-id',
     'ui-theme-site-driven',
@@ -20,87 +18,38 @@ afterEach(() => {
     // which stamps it, and the migration is per browser.
     'ui-theme-retired-default-migrated',
   ])
-    window.localStorage.removeItem(k);
+    window.localStorage.removeItem(key);
 });
 
+/**
+ * The site is light, always.
+ *
+ * It used to follow a `data-ran-theme` attribute (and the OS preference behind
+ * "system"). There is one palette now: an old `ran-theme=dark` left in a
+ * visitor's localStorage must not drag the editor into a mode the site no
+ * longer has, and the attribute must not bring one back either.
+ */
 describe('isSiteDark', () => {
-  it('reads the effective ranui attribute first', () => {
-    html.setAttribute('data-ran-theme', 'dark');
-    expect(isSiteDark()).toBe(true);
-    html.setAttribute('data-ran-theme', 'light');
+  it('is false whatever the attribute or the stored intent says', () => {
+    document.documentElement.setAttribute('data-ran-theme', 'dark');
+    expect(isSiteDark()).toBe(false);
+    document.documentElement.removeAttribute('data-ran-theme');
     window.localStorage.setItem('ran-theme', 'dark');
     expect(isSiteDark()).toBe(false);
-  });
-
-  it('falls back to the stored intent, then the OS media query', () => {
-    window.localStorage.setItem('ran-theme', 'dark');
-    expect(isSiteDark()).toBe(true);
-    window.localStorage.setItem('ran-theme', 'system');
-    expect(isSiteDark()).toBe(false); // vitest setup: matchMedia.matches = false
+    expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
   });
 });
 
 describe('resolveEditorUiTheme', () => {
-  it('maps a dark site to the modern theme-night, not the classic theme-dark', () => {
-    // `theme-dark` is the classic family's dark despite the name, so driving it
-    // left every dark site on the old look while light sites got the new one.
-    html.setAttribute('data-ran-theme', 'dark');
-    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-night');
-    expect(window.localStorage.getItem('ui-theme-site-driven')).toBe('theme-night');
+  it('mounts the classic light theme and remembers it as the one we drove', () => {
+    expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
+    expect(window.localStorage.getItem('ui-theme-site-driven')).toBe(LIGHT);
     expect(hasUserPickedEditorTheme()).toBe(false);
   });
 
-  it('a light site gets the modern default it was handed', () => {
-    html.setAttribute('data-ran-theme', 'light');
-    expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
-  });
-
-  it('a theme the user picked inside the editor wins over the site', () => {
-    html.setAttribute('data-ran-theme', 'dark');
-    window.localStorage.setItem('ui-theme-id', 'theme-white');
-    expect(hasUserPickedEditorTheme()).toBe(true);
-    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-white');
-  });
-
-  it('an editor-persisted copy of the driven theme is not a user choice', () => {
-    html.setAttribute('data-ran-theme', 'dark');
-    resolveEditorUiTheme(LIGHT);
-    // The editor writes ui-theme-id with the theme it was told to use.
+  it('still lets a theme picked inside the editor win', () => {
     window.localStorage.setItem('ui-theme-id', 'theme-night');
-    expect(hasUserPickedEditorTheme()).toBe(false);
-    html.setAttribute('data-ran-theme', 'light');
-    expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
-  });
-
-  it('migrates away from the retired classic default once, per browser', () => {
-    // Browsers that opened the editor while theme-classic-light was the
-    // default hold it as if they had picked it -- it was written by the editor
-    // persisting the value we drove. It must not block the modern default.
-    html.setAttribute('data-ran-theme', 'light');
-    window.localStorage.setItem('ui-theme-id', 'theme-classic-light');
-    window.localStorage.setItem('ui-theme-site-driven', 'theme-classic-light');
-
-    expect(resolveEditorUiTheme('theme-white')).toBe('theme-white');
-    expect(window.localStorage.getItem('ui-theme-id')).toBeNull();
-    expect(window.localStorage.getItem('ui-theme-site-driven')).toBe('theme-white');
-    expect(window.localStorage.getItem('ui-theme-retired-default-migrated')).toBe('1');
-
-    // One-shot: a later genuine pick of the classic look is respected.
-    window.localStorage.setItem('ui-theme-id', 'theme-classic-light');
-    expect(resolveEditorUiTheme('theme-white')).toBe('theme-classic-light');
-  });
-
-  it('migrates the retired classic dark too, which is also a theme we drove', () => {
-    // Same leak as the light one, and it went unnoticed for longer: the dark
-    // default stayed classic after the light default went modern, so anyone on
-    // a dark site was pinned to the old look by a "preference" they never made.
-    window.localStorage.removeItem('ui-theme-retired-default-migrated');
-    html.setAttribute('data-ran-theme', 'dark');
-    window.localStorage.setItem('ui-theme-id', 'theme-dark');
-    window.localStorage.setItem('ui-theme-site-driven', 'theme-dark');
-
-    expect(resolveEditorUiTheme('theme-white')).toBe('theme-night');
-    expect(window.localStorage.getItem('ui-theme-id')).toBeNull();
+    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-night');
   });
 });
 
@@ -114,40 +63,38 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
     return { root, setTheme };
   }
 
-  it('pushes the site theme into every editor frame that exposes Common.UI.Themes', () => {
+  it('pushes the light theme into every editor frame that exposes Common.UI.Themes', () => {
     const { root, setTheme } = fakeEditorRoot();
-    html.setAttribute('data-ran-theme', 'dark');
-    expect(applySiteThemeToEditor(LIGHT, root)).toBe('theme-night');
-    expect(setTheme).toHaveBeenCalledWith('theme-night');
-    // Same theme again: no redundant call.
-    applySiteThemeToEditor(LIGHT, root);
-    expect(setTheme).toHaveBeenCalledTimes(1);
+    expect(applySiteThemeToEditor(LIGHT, root)).toBe(LIGHT);
+    expect(setTheme).not.toHaveBeenCalled(); // the frame is already on it
+    const other = fakeEditorRoot('theme-night');
+    expect(applySiteThemeToEditor(LIGHT, other.root)).toBe(LIGHT);
+    expect(other.setTheme).toHaveBeenCalledWith(LIGHT);
   });
 
   it('does nothing when the user overrode the theme inside the editor', () => {
-    const { root, setTheme } = fakeEditorRoot();
+    const { root, setTheme } = fakeEditorRoot('theme-night');
     window.localStorage.setItem('ui-theme-id', 'theme-night');
-    html.setAttribute('data-ran-theme', 'dark');
     expect(applySiteThemeToEditor(LIGHT, root)).toBeNull();
     expect(setTheme).not.toHaveBeenCalled();
   });
 
-  it('reacts to <html data-ran-theme> flips until disposed', async () => {
+  it('applies once on install and stops watching after disposal', async () => {
     const setTheme = vi.fn();
-    const frame = { Common: { UI: { Themes: { setTheme, currentThemeId: () => LIGHT } } }, frames: [] };
+    const frame = { Common: { UI: { Themes: { setTheme, currentThemeId: () => 'theme-night' } } }, frames: [] };
     const original = Object.getOwnPropertyDescriptor(window, 'frames');
     Object.defineProperty(window, 'frames', { configurable: true, value: [frame] });
     const dispose = installEditorThemeFollow(LIGHT);
     try {
-      html.setAttribute('data-ran-theme', 'dark');
-      await new Promise((r) => setTimeout(r, 0));
-      expect(setTheme).toHaveBeenCalledWith('theme-night');
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(setTheme).toHaveBeenCalledWith(LIGHT);
       dispose();
       setTheme.mockClear();
-      html.setAttribute('data-ran-theme', 'light');
-      await new Promise((r) => setTimeout(r, 0));
+      document.documentElement.setAttribute('data-ran-theme', 'dark');
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(setTheme).not.toHaveBeenCalled();
     } finally {
+      document.documentElement.removeAttribute('data-ran-theme');
       if (original) Object.defineProperty(window, 'frames', original);
     }
   });

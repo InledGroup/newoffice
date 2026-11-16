@@ -6,7 +6,7 @@
 
 - **线上地址**：https://office.inled.es/ （旧址 https://ranuts.github.io/document/ 已跳转至此）
 - **GitHub**：https://github.com/ranuts/document
-- **技术栈**：TypeScript + Vite + ranui 设计体系（`--ran-*` token + `r-*` 组件，无 CSS 框架）+ OnlyOffice Web Apps
+- **技术栈**：TypeScript + Astro（`src/pages/*.astro`，官方 dev server 带 HMR）+ 自有浅色 Office 风格 CSS（`src/styles/tokens.css`，无组件库、无暗色模式）+ OnlyOffice Web Apps
 
 ---
 
@@ -35,8 +35,8 @@ gh pr merge --auto --rebase      # 检查全绿后自动 rebase 合并（约 15 
 
 ```bash
 pnpm install --frozen-lockfile   # 安装依赖
-pnpm run dev                     # 启动开发服务器（含热更新）
-pnpm run build                   # 生产构建（执行 bin/build.sh）
+pnpm run dev                     # Astro dev server（改 .astro / CSS 立即热更新）
+pnpm run build                   # 生产构建（bin/build.sh → astro build + SW 版本戳）
 pnpm run build:single            # 打包为单个 HTML 文件
 pnpm run lint:ts                 # oxlint + tsc --noEmit（CI 必跑）
 pnpm run format:check            # prettier 格式检查（CI 必跑）
@@ -123,13 +123,20 @@ types/
 styles/
   base.css              # 全局样式（含 embed-mode 布局）
 public/               # v9 vendor（sdkjs / web-apps / x2t.wasm.gz / XOR 字体目录）+ 落地页、demo、SW
-bin/                  # build.sh、test-e2e-docker.sh、font-catalog.mjs、bundle_single_html.js、build-pages.mjs（markdown→/help /changelog；由 vite 插件 `generated-pages` 在 build/dev 时渲染进 public/，产物不入库。它只是装配入口，各部分在 `bin/pages/`：constants / locales / ui / pages / entities / markdown / chrome / render-home / render-page；公开导出面仍从入口 re-export，调用方不用改）、sitemap-lastmod.mjs（改完落地页/内容后跑一次，按 git 提交日期刷新 sitemap 的 lastmod，`--check` 可校验）、font-thumbnails.mjs（字体下拉的缩略图精灵图，改完目录必跑，见下）、x2t-memory-report.mjs（只读：打印 x2t 向浏览器要多少内存，以及静态/BSS 下界——vendor 升级后跑一次，判断 `initial` 是否仍然动不了）
-content/              # 生成页面的 markdown 源（content/<locale>/*.md，frontmatter title/description）
+src/                  # 站点（Astro；2026-11 起取代 bin/pages 的 170 页生成器）
+  pages/index.astro     # `/` 落地页（无编辑器 bundle，深链内联重定向到 /editor）
+  pages/home.astro      # `/home` 应用首页（新建 + 上传 + 最近文档）
+  pages/history.astro   # `/history` 已保存文档（搜索 / 未导出筛选 / 分页 / 设置）
+  pages/editor.astro    # `/editor` 编辑器（?new= ?file= ?src= ?embed=1 ?open=local ?saved=<id>）
+  layouts/Base.astro     # <head>、manifest、tokens.css
+  layouts/AppLayout.astro # 侧栏 + 顶栏 + 拖放遮罩（/home 与 /history 共用）
+  components/            # Header / Footer / Brand / LangMenu（全部原生元素）
+  scripts/               # 页面行为：site(i18n) / home / history / doc-row / app
+  styles/                # tokens.css（浅色 Office 调色板）+ landing.css + app.css
+bin/                  # build.sh（astro build + SW 版本戳）、serve-dist.mjs（E2E 预览服务器）、test-e2e-docker.sh、font-catalog.mjs、bundle_single_html.js、font-thumbnails.mjs（字体下拉的缩略图精灵图，改完目录必跑，见下）、x2t-memory-report.mjs（只读：打印 x2t 向浏览器要多少内存，以及静态/BSS 下界——vendor 升级后跑一次，判断 `initial` 是否仍然动不了）
 docs/                 # embed-api / fonts 文档、explorations/（每次改动的记录）、superpowers/plans/
-index.ts              # 编辑器入口（初始化事件、UI、PWA），挂在 editor.html
-index.html            # `/`：静态落地页（无编辑器 bundle；CTA 跳 /editor，旧深链内联脚本重定向）
-editor.html           # `/editor`：编辑器页面（?new= ?file= ?src= ?embed=1 ?open=local ?saved=<id>）
-history.html          # `/history`：本地历史页（noindex，只读 IndexedDB 元数据，不加载编辑器）
+index.ts              # 编辑器入口（初始化事件、UI、PWA），由 editor.astro 引入
+astro.config.mjs      # publicDir=public、build.format=file、assets=/assets/、dev 的 brotli 头
 ```
 
 ---
@@ -326,9 +333,8 @@ fetchFonts 字体竞态，修复见 `lib/onlyoffice-editor.ts` 的 `prepareEdito
 的 `index.html`→目录 308、`_headers`、`_redirects`。"本地 vite preview 全绿、
 线上坏"的三条缺陷（PDF 被 308 卡在 vendor 加载器、字体目录无缓存头、慢链路
 超时）都属于这一层；`test/unit/hosting-contract.test.ts` 钉住 `_headers` 关键
-规则；`test/unit/landing-pages.test.ts` 钉住全部 SEO 落地页（public/**/*.html +
-index.html）的 canonical/hreflang/JSON-LD/sitemap/双语互指契约——新增落地页必须
-同时补 en+zh、sitemap、llms.txt、首页卡片，否则该测试先红。
+规则；`test/unit/branding-notice.test.ts` 钉住页脚的署明与商标声明。
+（2026-11：落地页只剩一张，旧的 170 页 SEO 矩阵及其契约测试已随生成器删除。）
 **结构化数据是一张有 `@id` 的图，不是每页一份副本**（2026-08-23，学 apple.com）：
 `Organization` / `WebSite` / `WebApplication` / `SoftwareSourceCode` 用固定 `@id`
 （`/#organization` / `/#website` / `/#app` / `/#source`）每页重复出现并互相引用，
@@ -455,23 +461,47 @@ docs/explorations/2026-08-19-ci-e2e-sharding.md。
 
 ---
 
-## 多语言（站点 7 种，2026-08-23 起）
+## 多语言（营销页 4 种语言 + 应用 UI 7 种，2026-11 起）
 
-站点语言 = `SHELL_LOCALES`（`packages/shared/src/i18n.ts`）= `bin/pages/locales.mjs` 的
-`LOCALES` = `content/<locale>/` 目录 = README 里写的数字。**四处必须一致**，因为它们
-描述的是同一件事：用户在语言菜单里选了什么，页面、应用 UI、编辑器 vendor 就都是什么。
+两套表，职责不同，别混：
 
-- 加一种语言 = 加一个 `content/<locale>/` 目录（18 个落地页 markdown + `home.json` +
-  `help.md`）+ `LOCALES` 一行 + `UI` 表一段 + sitemap/llms.txt 的镜像行。**代码不用改。**
-  `test/unit/landing-pages.test.ts` 从路由推导 locale，不需要跟着改。
-- **首页的编辑器链接必须带 `?locale=`**（`renderHome` 的 `editor()`）。app 的 i18n 先读
-  URL 再读 cookie/localStorage/navigator.language，所以这是"站点是日语"与"编辑器是日语"
-  之间唯一的那根线。同一处用例钉住。
+- **站点文案 = `src/i18n/site.ts`**：landing 与 `/home` 的正文，四种语言（en / es / fr / it）。
+  文本在**构建时**按路由选定，所以 `/es`、`/fr`、`/it` 与 `/` 是四个真实页面（crawler 看到
+  的是本地化 HTML，不是脚本改写的英文）。加一种语言 = `SITE_LOCALES` 一行 +
+  `SITE_COPY` 一段 + `src/pages/[locale]/` 的 `getStaticPaths` 自动带出；`sitemap.xml`
+  与 `alternateLinks()` 的 hreflang 也要同步。
+- **应用 UI = `@ranuts/shared/i18n`**（7 种：en / zh-CN / ja / ko / de / es / pt）：toast、
+  对话框、空状态、历史页这些小部件仍走 `data-i18n` / `t()`，在运行时按
+  `?locale=` → cookie → localStorage → navigator.language 解析。**fr / it 没有这七张表**，
+  所以法语 / 意大利语法语页面里的运行时提示仍是英文（已知缺口）。
+- **路由**：`/`（en landing）、`/es`、`/fr`、`/it`；`/home`、`/es/home`、`/fr/home`、`/it/home`。
+  Astro 用 `build.format: 'file'`，所以落盘是 `es.html` + `es/home.html`；`bin/serve-dist.mjs`
+  按"clean URL 优先于同名目录"解析，`/es` 与 `/es/` 都是 200（Cloudflare Pages 同义）。
+- **语言菜单**（`LangMenu.astro`）先列四种有路由的语言（真链接），再列只改 UI 的语言
+  （`?locale=`）。`src/scripts/site.ts` 在按语言渲染的页面上以**路由**为准（`data-route-current`），
+  只有显式 `?locale=` 才压过路由。
+- **编辑器语言跟着页面走**：landing / home 的编辑器链接经 `editorPath()` 带上 `?locale=`，
+  法语页面进去就是法语工具栏。
 - **加语言前先确认 vendor 有对应的语言包**（`public/web-apps/apps/*/main/locale/`，45 个）。
-  波斯语就是栽在这里：站点译文齐了，`fa` 不在 vendor 里，编辑器工具栏只能退回英文——
-  于是 2026-08-23 把 `fa` 整表从 i18n 删掉，`RTL_LANGUAGES` 留成空数组（机制保留）。
-- **RTL 还没有做**：`landing.css` / `home.css` / `history.css` / `base.css` 里仍有 31 处
-  `padding-left` 这类物理属性。真要上 ar/he/ur，先把它们换成逻辑属性，再谈翻译。
+- **RTL 还没有做**：`src/styles/*.css` / `styles/base.css` 里仍有 `padding-left` 这类物理属性。
+
+---
+
+## 设计体系（浅色 Office / Fluent，2026-11 起）
+
+- **无组件库**：`ranui` 已全局移除。图标是 Fluent System Icons（MIT）的路径数据，内联在
+  `src/icons.ts`，Astro 侧用 `src/components/Icon.astro`，运行时用 `src/lib/icon-element.ts`。
+  导航图标**未选中是 Regular、选中是 Filled**（Office 侧栏的做法）。
+- **产品标记是我们自己画的**（`public/img/office/{word,excel,powerpoint,pdf}.svg`）：渐变方片
+  - 一个字母，配 Office 的品牌色。**不要再用厂商的 SVG**——Word / Excel / PowerPoint /
+    OneDrive 是微软商标，页脚有声明，`test/e2e/vendor-branding.spec.ts` 钉住"标记是自绘的"。
+- **品牌资源走自己的 CDN**：logo 与 favicon 是
+  `https://hosted.inled.es/cdn/insuite.svg`（`Brand.astro` / `Base.astro` / `manifest.json` /
+  `404.html`），不复制进仓库。
+- 调色板唯一来源是 `src/styles/tokens.css`（Fabric 灰阶 + Office 蓝），页面不写裸色值；
+  landing 用 `src/styles/landing.css`，应用面用 `src/styles/app.css`。
+- landing 的 hero 是**背景照片 + 白色渐隐蒙版**（微软产品图，`var(--hero-art)` 由页面传入），
+  不是左右两栏；正文行宽 `<60ch`，卡片 4px 圆角、纯白底。
 
 ---
 
@@ -508,14 +538,20 @@ docs/explorations/2026-08-19-ci-e2e-sharding.md。
 
 ---
 
-## ran 生态优先（ranui / ranuts / builder）
+## UI 约定（2026-11：没有组件库）
 
-本项目属于 chaxus 的 `ran` 生态（office.inled.es / @ranui/preview / ran.chaxus.com）。写 UI 或工具逻辑时，**优先复用生态自有能力，不要手写重复实现**：
+**`ranui` 已从依赖中移除**：没有 `r-*` 自定义元素、没有 `--ran-*` token、没有暗色模式、
+没有 iife 拷贝。页面 UI 就是 HTML 加 `src/styles/tokens.css` 里的变量，理由很具体：
+四张页面被一个 170 页的生成器和一层设计系统一起拖着，改一个按钮要先看两套抽象。
 
-- **组件优先用 ranui**：`r-button` / `r-card` / `r-icon`（含 `name="github"`）/ `r-link` / `r-input` / `r-modal` / `r-select` / `r-tab` 等，`import 'ranui/<name>'` 注册；已装版本的导出以 `node_modules/ranui/dist` 为准。跨 Shadow DOM 定制样式用 `::part`（见 `styles/base.css` 里的 `r-button::part(...)`）。
-- **DOM 构造优先用 ranui builder**：`import { Div, View, ButtonBuilder } from 'ranui/builder'`（`lib/ui.ts` 已在用），不要用成堆 `document.createElement` 拼装。
-- **设计 token 用 ranui**：颜色/字体/圆角/阴影/暗色统一走 `--ran-*`（`public/ran-tokens.css`，由 `bin/build.sh` 从 `ranui/dist/ranui.css` 同步），不要另造调色板；落地页样式即基于此。
-- **工具函数优先用 ranuts**：`import { ... } from 'ranuts/utils'`（如 `getAllQueryString`、`createObjectURL`、`createSignal`），不要重复造轮子。
+- **写页面**：`.astro` 里直接写 HTML；样式写 `src/styles/*.css`，颜色/圆角/阴影只用
+  `--paper` / `--surface` / `--line` / `--ink*` / `--accent` 这些名字，不写裸色值。
+- **写脚本**：`document.createElement` 用 `lib/dom.ts` 的 `h()`（或 `src/scripts/doc-row.ts`
+  这类同构工具），不拼字符串；行为挂原生事件。
+- **产品图标**：`public/img/office/{word,excel,powerpoint}.svg` 是微软 Fluent 品牌图标
+  （下载到本地，离线也可用）；PDF 用内联 SVG。
+- **工具函数仍优先用 ranuts**：`import { ... } from 'ranuts/utils'`（如 `getAllQueryString`、
+  `createObjectURL`、`saveFileToDisk`），不要重复造轮子。
   二进制/文件相关的通用能力 0.4.0-alpha.5 起也在 ranuts：`createZip` / `readZipEntries` /
   `readZipEntry`（zip 读写）、`bytesToBase64` / `base64ToBytes`（分块，避免大文件
   RangeError）、`fetchMaybeGzip` / `gunzipMaybe`、`isZipContainer` / `isHtmlDocument`
@@ -626,14 +662,11 @@ docs/explorations/2026-08-19-ci-e2e-sharding.md。
    `public/embed-demo.html`、404 等）必须使用 ranui 组件/设计 token
    （`--ran-*`）与 ranuts 工具，不允许手写游离于设计体系外的样式。
    demo 页也是产品门面，风格必须与主站一致。
-   **版式只有两档宽度**（宽版 1152 / 读式 720），**由布局形态决定用哪档、不由页面
-   类型决定**——需要横向比较属性的表格/卡片网格用宽版，竖向找目标的列表用读式
-   （`/history` 就是后者：按"它是列表页"归到 1152 时实测每行有 236px 死空隙）；
-   **正文行宽 45–75 字符**（用 `max-width: 60–72ch` 限制段落，不是限制容器）、
-   **内容页有顶栏+页脚，应用页有顶栏无页脚**（`/history`、`/embed-demo` 属后者）、
-   **顶栏页脚只有一份样式**（`landing.css`，页面复用其类名而不是抄数值）。取值与业界依据见
-   [docs/design-system.md](docs/design-system.md)，`node bin/design-audit.mjs <baseUrl>`
-   渲染所有页面打印这些数字，`test/unit/design-contract.test.ts` 把宽度与顶栏钉死。
+   **一套浅色调色板**：`src/styles/tokens.css` 是唯一来源（Office Fabric 的灰阶 + Office
+   蓝），页面不写裸色值；**内容页有顶栏+页脚，应用页只有顶栏**（`/home`、`/history`、
+   `/editor` 属后者）；**顶栏页脚只有一份实现**（`src/components/Header.astro` /
+   `Footer.astro`），页面复用而不是抄数值。页面宽度用 `--page: 1180px`，正文段落
+   用 `max-width: 60–72ch`。
 5. **用例固化制度（2026-08-15 起）**：每个缺陷修复与新功能必须附带
    对应的自动化用例（E2E 优先），否则不算完成；回归类用例优先使用
    真实复杂度语料而非手拼最小文档——合成文档全绿曾两次掩盖真实文档

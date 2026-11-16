@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { generate } from '../../bin/build-pages.mjs';
 
 /**
  * The ONLYOFFICE attribution, pinned.
@@ -122,25 +121,21 @@ describe('trademark notice (AGPL-3.0 Section 7(e))', () => {
 });
 
 describe('trademark notice on the site itself', () => {
-  const outputs = generate({ outDir: null }) as Array<{ route: string; kind: string; html: string }>;
+  const footer = read('src/components/Footer.astro');
 
-  it("is on every generated page, in that page's language", () => {
-    expect(outputs.length).toBeGreaterThan(50);
-    for (const page of outputs) {
-      expect(page.html, `${page.route} has no trademark notice`).toContain('class="tm"');
-      expect(page.html, `${page.route} does not name the trademark owner`).toContain('Ascensio System SIA');
-    }
+  it('is in the footer every page renders', () => {
+    expect(footer).toContain('class="foot-tm"');
+    expect(footer).toContain('Ascensio System SIA');
+    expect(footer).toContain('not an official ONLYOFFICE product');
   });
 
-  it('says it in Chinese on the Chinese pages, not in English', () => {
-    const zh = outputs.find((o) => o.route === '/zh-CN/')!;
-    expect(zh.html).toContain('ONLYOFFICE 是 Ascensio System SIA 的商标');
-    const en = outputs.find((o) => o.route === '/')!;
-    expect(en.html).toContain('ONLYOFFICE is a trademark of Ascensio System SIA');
+  it('credits the editors and the project this site forked', () => {
+    expect(footer).toContain('github.com/ONLYOFFICE/web-apps');
+    expect(footer).toContain('github.com/ranuts/document');
+    expect(footer).toContain('AGPL-3.0');
   });
 
   it('is styled, or it is a paragraph of legalese in body copy', () => {
-    expect(read('public/landing.css')).toContain('.page-foot .tm');
-    expect(read('public/home.css')).toContain('#landing-hero .foot .tm');
+    expect(footer).toMatch(/\.foot-tm\s*\{/);
   });
 });

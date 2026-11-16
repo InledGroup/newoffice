@@ -1,0 +1,127 @@
+---
+/**
+ * The landing page's content, in one language.
+ *
+ * One component, four routes: the copy comes from src/i18n/site.ts and is
+ * chosen by the route, so the served HTML is already in the visitor's language
+ * and a crawler sees four real pages rather than one page rewritten by script.
+ */
+import Icon from './Icon.astro';
+import { SITE_COPY, editorPath, homePath, type SiteLocale } from '../i18n/site';
+
+export interface Props {
+  locale: SiteLocale;
+}
+
+const { locale } = Astro.props;
+const copy = SITE_COPY[locale];
+const c = copy.landing;
+
+/* Microsoft's own product photography. It is a wide photo of devices with the
+   apps on screen, used as the hero's backdrop: text sits over its left side. */
+const heroArt =
+  'https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/408455-Hero-Resized-1600x612-option2?resMode=sharp2&op_usm=1.5,0.65,15,0&wid=2000&hei=725&qlt=100&fmt=png-alpha&fit=constrain';
+---
+
+<main>
+  <section class="hero" style={`--hero-art: url("${heroArt}")`}>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <h1>{c.heroTitle}</h1>
+        <p class="lede">{c.heroLede}</p>
+        <div class="hero-actions">
+          <button
+            class="btn btn-primary"
+            type="button"
+            id="hero-open"
+            data-open-local={editorPath('/editor?open=local', locale)}
+          >
+            <Icon name="folder" size={18} />
+            {c.openFile}
+          </button>
+          <a class="btn" href={homePath(locale)}>
+            {c.goEditors}
+            <Icon name="chevronRight" size={18} />
+          </a>
+        </div>
+        <p class="hero-note">
+          <span data-recent-slot data-recent-label={c.recentLabel} data-recent-locale={locale} hidden></span>
+          <a href="/history">{c.savedDocs}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="editors-title">
+    <div class="section-head">
+      <h2 id="editors-title">{c.startTitle}</h2>
+      <p>{c.startSub}</p>
+    </div>
+    <div class="products">
+      <a class="product" href={editorPath('/editor?new=docx', locale)} data-prefetch="docx">
+        <img src="/img/office/word.svg" alt="" width="40" height="40" />
+        <span class="product-body">
+          <span class="product-name">{c.products.word}</span>
+          <span class="product-hint">{c.products.wordHint}</span>
+        </span>
+        <Icon name="chevronRight" size={16} class="product-arrow" />
+      </a>
+      <a class="product" href={editorPath('/editor?new=xlsx', locale)} data-prefetch="xlsx">
+        <img src="/img/office/excel.svg" alt="" width="40" height="40" />
+        <span class="product-body">
+          <span class="product-name">{c.products.excel}</span>
+          <span class="product-hint">{c.products.excelHint}</span>
+        </span>
+        <Icon name="chevronRight" size={16} class="product-arrow" />
+      </a>
+      <a class="product" href={editorPath('/editor?new=pptx', locale)} data-prefetch="pptx">
+        <img src="/img/office/powerpoint.svg" alt="" width="40" height="40" />
+        <span class="product-body">
+          <span class="product-name">{c.products.powerpoint}</span>
+          <span class="product-hint">{c.products.powerpointHint}</span>
+        </span>
+        <Icon name="chevronRight" size={16} class="product-arrow" />
+      </a>
+      <button class="product" type="button" data-open-local={editorPath('/editor?open=local', locale)}>
+        <img src="/img/office/pdf.svg" alt="" width="40" height="40" />
+        <span class="product-body">
+          <span class="product-name">{c.products.pdf}</span>
+          <span class="product-hint">{c.products.pdfHint}</span>
+        </span>
+        <Icon name="chevronRight" size={16} class="product-arrow" />
+      </button>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="why-title">
+    <div class="section-head">
+      <h2 id="why-title">{c.whyTitle}</h2>
+    </div>
+    <div class="points">
+      {
+        c.why.map((point, index) => (
+          <article class="point">
+            <span class="point-icon">
+              <Icon name={index === 0 ? 'lock' : index === 1 ? 'cloudOff' : 'document'} size={22} />
+            </span>
+            <h3>{point.title}</h3>
+            <p>{point.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-label={c.recoverTitle}>
+    <div class="recover card">
+      <div class="recover-copy">
+        <h2>{c.recoverTitle}</h2>
+        <p>{c.recoverBody}</p>
+      </div>
+      <a class="btn" href="/history">
+        {c.recoverCta}
+        <Icon name="chevronRight" size={18} />
+      </a>
+    </div>
+  </section>
+</main>

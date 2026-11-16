@@ -9,6 +9,30 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Added
 
+- **The site is four screens, in four languages.** `/` is the English landing
+  page, with `/es`, `/fr` and `/it` served in Spanish, French and Italian; the
+  app home follows them at `/es/home`, `/fr/home` and `/it/home`. Each is a real
+  page in its own language, so a shared link arrives translated and the editor
+  opens with a toolbar in that language.
+- **The app home starts with a menu, not a file dialog.** "Create or upload" now
+  opens a short list -- blank document, spreadsheet, presentation -- and only
+  then a way to open one of your own files.
+- **Files you open from disk are remembered.** A document you open is copied
+  into this browser's library straight away, so it is waiting under Recent and
+  Saved documents next time instead of in a second trip through the file
+  dialog.
+
+### Changed
+
+- **New look, light only.** The marketing page and the app now follow Office's
+  Fluent design: near-white cards with square corners, Office blue for actions,
+  the logo hosted on our own CDN, and a hero photograph across the top of the
+  landing page. The dark theme is gone.
+- **The file-type marks are our own drawings.** Word, Excel, PowerPoint and PDF
+  are identified with marks we draw ourselves; the footer now states that
+  Microsoft, Word, Excel, PowerPoint and OneDrive are Microsoft trademarks and
+  that this site is not affiliated with Microsoft.
+
 - **You can now see the autosave working.** Recovery points were always being
   written into the browser as you edited, but nothing on screen said so. A
   small status line now sits below the editor, and it only appears while there

@@ -1,22 +1,19 @@
 /**
- * Agent sidebar panel — a thin DOM view over {@link AgentChatController}.
+ * Agent sidebar panel -- a thin DOM view over {@link AgentChatController}.
  *
  * Header (title + gear + close); a collapsible settings block (provider selector
- * → cloud API key for Claude/OpenAI/Gemini, a local model picker + load button
+ * -> cloud API key for Claude/OpenAI/Gemini, a local model picker + load button
  * for WebLLM, or a model-name input for Ollama), hidden behind the gear so the
  * main panel is a clean chat; a toolbar (review-mode toggle + quote + clear); and
- * the reusable @ranuts/chat-ui ChatView. Form controls are ranui Web Components
- * built with the ranui `builder` (View/Div/... fluent factories). All
- * orchestration lives in the controller and the LLM factory; this file only
- * builds DOM and forwards events. Loaded behind `?agent=1`.
+ * the reusable @ranuts/chat-ui ChatView.
+ *
+ * Plain elements throughout (lib/dom.ts): the panel is built once and updated
+ * through the nodes it keeps, so a language change re-labels what exists rather
+ * than rebuilding the panel and losing the conversation. Loaded behind `?agent=1`.
  */
-import 'ranui/button';
-import 'ranui/input';
-import 'ranui/select';
-import 'ranui/checkbox';
-import { ButtonBuilder, Div, Label, Span, View, createEffect, signal } from 'ranui/builder';
+import { h } from '../../dom';
 import { localStorageGetItem, localStorageSetItem } from 'ranuts/utils';
-import { getLanguage, type I18nMessages, t } from '@ranuts/shared/i18n';
+import { type I18nMessages, t } from '@ranuts/shared/i18n';
 import { getEditorApi } from '../editor-bridge';
 import { agentTools } from '../tools';
 import { createProvider, defaultProviderId, type ProviderId } from '@ranuts/agent-core/llm/factory';
@@ -32,16 +29,9 @@ import { ChatView, type ChatViewLabels } from '@ranuts/chat-ui';
 import { AgentChatController, type ChatTurn } from './controller';
 import { createHistoryStorage, historyToTurns } from './storage';
 
-/** ranui custom elements expose a `value` accessor (r-select / r-input). */
-type ValueEl = HTMLElement & { value: string };
-type InputEl = ValueEl & { placeholder: string };
-
-/** The r-checkbox `change` event detail (a real boolean). */
-type CheckedDetail = CustomEvent<{ checked: boolean }>;
-
 const TURN_LABEL_KEY: Record<ChatTurn['role'], keyof I18nMessages | null> = {
   user: 'agentRoleUser',
-  agent: null, // "Agent" — same in every language
+  agent: null, // "Agent" -- same in every language
   tool: 'agentRoleTool',
   error: 'agentRoleError',
 };
@@ -70,21 +60,24 @@ const KEY_PLACEHOLDER: Partial<Record<ProviderId, string>> = {
   gemini: 'AIza...',
 };
 
-/** An r-button (ranui builder) with a label and class. */
-const ranButton = (text: string, className: string): HTMLElement =>
-  View('r-button').class(className).text(text).build();
+/** A button with a label and class. */
+const button = (text: string, className: string): HTMLButtonElement =>
+  h('button', { type: 'button', class: className }, text);
 
-/** An r-select with r-option children and an initial value (ranui builder). */
-const ranSelect = (className: string, options: Array<{ value: string; label: string }>, value: string): ValueEl =>
-  View('r-select')
-    .class(className)
-    .attr('value', value)
-    .children(options.map((o) => View('r-option').attr('value', o.value).text(o.label).build()))
-    .build() as ValueEl;
-
-/** An r-input of the given type (ranui builder). */
-const ranInput = (className: string, type: string): InputEl =>
-  View('r-input').class(className).attr('type', type).build() as InputEl;
+/** A select with options and an initial value. */
+const select = (
+  className: string,
+  options: Array<{ value: string; label: string }>,
+  value: string,
+): HTMLSelectElement => {
+  const node = h(
+    'select',
+    { class: className },
+    options.map((option) => h('option', { value: option.value }, option.label)),
+  );
+  node.value = value;
+  return node;
+};
 
 /**
  * Singleton handle to the live panel, so external triggers (the AI button
@@ -108,15 +101,12 @@ export function createAgentPanel(): HTMLElement {
     return existing as HTMLElement;
   }
 
-  const panel = Div().class('agent-panel').build();
+  const panel = h('aside', { class: 'agent-panel', 'aria-label': t('agentTitle') });
 
-  // Floating launcher — shown when the panel is closed, reopens it on click.
-  const launcher = ButtonBuilder()
-    .class('agent-launcher agent-launcher-hidden')
-    .attr('type', 'button')
-    .text('AI')
-    .on('click', () => setOpen(true))
-    .build();
+  // Floating launcher -- shown when the panel is closed, reopens it on click.
+  const launcher = button('AI', 'agent-launcher agent-launcher-hidden');
+  launcher.addEventListener('click', () => setOpen(true));
+
   let open = true;
   const setOpen = (next: boolean): void => {
     open = next;
@@ -133,84 +123,83 @@ export function createAgentPanel(): HTMLElement {
   panelHandle = { setOpen, isOpen: () => open };
 
   // ── Header ──────────────────────────────────────────────────────────────
-  const title = Span().class('agent-panel-title').text(t('agentTitle')).build();
+  const title = h('span', { class: 'agent-panel-title' }, t('agentTitle'));
   // Gear toggles the settings block (provider / key / model), hidden by default
   // so the main panel stays a clean chat surface.
-  const settingsBtn = ButtonBuilder()
-    .class('agent-panel-settings-toggle')
-    .attr('type', 'button')
-    .text('⚙')
-    .on('click', () => settings.classList.toggle('agent-panel-settings-hidden'))
-    .build();
-  const closeBtn = ButtonBuilder()
-    .class('agent-panel-close')
-    .attr('type', 'button')
-    .text('×')
-    .on('click', () => setOpen(false))
-    .build();
-  const header = Div().class('agent-panel-header').children(title, settingsBtn, closeBtn).build();
+  const settingsBtn = button('⚙', 'agent-panel-settings-toggle');
+  settingsBtn.addEventListener('click', () => settings.classList.toggle('agent-panel-settings-hidden'));
+  const closeBtn = button('×', 'agent-panel-close');
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.addEventListener('click', () => setOpen(false));
+  const header = h('div', { class: 'agent-panel-header' }, title, settingsBtn, closeBtn);
 
   // ── Settings (collapsed by default; opened via the gear) ──────────────────
-  const providerSelect = ranSelect(
+  const providerSelect = select(
     'agent-panel-provider',
     PROVIDER_IDS.map((id) => ({ value: id, label: t(PROVIDER_LABEL_KEY[id]) })),
     defaultProviderId(),
   );
 
   // Cloud: API key input
-  const keyInput = ranInput('agent-panel-key-input', 'password');
+  const keyInput = h('input', { class: 'agent-panel-key-input', type: 'password', autocomplete: 'off' });
 
   // Ollama: local model name input (no key needed)
-  const ollamaModelInput = ranInput('agent-panel-ollama-model', 'text');
+  const ollamaModelInput = h('input', { class: 'agent-panel-ollama-model', type: 'text', autocomplete: 'off' });
   ollamaModelInput.value = localStorageGetItem(OLLAMA_MODEL_STORAGE_KEY) || '';
   ollamaModelInput.addEventListener('change', () => {
-    controller = null; // different model → rebuild
+    controller = null; // different model -> rebuild
     localStorageSetItem(OLLAMA_MODEL_STORAGE_KEY, ollamaModelInput.value.trim());
   });
 
   // Local: model picker + load button
-  const modelSelect = ranSelect(
+  const modelSelect = select(
     'agent-panel-model',
     WEBLLM_MODELS.map((model) => ({ value: model.id, label: `${model.label} (${model.size})` })),
     DEFAULT_WEBLLM_MODEL,
   );
-  const loadBtn = ranButton(t('agentLoadModel'), 'agent-panel-load');
+  const loadBtn = button(t('agentLoadModel'), 'agent-panel-load btn btn-sm');
   loadBtn.addEventListener('click', () => void loadModel());
-  const modelRow = Div().class('agent-panel-model-row').children(modelSelect, loadBtn).build();
+  const modelRow = h('div', { class: 'agent-panel-model-row' }, modelSelect, loadBtn);
 
   // Model-load progress / hints. Lives in the MAIN view (not settings) so the
   // auto-load progress is visible; `:empty` collapses it when idle.
-  const note = Div().class('agent-panel-note').build();
+  const note = h('div', { class: 'agent-panel-note' });
 
   // Chat-only banner for WebLLM: explains the local model can't edit, with a
-  // clickable shortcut that flips the provider to cloud (and opens settings so the
-  // API-key field is right there). Separate from `note` so `note`'s transient
-  // status text (download progress, cache state) never wipes the shortcut.
-  const switchCloudLink = Span().class('agent-panel-link').text(t('agentSwitchCloud')).build();
-  switchCloudLink.setAttribute('role', 'button');
-  switchCloudLink.setAttribute('tabindex', '0');
-  const chatOnlyHint = Div()
-    .class('agent-panel-note agent-panel-chatonly')
-    .children(Span().text(t('agentLocalChatOnly')).build(), switchCloudLink)
-    .build();
+  // clickable shortcut that flips the provider to cloud (and opens settings so
+  // the API-key field is right there).
+  const switchCloudLink = h(
+    'span',
+    { class: 'agent-panel-link', role: 'button', tabindex: '0' },
+    t('agentSwitchCloud'),
+  );
+  const chatOnlyHint = h(
+    'div',
+    { class: 'agent-panel-note agent-panel-chatonly' },
+    t('agentLocalChatOnly'),
+    ' ',
+    switchCloudLink,
+  );
   chatOnlyHint.style.display = 'none';
 
-  const settings = Div()
-    .class('agent-panel-settings agent-panel-settings-hidden')
-    .children(providerSelect, keyInput, ollamaModelInput, modelRow)
-    .build();
+  const settings = h(
+    'div',
+    { class: 'agent-panel-settings agent-panel-settings-hidden' },
+    providerSelect,
+    keyInput,
+    ollamaModelInput,
+    modelRow,
+  );
 
   // ── Compose actions (mounted into ChatView's slot above the input) ────────
-  const reviewCheck = View('r-checkbox').build();
-  const reviewText = Span().text(t('agentReviewMode')).build();
-  const reviewLabel = Label().class('agent-panel-review').children(reviewCheck, reviewText).build();
-  const quoteBtn = ranButton(t('agentQuote'), 'agent-panel-quote');
+  const reviewCheck = h('input', { type: 'checkbox' });
+  const reviewText = h('span', {}, t('agentReviewMode'));
+  const reviewLabel = h('label', { class: 'agent-panel-review' }, reviewCheck, reviewText);
+  const quoteBtn = button(t('agentQuote'), 'agent-panel-quote btn btn-sm');
   quoteBtn.title = t('agentQuoteTip');
-  const clearBtn = ranButton(t('agentClear'), 'agent-panel-clear');
+  const clearBtn = button(t('agentClear'), 'agent-panel-clear btn btn-sm');
 
   // ── Conversation + input (reusable chat UI) ──────────────────────────────
-  // The message list, streaming, and input box are the framework-free
-  // @ranuts/chat-ui ChatView. This panel only wires it to the agent controller.
   const chatLabels = (): ChatViewLabels => ({
     send: t('agentSend'),
     stop: t('agentStop'),
@@ -233,8 +222,6 @@ export function createAgentPanel(): HTMLElement {
   const historyStorage = createHistoryStorage();
 
   // Streaming: ChatView owns the live bubble; just forward deltas and the end.
-  // The editor tools must be passed explicitly now that the (editor-agnostic)
-  // runtime no longer defaults to them.
   const controllerOptions = {
     tools: agentTools,
     onAgentDelta: (delta: string): void => chat.appendDelta(delta),
@@ -259,19 +246,16 @@ export function createAgentPanel(): HTMLElement {
       note.textContent = t('agentNoWebGPU');
       return;
     }
-    const model = WEBLLM_MODELS.find((m) => m.id === modelSelect.value);
+    const model = WEBLLM_MODELS.find((candidate) => candidate.id === modelSelect.value);
     const size = model?.size ?? '';
     const id = modelSelect.value;
     note.textContent = t('agentCheckingCache');
     const cached = await isModelCached(id);
     if (currentProvider() !== 'webllm' || modelSelect.value !== id) return; // changed meanwhile
-    // The chat-only banner (shown via syncProviderUi) already says the local model
-    // can't edit; `note` just carries the cache/download status.
     note.textContent = cached ? t('agentModelCached') : t('agentModelFirstDownload').replace('{size}', size);
   };
 
-  // The chat-only banner only makes sense when WebLLM is actually usable (selected
-  // + WebGPU present); every other provider/state hides it.
+  // The chat-only banner only makes sense when WebLLM is actually usable.
   const syncChatOnlyHint = (): void => {
     chatOnlyHint.style.display = currentProvider() === 'webllm' && isWebGPUAvailable() ? '' : 'none';
   };
@@ -280,7 +264,6 @@ export function createAgentPanel(): HTMLElement {
   // controller, and reveal settings so the API-key field is visible immediately.
   const switchToCloud = (): void => {
     providerSelect.value = 'anthropic';
-    providerSelect.setAttribute('value', 'anthropic'); // reflect in the r-select UI too
     controller = null;
     settings.classList.remove('agent-panel-settings-hidden');
     syncProviderUi();
@@ -317,7 +300,7 @@ export function createAgentPanel(): HTMLElement {
     syncProviderUi();
   });
   modelSelect.addEventListener('change', () => {
-    controller = null; // different model → rebuild
+    controller = null; // different model -> rebuild
     void updateLocalHint();
   });
   keyInput.addEventListener('change', () => {
@@ -332,14 +315,12 @@ export function createAgentPanel(): HTMLElement {
       if (!isWebGPUAvailable()) return null;
       const kind = `webllm:${modelSelect.value}`;
       if (!controller || controllerKind !== kind) {
-        // Local 7–8B models can't reliably drive tool calls (they crash or mangle
-        // the tool-call format), so WebLLM runs chat-only: a plain assistant that
-        // never errors but can't edit the document. Tool-driven editing is what the
-        // cloud/Ollama providers are for.
+        // Local 7-8B models can't reliably drive tool calls, so WebLLM runs
+        // chat-only: a plain assistant that never errors but can't edit.
         webllmProvider = new WebLLMProvider({
           model: modelSelect.value,
           chatOnly: true,
-          onProgress: (p) => (note.textContent = p.text),
+          onProgress: (progress) => (note.textContent = progress.text),
         });
         controller = new AgentChatController(webllmProvider, appendTurn, controllerOptions);
         controllerKind = kind;
@@ -379,14 +360,14 @@ export function createAgentPanel(): HTMLElement {
       return;
     }
     buildController();
-    loadBtn.setAttribute('disabled', '');
+    loadBtn.disabled = true;
     try {
       await webllmProvider?.preload();
       note.textContent = t('agentModelLoaded');
     } catch (error) {
       appendTurn({ role: 'error', text: error instanceof Error ? error.message : String(error) });
     } finally {
-      loadBtn.removeAttribute('disabled');
+      loadBtn.disabled = false;
     }
   };
 
@@ -431,50 +412,45 @@ export function createAgentPanel(): HTMLElement {
     chat.focus();
   });
 
-  // Review-mode toggle reads/sets track-changes directly on the editor. r-checkbox
-  // reports the new state via the change event's detail (a real boolean), and its
-  // initial state is set through the `checked` attribute.
+  // Review-mode toggle reads/sets track-changes directly on the editor.
   const api = getEditorApi();
   // Track-changes is a Word/Spreadsheet API; the presentation editor has no
-  // asc_IsTrackRevisions, so feature-detect before using it (calling a missing
-  // method would otherwise abort the whole panel build).
+  // asc_IsTrackRevisions, so feature-detect before using it.
   const canReview = !!api && typeof api.asc_IsTrackRevisions === 'function';
-  if (!canReview) reviewCheck.setAttribute('disabled', '');
-  if (canReview) reviewCheck.setAttribute('checked', String(!!api!.asc_IsTrackRevisions()));
-  reviewCheck.addEventListener('change', (e: Event) => {
-    getEditorApi()?.asc_SetTrackRevisions?.((e as CheckedDetail).detail.checked);
+  if (!canReview) reviewCheck.disabled = true;
+  if (canReview) reviewCheck.checked = Boolean(api!.asc_IsTrackRevisions());
+  reviewCheck.addEventListener('change', () => {
+    getEditorApi()?.asc_SetTrackRevisions?.(reviewCheck.checked);
   });
 
-  // Reactive labels: a `lang` signal bumped on languagechange drives one effect
-  // that re-applies every translatable label — replacing a manual re-render pass.
-  const [lang, setLang] = signal(getLanguage());
-  window.addEventListener('languagechange', () => setLang(getLanguage()));
-  createEffect(() => {
-    lang(); // subscribe: re-run whenever the language changes
+  // Re-apply every translatable label when the shell language changes. One
+  // pass over the nodes this panel already holds -- the conversation survives.
+  const applyLabels = (): void => {
     launcher.title = t('agentOpenTip');
     title.textContent = t('agentTitle');
     settingsBtn.title = t('agentSettings');
     const selected = providerSelect.value;
-    for (const opt of providerSelect.querySelectorAll('r-option')) {
-      opt.textContent = t(PROVIDER_LABEL_KEY[(opt.getAttribute('value') as ProviderId) ?? 'anthropic']);
+    for (const option of providerSelect.options) {
+      option.textContent = t(PROVIDER_LABEL_KEY[option.value as ProviderId]);
     }
-    providerSelect.setAttribute('value', selected); // nudge the closed label to retranslate
+    providerSelect.value = selected;
     loadBtn.textContent = t('agentLoadModel');
     reviewText.textContent = t('agentReviewMode');
     quoteBtn.textContent = t('agentQuote');
     quoteBtn.title = t('agentQuoteTip');
     clearBtn.textContent = t('agentClear');
-    chat.setLabels(chatLabels()); // Send/Stop/placeholder/empty + role chips
+    chat.setLabels(chatLabels());
     syncProviderUi(); // refresh key placeholder / model hint in the new language
-  });
+  };
+  applyLabels();
+  window.addEventListener('languagechange', applyLabels);
 
   panel.append(header, settings, note, chatOnlyHint, chat.el);
   document.body.append(panel, launcher);
   setOpen(true); // start open + docked
 
-  // Auto-load the default local model on open — but only when it's already
-  // cached, so opening the panel never triggers a surprise ~4 GB download. If
-  // it's not cached, the note hints at the download and the user clicks Load.
+  // Auto-load the default local model on open -- but only when it's already
+  // cached, so opening the panel never triggers a surprise multi-GB download.
   if (currentProvider() === 'webllm' && isWebGPUAvailable()) {
     void isModelCached(modelSelect.value).then((cached) => {
       if (cached) void loadModel();

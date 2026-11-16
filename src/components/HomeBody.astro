@@ -1,0 +1,71 @@
+---
+/**
+ * The app home's content, in one language.
+ *
+ * Same idea as LandingBody: the strings come from src/i18n/site.ts and follow
+ * the route. The recent list and the empty state are built at runtime by
+ * src/scripts/home.ts, which still uses the app's own message table.
+ */
+import Icon from './Icon.astro';
+import { SITE_COPY, editorPath, type SiteLocale } from '../i18n/site';
+
+export interface Props {
+  locale: SiteLocale;
+}
+
+const { locale } = Astro.props;
+const copy = SITE_COPY[locale];
+const h = copy.home;
+---
+
+<div class="page-head">
+  <h1 class="page-title">{h.title}</h1>
+  <button class="btn btn-primary" type="button" data-open-file>
+    <Icon name="upload" size={16} />
+    {h.upload}
+  </button>
+</div>
+
+<section class="block" aria-labelledby="new-title">
+  <div class="block-head">
+    <h2 id="new-title">{h.newTitle}</h2>
+  </div>
+  <div class="tiles">
+    <a class="tile" href={editorPath('/editor?new=docx', locale)} data-prefetch="docx">
+      <img src="/img/office/word.svg" alt="" width="36" height="36" />
+      <span class="tile-body">
+        <span class="tile-name">{h.document}</span>
+        <span class="tile-hint">.docx</span>
+      </span>
+    </a>
+    <a class="tile" href={editorPath('/editor?new=xlsx', locale)} data-prefetch="xlsx">
+      <img src="/img/office/excel.svg" alt="" width="36" height="36" />
+      <span class="tile-body">
+        <span class="tile-name">{h.spreadsheet}</span>
+        <span class="tile-hint">.xlsx</span>
+      </span>
+    </a>
+    <a class="tile" href={editorPath('/editor?new=pptx', locale)} data-prefetch="pptx">
+      <img src="/img/office/powerpoint.svg" alt="" width="36" height="36" />
+      <span class="tile-body">
+        <span class="tile-name">{h.presentation}</span>
+        <span class="tile-hint">.pptx</span>
+      </span>
+    </a>
+    <button class="tile" type="button" data-open-file>
+      <img src="/img/office/pdf.svg" alt="" width="36" height="36" />
+      <span class="tile-body">
+        <span class="tile-name">{h.pdf}</span>
+        <span class="tile-hint">{h.pdfHint}</span>
+      </span>
+    </button>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="recent-title">
+  <div class="block-head">
+    <h2 id="recent-title">{h.recentTitle}</h2>
+    <a class="block-action" href="/history">{h.savedDocs}</a>
+  </div>
+  <div id="home-recent" class="home-recent"></div>
+</section>

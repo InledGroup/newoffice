@@ -23,7 +23,6 @@
  * event it exists to announce. Everything else is read, not pushed.
  */
 import { t } from '@ranuts/shared/i18n';
-import { Div } from 'ranui/builder';
 import { getLastEditAt, hasUnsavedChanges } from './unsaved-guard';
 import { getReadonlyMode } from './onlyoffice/readonly';
 import { getLastSnapshotAt, isAutosaveEnabled, isAutosaveSessionActive, onSnapshotStored } from './history/autosave';
@@ -59,8 +58,8 @@ function hasUncapturedWork(): boolean {
 export function updateAutosaveIndicator(): void {
   if (typeof document === 'undefined') return;
   if (!pill || !pill.isConnected) {
-    const el = Div().id(ID).text('').build();
-    if (!el) return;
+    const el = document.createElement('div');
+    el.id = ID;
     el.setAttribute('hidden', '');
     document.body.appendChild(el);
     pill = el;

@@ -58,14 +58,14 @@ jobs:
           PROD_URL: ${{ github.event.inputs.url || 'https://office.inled.es' }}
         run: |
           sh ./bin/build.sh >/dev/null 2>&1
-          ASSET=$(grep -o 'assets/editor-[A-Za-z0-9_-]*\.js' dist/editor.html | head -1)
+          ASSET=$(grep -o 'assets/editor\.[A-Za-z0-9_.-]*\.js' dist/editor.html | head -1)
           if [ -z "$ASSET" ]; then
             echo "::error::no editor entry asset in dist/editor.html; the deploy gate cannot tell builds apart"
             exit 1
           fi
           echo "expecting $ASSET"
           for i in $(seq 1 60); do
-            LIVE=$(curl -s "$PROD_URL/editor" | grep -o 'assets/editor-[A-Za-z0-9_-]*\.js' | head -1)
+            LIVE=$(curl -s "$PROD_URL/editor" | grep -o 'assets/editor\.[A-Za-z0-9_.-]*\.js' | head -1)
             if [ "$LIVE" = "$ASSET" ]; then echo "live after $((i*20))s"; exit 0; fi
             sleep 20
           done

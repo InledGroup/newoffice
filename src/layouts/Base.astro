@@ -1,0 +1,64 @@
+---
+/**
+ * The document every page is served in.
+ *
+ * Light, one palette, no theme switch: an Office has a light surface and dark
+ * ink, and a half-finished dark theme is worse than not offering one. The
+ * tokens live in src/styles/tokens.css; everything else is written against
+ * those names.
+ */
+import '../styles/tokens.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  /** The language the served HTML is written in. */
+  lang?: string;
+  /** App surfaces are one page for every language and must stay out of search. */
+  noindex?: boolean;
+  /** Keep the page out of the sticky bar's padding (the editor owns the viewport). */
+  bare?: boolean;
+  /** Extra head markup (preloads, page-specific meta). */
+  head?: string;
+}
+
+const {
+  title,
+  description = 'Open, edit and save Word, Excel and PowerPoint files directly in your browser. No installation, no account, and the file never leaves your computer.',
+  lang = 'en',
+  noindex = false,
+  bare = false,
+  head,
+} = Astro.props;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="https://hosted.inled.es/cdn/insuite.svg" />
+    <link rel="apple-touch-icon" href="https://hosted.inled.es/cdn/insuite.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://office.inled.es/img/pwa-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <Fragment set:html={head} />
+    <slot name="head" />
+  </head>
+  <body class={bare ? 'is-bare' : ''}>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  body.is-bare {
+    overflow: hidden;
+  }
+</style>

@@ -103,18 +103,17 @@ function storageSet(key: string, value: string): void {
 }
 
 /** Effective site appearance right now. */
+/**
+ * The site is light, always.
+ *
+ * There is one palette (src/styles/tokens.css) and no theme switch, so there is
+ * nothing for the editor to follow: an old `ran-theme=dark` left in a returning
+ * visitor's localStorage must not drag the editor into a dark mode the site no
+ * longer has. The user's own choice inside the editor still wins (see
+ * `hasUserPickedEditorTheme`); this is only the site-derived half.
+ */
 export function isSiteDark(): boolean {
-  const attr = document.documentElement.getAttribute(SITE_THEME_ATTR);
-  if (attr === 'dark') return true;
-  if (attr === 'light') return false;
-  const stored = storageGet(SITE_THEME_STORAGE_KEY);
-  if (stored === 'dark') return true;
-  if (stored === 'light') return false;
-  try {
-    return !!window.matchMedia?.(DARK_MQ)?.matches;
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 export function uiThemeForSite(lightDefault: string): string {
@@ -197,6 +196,9 @@ export function installEditorThemeFollow(lightDefault: string): () => void {
   const apply = () => {
     applySiteThemeToEditor(lightDefault);
   };
+  // Apply once up front: the site cannot flip any more, so waiting for a
+  // change would mean never applying at all.
+  apply();
   const observer = new MutationObserver((records) => {
     if (records.some((r) => r.attributeName === SITE_THEME_ATTR)) apply();
   });

@@ -261,8 +261,8 @@ describe('.github/workflows/ci.yml', () => {
 
 describe('.github/workflows/prod-smoke.yml', () => {
   const src = readFileSync(resolve(WORKFLOW_DIR, 'prod-smoke.yml'), 'utf8');
-  const editorHtml = readFileSync(resolve(ROOT, 'editor.html'), 'utf8');
-  const landingHtml = readFileSync(resolve(ROOT, 'index.html'), 'utf8');
+  const editorPage = readFileSync(resolve(ROOT, 'src/pages/editor.astro'), 'utf8');
+  const landingPage = readFileSync(resolve(ROOT, 'src/pages/index.astro'), 'utf8');
 
   /**
    * The deploy gate has to watch a file that CARRIES the build.
@@ -276,12 +276,12 @@ describe('.github/workflows/prod-smoke.yml', () => {
    * then it read as "the new code is broken in production".
    */
   it('waits on the entry asset of the page that actually has one', () => {
-    expect(src).toContain("grep -o 'assets/editor-[A-Za-z0-9_-]*\\.js' dist/editor.html");
+    expect(src).toContain("grep -o 'assets/editor\\.[A-Za-z0-9_.-]*\\.js' dist/editor.html");
     expect(src).toContain('curl -s "$PROD_URL/editor"');
-    // The premise of the two lines above: the editor page is the one that
-    // loads a bundle, and the landing page is the one that does not.
-    expect(editorHtml).toMatch(/<script[^>]+type="module"/);
-    expect(landingHtml).not.toMatch(/<script[^>]+type="module"/);
+    // The premise of the two lines above: the editor page mounts the app
+    // bundle; the landing page only ships the language/menu script.
+    expect(editorPage).toContain("import '../../index.ts'");
+    expect(landingPage).not.toContain('index.ts');
   });
 
   it('fails loudly when it cannot name what it is waiting for', () => {

@@ -1,0 +1,135 @@
+---
+/**
+ * The site bar.
+ *
+ * One implementation for both surfaces: the marketing landing page and the app
+ * pages share a header so that moving between them never looks like leaving the
+ * product. The only difference is the right-hand call to action -- on the
+ * landing it opens the app, inside the app it starts a document.
+ *
+ * Links stay inside the visitor's language: `homePath(locale)` is `/home` for
+ * English and `/es/home` for the routes that have a translation.
+ */
+import Brand from './Brand.astro';
+import LangMenu from './LangMenu.astro';
+import { SITE_COPY, homePath, type SiteLocale } from '../i18n/site';
+
+export interface Props {
+  locale?: SiteLocale;
+  /** Where the brand points. */
+  home?: string;
+  /** The action on the right. */
+  cta?: { href: string; label: string };
+  /** The page the visitor is on, marked in the nav. */
+  current?: 'home' | 'saved' | 'editor';
+  /** Which family of routes the language menu should link to. */
+  langMode?: 'landing' | 'home' | 'query';
+}
+
+const { locale = 'en', home = '/', cta, current, langMode = 'query' } = Astro.props;
+const copy = SITE_COPY[locale];
+---
+
+<header class="bar">
+  <div class="bar-inner">
+    <Brand href={home} />
+
+    <nav class="bar-nav" aria-label="Main">
+      <a class="bar-link" href={homePath(locale)} aria-current={current === 'home' ? 'page' : undefined}>
+        {copy.nav.home}
+      </a>
+      <a class="bar-link" href="/history" aria-current={current === 'saved' ? 'page' : undefined}>
+        {copy.nav.saved}
+      </a>
+      <a class="bar-link" href="https://github.com/InledGroup/newoffice" rel="noopener" target="_blank">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor">
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+          ></path>
+        </svg>
+        {copy.nav.github}
+      </a>
+    </nav>
+
+    <div class="bar-end">
+      <LangMenu locale={locale} mode={langMode} />
+      {
+        cta && (
+          <a class="btn btn-primary btn-sm" href={cta.href}>
+            {cta.label}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: var(--bar-h);
+    border-bottom: 1px solid var(--line);
+    background: rgb(255 255 255 / 94%);
+    backdrop-filter: saturate(180%) blur(8px);
+  }
+
+  .bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: var(--page);
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .bar-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 8px;
+  }
+
+  .bar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink-2);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .bar-link:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .bar-link[aria-current='page'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .bar-end {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  @media (max-width: 720px) {
+    .bar-nav {
+      display: none;
+    }
+
+    .bar-inner {
+      padding: 0 14px;
+      gap: 10px;
+    }
+  }
+</style>

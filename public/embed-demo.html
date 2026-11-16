@@ -3,50 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/img/64.png" rel="shortcut icon" />
-    <link rel="icon" type="image/png" href="/img/64.png" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
-    <title>Insuite Office iframe Demo</title>
+    <link rel="icon" type="image/svg+xml" href="https://hosted.inled.es/cdn/insuite.svg" />
+    <title>Insite Office iframe demo</title>
     <meta
       name="description"
       content="Live demo of embedding the document editor in an iframe: the parent page opens a file, toggles read-only and gets the edited File back through postMessage."
     />
     <script src="./libs/sheetjs/xlsx.full.min.js"></script>
-
-    <!-- No-flash theme restore, same snippet as every other page. -->
-    <script>
-      try {
-        var t = localStorage.getItem('ran-theme');
-        if (t === 'dark' || t === 'light') {
-          document.documentElement.setAttribute('data-ran-theme', t);
-          document.documentElement.setAttribute('theme', t);
-        }
-      } catch (e) {}
-    </script>
-    <link rel="stylesheet" href="/ran-fonts/fonts.css" />
-    <link rel="stylesheet" href="/ran-tokens.css" />
-    <link rel="stylesheet" href="/landing.css" />
-    <script src="/ranui-iife/button.iife.js" defer></script>
-    <script src="/ranui-iife/card.iife.js" defer></script>
-    <script src="/ranui-iife/input.iife.js" defer></script>
-    <script src="/ranui-iife/checkbox.iife.js" defer></script>
-    <script src="/ranui-iife/theme-switch.iife.js" defer></script>
-
     <style>
-      /* Page-specific layout on top of landing.css (bar, tokens, type). The
-         demo is an app surface, not an article: full-height two-pane shell,
-         controls on the left, the embedded editor filling the right. */
+      /* The demo is an app surface: full-height two-pane shell, controls on the
+         left, the embedded editor filling the right. Same light palette as the
+         site (src/styles/tokens.css) -- written out here because this page is
+         served straight from public/ with no bundler. */
+      :root {
+        --paper: #faf9f8;
+        --surface: #fff;
+        --surface-2: #f3f2f1;
+        --line: #e1dfdd;
+        --line-strong: #d2d0ce;
+        --ink: #201f1e;
+        --ink-2: #484644;
+        --ink-3: #605e5c;
+        --accent: #0f6cbd;
+        --accent-hover: #115ea3;
+        --radius: 8px;
+        --font: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
       html,
       body {
         height: 100%;
+        margin: 0;
       }
       body {
         display: flex;
         flex-direction: column;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: 14px;
+        line-height: 1.5;
       }
       header.bar {
         flex: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 52px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+      }
+      header.bar a {
+        color: var(--ink-2);
+        font-size: 13px;
+        text-decoration: none;
+      }
+      header.bar a:hover {
+        text-decoration: underline;
+      }
+      header.bar strong {
+        font-size: 15px;
       }
       .shell {
         flex: 1;
@@ -57,226 +76,194 @@
       .panel {
         min-height: 0;
         overflow: auto;
-        border-right: 1px solid var(--ran-color-border);
-        padding: var(--ran-space-6) var(--ran-space-4);
-        display: flex;
-        flex-direction: column;
-        gap: var(--ran-space-4);
+        padding: 16px;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
       }
-      .panel h1 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
+      .panel h2 {
+        margin: 0 0 6px;
+        font-size: 14px;
       }
-      .panel .hint {
-        margin: var(--ran-space-1) 0 0;
-        font-size: 13px;
-        line-height: 1.6;
-        color: var(--ran-color-text-secondary);
-      }
-      .panel .hint a {
-        color: inherit;
+      .panel p {
+        margin: 0 0 10px;
+        color: var(--ink-3);
+        font-size: 12px;
       }
       .group {
-        display: flex;
-        flex-direction: column;
-        gap: var(--ran-space-2);
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
       }
-      .group .k {
-        font-family: var(--ran-font-mono);
-        font-size: 11px;
-        letter-spacing: 0.06em;
+      .group h3 {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink-3);
         text-transform: uppercase;
-        color: var(--ran-color-text-secondary);
-      }
-      /* Native file input: ranui has no file control, so give the browser's
-         one the same hairline treatment as <r-input>. */
-      input[type='file'] {
-        width: 100%;
-        font: inherit;
-        font-size: 13px;
-        color: var(--ran-color-text);
-        padding: var(--ran-space-2);
-        border: 1px solid var(--ran-color-border);
-        border-radius: var(--ran-radius-sm);
-        background: var(--ran-color-bg);
-      }
-      input[type='file']:hover {
-        border-color: var(--ran-color-border-hover);
-      }
-      input[type='file']::file-selector-button {
-        font: inherit;
-        font-size: 13px;
-        margin-right: var(--ran-space-2);
-        padding: 2px var(--ran-space-2);
-        border: 1px solid var(--ran-color-border);
-        border-radius: var(--ran-radius-sm);
-        background: var(--ran-color-bg-subtle);
-        color: var(--ran-color-text);
-        cursor: pointer;
-      }
-      r-input {
-        width: 100%;
+        letter-spacing: 0.04em;
       }
       .actions {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--ran-space-2);
+        gap: 8px;
+        margin-top: 8px;
       }
-      r-checkbox {
-        font-size: 14px;
+      button {
+        min-height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 4px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
       }
-      .log-card .card-body {
-        padding: 0;
+      button:hover {
+        background: var(--surface-2);
+      }
+      button[disabled] {
+        opacity: 0.5;
+        cursor: default;
+      }
+      button.primary {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+      }
+      button.primary:hover {
+        background: var(--accent-hover);
+      }
+      input[type='text'],
+      input[type='url'] {
+        width: 100%;
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: 4px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+      }
+      input[type='file'] {
+        width: 100%;
+        font: inherit;
+        font-size: 13px;
+      }
+      label.check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
       }
       pre#log {
+        max-height: 220px;
         margin: 0;
-        min-height: 160px;
-        max-height: 280px;
         overflow: auto;
-        padding: var(--ran-space-3);
-        font-family: var(--ran-font-mono);
-        font-size: 12px;
-        line-height: 1.55;
+        color: var(--ink-2);
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 11px;
         white-space: pre-wrap;
         word-break: break-word;
-        color: var(--ran-color-text);
-        background: var(--ran-color-bg-subtle);
-        border-radius: var(--ran-radius-md);
       }
-      .viewer {
-        min-width: 0;
-        min-height: 0;
+      section.stage {
         display: flex;
         flex-direction: column;
+        min-width: 0;
+        min-height: 0;
       }
-      .viewer .strip {
+      .strip {
         flex: none;
-        height: 40px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 0 var(--ran-space-4);
-        border-bottom: 1px solid var(--ran-color-border);
-        font-size: 13px;
-        color: var(--ran-color-text-secondary);
-      }
-      .viewer .strip code {
-        font-family: var(--ran-font-mono);
+        gap: 12px;
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-3);
         font-size: 12px;
       }
-      #status {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--ran-space-2);
-        font-family: var(--ran-font-mono);
-        font-size: 12px;
+      .strip code {
+        font-family: ui-monospace, Consolas, monospace;
       }
-      #status::before {
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: var(--ran-radius-full);
-        background: var(--ran-color-border-hover);
+      .strip #status {
+        margin-left: auto;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--surface-2);
       }
-      #status.ready::before {
-        background: var(--ran-color-success);
+      .strip #status.ready {
+        background: #dff6dd;
+        color: #0e6b0e;
       }
-      iframe {
+      #editorFrame {
         flex: 1;
         width: 100%;
         min-height: 0;
         border: 0;
-        background: var(--ran-color-bg);
+        background: #fff;
       }
       @media (max-width: 860px) {
-        html,
-        body {
-          height: auto;
-        }
         .shell {
           grid-template-columns: 1fr;
         }
         .panel {
           border-right: 0;
-          border-bottom: 1px solid var(--ran-color-border);
-        }
-        .viewer {
-          min-height: 70vh;
+          border-bottom: 1px solid var(--line);
         }
       }
     </style>
   </head>
 
   <body>
-    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
-      <symbol id="gh-mark" viewBox="0 0 16 16">
-        <path
-          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-        />
-      </symbol>
-    </svg>
-
     <header class="bar">
-      <a class="brand" href="/"
-        ><img class="logo" src="https://hosted.inled.es/cdn/insuite.svg" alt="" width="40" height="40" /><span
-          class="wordmark"
-          >Insuite Office<span class="tagline">Docs · Sheets · Slides</span></span
-        ></a
-      >
-      <nav>
-        <a href="/embed-document-editor">Embed API</a>
-        <a href="https://github.com/ranuts/document" rel="noopener" target="_blank">
-          <svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> GitHub
-        </a>
-        <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
-      </nav>
-      <a class="bar-cta" href="/editor">Open editor</a>
+      <strong>Insite Office iframe demo</strong>
+      <a href="/">← Home</a>
+      <a href="/home">Open the app</a>
     </header>
 
     <main class="shell">
       <aside class="panel">
-        <div>
-          <h1>iframe embedding demo</h1>
-          <p class="hint">
-            The parent page owns fetching the file and uploading the result; the iframe only edits the document.
-            Everything below goes through <code>postMessage</code> — see the
-            <a href="/embed-document-editor">Embed API</a> page.
-          </p>
-        </div>
+        <h2>Drive the editor through postMessage</h2>
+        <p>
+          The iframe is a normal page. This parent opens a file, switches read-only mode and receives the edited
+          <code>File</code> back — no server involved.
+        </p>
 
         <div class="group">
-          <span class="k">Local file</span>
+          <h3>Open a file from this device</h3>
           <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,.docx,.doc,.pptx,.ppt,.pdf" />
           <div class="actions">
-            <r-button id="openLocalBtn" type="primary">Open the selected file</r-button>
-            <r-button id="openGeneratedBtn">Open a sample Excel file</r-button>
+            <button id="openLocalBtn" class="primary" type="button">Open the selected file</button>
+            <button id="openGeneratedBtn" type="button">Open a sample Excel file</button>
           </div>
         </div>
 
         <div class="group">
-          <span class="k">From URL</span>
-          <r-input id="urlInput" type="text" placeholder="https://example.com/demo.xlsx"></r-input>
-          <div class="actions"><r-button id="openUrlBtn">Open from URL</r-button></div>
+          <h3>Open from a URL</h3>
+          <input id="urlInput" type="url" placeholder="https://example.com/demo.xlsx" />
+          <div class="actions"><button id="openUrlBtn" type="button">Open from URL</button></div>
         </div>
 
         <div class="group">
-          <span class="k">Mode</span>
-          <r-checkbox id="readonlyInput">Read-only mode</r-checkbox>
+          <h3>Mode</h3>
+          <label class="check"><input id="readonlyInput" type="checkbox" /> Read-only mode</label>
         </div>
 
         <div class="group">
-          <span class="k">Round-trip</span>
-          <div class="actions"><r-button id="saveBtn" type="primary">Save and get the File</r-button></div>
+          <h3>Save</h3>
+          <p>The edited file comes back to this page as a <code>File</code>.</p>
+          <div class="actions"><button id="saveBtn" class="primary" type="button">Save and get the File</button></div>
         </div>
 
-        <r-card class="log-card"
-          ><div class="card-body"><pre id="log">Waiting for the iframe to initialize...</pre></div></r-card
-        >
+        <div class="group">
+          <h3>Log</h3>
+          <pre id="log">Waiting for the iframe to initialize...</pre>
+        </div>
       </aside>
 
-      <section class="viewer">
+      <section class="stage">
         <div class="strip">
           <span><code>&lt;iframe src="/editor?embed=1"&gt;</code></span>
           <span id="status">loading</span>
@@ -293,8 +280,6 @@
       const readonlyInput = document.getElementById('readonlyInput');
       const saveBtn = document.getElementById('saveBtn');
 
-      // <r-checkbox> reports its state through the change event's detail;
-      // mirror it here so every handler reads one boolean.
       let readonly = false;
 
       let requestId = 0;
@@ -407,8 +392,8 @@
         await post('document:open-url', { url, readonly });
       });
 
-      readonlyInput.addEventListener('change', async (event) => {
-        readonly = !!(event.detail ? event.detail.checked : readonlyInput.value === 'true');
+      readonlyInput.addEventListener('change', async () => {
+        readonly = readonlyInput.checked;
         await post('document:set-readonly', { readonly });
         if (readonly) saveBtn.setAttribute('disabled', '');
         else saveBtn.removeAttribute('disabled');

@@ -1,137 +1,89 @@
-import { Div, View } from 'ranui/builder';
-import { prefetchOnIntent, type EditorKind } from './prefetch';
 import { t } from '@ranuts/shared/i18n';
-import { showLoading } from './loading';
 import { onCreateNew, onOpenDocument } from './document';
+import { showLoading } from './loading';
+import { prefetchOnIntent, type EditorKind } from './prefetch';
 
-// Landing hero visibility. The hero (#landing-hero) lives in the served HTML for
-// SEO/GEO; it toggles in lockstep with the legacy control panel so EVERY show/hide
-// path keeps them in sync. Centralizing it here — rather than only in index.ts's
-// callbacks — means no raw showControlPanel()/hideControlPanel() call can surface
-// the legacy overlay on top of the hero. body.landing-active also lets the page
-// scroll and hides the legacy overlay (see styles/base.css); in embed mode CSS
-// force-hides the hero regardless.
-//
-// Unlike the panel singleton below, the hero is NOT built by this module,
-// so its absence can't be ruled out at the type level — the lookup is memoized
-// (safe: the hero is only ever toggled, never removed or replaced) but stays
-// nullable, and callers keep the guard.
-let landingHero: HTMLElement | null = null;
-const getLandingHero = (): HTMLElement | null => (landingHero ??= document.getElementById('landing-hero'));
+/**
+ * The editor route's home state.
+ *
+ * A document is what this page is for, so most visits open one and never see
+ * this. It is what is left on screen when there is nothing to show: the URL
+ * named a document that failed, or the user closed one. Four actions, in the
+ * same order and with the same labels as the app's home page, so the two entry
+ * points do not read as different products.
+ *
+ * Hidden rather than removed, and hidden before the document mounts: an empty
+ * panel painted over a loading document is the flash this guards against.
+ */
 
-export const showLanding = (): void => {
-  document.body.classList.add('landing-active');
-  const hero = getLandingHero();
-  if (hero) hero.style.display = '';
+let panel: HTMLElement | null = null;
+
+const getPanel = (): HTMLElement => (panel ??= buildPanel());
+
+const action = (id: string, label: string, onClick: () => void): HTMLButtonElement => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.id = id;
+  button.className = 'control-panel-button';
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  return button;
 };
 
-export const hideLanding = (): void => {
-  document.body.classList.remove('landing-active');
-  const hero = getLandingHero();
-  if (hero) hero.style.display = 'none';
-};
+function buildPanel(): HTMLElement {
+  const container = document.createElement('div');
+  container.id = 'control-panel-container';
+  container.className = 'control-panel-container';
 
-// DOM this module owns, as a lazy singleton — the TS equivalent of a Swift
-// `lazy var`: built on first access via `??=`, so consumers always get a
-// non-null element and never carry Optional guards. (index.ts still calls the
-// create* wrapper at boot, so in practice it is built up front; the laziness
-// just makes call order a non-issue.)
-let controlPanel: HTMLElement | null = null;
+  const group = document.createElement('div');
+  group.className = 'control-panel-button-group';
 
-const getControlPanel = (): HTMLElement => (controlPanel ??= buildControlPanel());
+  const upload = action('upload-button', t('uploadDocument'), () => onOpenDocument());
+  prefetchOnIntent(upload);
 
-// Hide the control panel; a document is taking over.
-export const hideControlPanel = (): void => {
-  // Dismiss the crawlable landing hero with the panel.
-  hideLanding();
-
-  const panel = getControlPanel();
-  // Immediately disable pointer events to prevent blocking
-  panel.style.pointerEvents = 'none';
-  panel.style.opacity = '0';
-  // Hide after transition for smooth animation
-  setTimeout(() => {
-    panel.style.display = 'none';
-  }, 300);
-};
-
-// Show the control panel; back to the home state.
-export const showControlPanel = (): void => {
-  // Back to the home state (no document, or an error) — bring the hero back so
-  // it, not the legacy overlay, is what the user (and crawlers) see.
-  showLanding();
-  // Whatever the URL said it would open did not happen (or was closed), so the
-  // panel is the home state again; drop the flag that keeps it off the loading
-  // screen (index.ts sets it before the panel is built).
-  document.body.classList.remove('opening-document');
-
-  const panel = getControlPanel();
-  panel.style.display = 'flex';
-  setTimeout(() => {
-    panel.style.opacity = '1';
-  }, 10);
-};
-
-// Create and append the control panel.
-export const createControlPanel = (): void => {
-  getControlPanel();
-};
-
-// Build the control panel and mount it (hoisted for the lazy getter).
-function buildControlPanel(): HTMLElement {
-  // Helper: a text-style r-button. Hover treatment lives in CSS
-  // (.control-panel-button:hover in styles/base.css) so it stays tokenized;
-  // the old inline host `color` never reached the shadow content anyway.
-  const createTextButton = (id: string, text: string, onClick: () => void): HTMLElement =>
-    View('r-button')
-      .id(id)
-      .class('control-panel-button')
-      .text(text)
-      .attr('variant', 'text')
-      .attr('type', 'text')
-      .on('click', onClick)
-      .build();
-
-  const newDocButton = (id: string, label: string, kind: EditorKind): HTMLElement => {
-    const button = createTextButton(id, label, async () => {
+  const create = (id: string, label: string, kind: EditorKind): HTMLButtonElement => {
+    const button = action(id, label, () => {
       hideControlPanel();
       const { removeLoading } = showLoading();
-      try {
-        await onCreateNew(`.${kind}`);
-      } catch (error) {
-        console.error(`Error creating new document (.${kind}):`, error);
-        showControlPanel();
-      } finally {
-        removeLoading();
-      }
+      void onCreateNew(`.${kind}`)
+        .catch((error: unknown) => {
+          console.error(`Error creating new document (.${kind}):`, error);
+          showControlPanel();
+        })
+        .finally(removeLoading);
     });
-    // Hovering a New entry is intent: start pulling that engine now. This used
-    // to hang off the removed menu's rows; the panel is what is left.
+    // Hovering "New" is intent: start pulling that engine now.
     prefetchOnIntent(button, kind);
     return button;
   };
 
-  const uploadButton = createTextButton('upload-button', t('uploadDocument'), () => {
-    onOpenDocument();
-    // If user cancelled, nothing happens (onchange won't fire, panel stays visible)
-    // If user selected a file, the document opens and the panel hides in handleChange
-  });
-  // No extension known yet, so this warms the shared loader only.
-  prefetchOnIntent(uploadButton);
-
-  // Button group - centered horizontally with wrap support
-  const buttonGroup = Div()
-    .class('control-panel-button-group')
-    .children(
-      uploadButton,
-      newDocButton('new-word-button', t('newWord'), 'docx'),
-      newDocButton('new-excel-button', t('newExcel'), 'xlsx'),
-      newDocButton('new-pptx-button', t('newPowerPoint'), 'pptx'),
-    )
-    .build();
-
-  // Container - centered in viewport
-  const container = Div().id('control-panel-container').class('control-panel-container').children(buttonGroup).build();
+  group.append(
+    upload,
+    create('new-word-button', t('newWord'), 'docx'),
+    create('new-excel-button', t('newExcel'), 'xlsx'),
+    create('new-pptx-button', t('newPowerPoint'), 'pptx'),
+  );
+  container.appendChild(group);
   document.body.appendChild(container);
   return container;
 }
+
+/** A document is taking over the screen. */
+export const hideControlPanel = (): void => {
+  const element = getPanel();
+  element.hidden = true;
+};
+
+/** Back to the empty state. */
+export const showControlPanel = (): void => {
+  const element = getPanel();
+  element.hidden = false;
+  // Whatever the URL said it would open did not happen (or was closed): the
+  // panel is the home state again, so the flag that keeps it off the loading
+  // screen has to go.
+  document.body.classList.remove('opening-document');
+};
+
+export const createControlPanel = (): void => {
+  getPanel();
+};

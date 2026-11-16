@@ -42,14 +42,11 @@ describe('public/_headers', () => {
     const deployCoupled = [
       '/sw.js',
       '/sw-register.js',
-      '/home.css',
-      '/landing.css',
-      '/lang-switch.js',
-      // Stable-named landing scripts: content changes with the deploy, so the
-      // one combination caching cannot get right (see /ran-tokens above).
+      // Stable-named scripts: content changes with the deploy, so the one
+      // combination caching cannot get right.
       '/open-local.js',
       '/landing-prefetch.js',
-      '/ranui-iife/*',
+      '/history-recent.js',
     ];
     for (const p of deployCoupled) {
       expect(cc(p), p).toBe('no-cache');
@@ -67,7 +64,7 @@ describe('public/_headers', () => {
   });
 
   it('keeps hashed/immutable assets long-lived: build assets, font catalog, x2t wasm', () => {
-    for (const p of ['/assets/*', '/fonts/*', WASM_PATH, '/ran-tokens.*.css']) {
+    for (const p of ['/assets/*', '/fonts/*', WASM_PATH]) {
       expect(cc(p), p).toMatch(/max-age=31536000.*immutable/);
     }
   });
@@ -139,7 +136,7 @@ describe('sws.toml (self-hosted Docker)', () => {
   });
 
   it('pins the same immutable set as _headers (hashed assets, font catalog, x2t wasm)', () => {
-    for (const source of ['/assets/**', '/fonts/*', WASM_PATH, '/ran-tokens.*.css']) {
+    for (const source of ['/assets/**', '/fonts/*', WASM_PATH]) {
       expect(cc(source), source).toMatch(/max-age=31536000.*immutable/);
     }
   });

@@ -1,0 +1,54 @@
+---
+/**
+ * `/` -- the English landing page.
+ *
+ * One page per language, not one page rewritten by script: the copy is chosen
+ * from the route, so the served HTML is readable before any JavaScript and each
+ * language is a URL that can be linked, crawled and shared. The other three
+ * routes live in src/pages/[locale]/index.astro.
+ *
+ * It ships no editor bundle on purpose -- this is the page that has to paint
+ * and be readable before a 6.9 MB WASM arrives.
+ */
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LandingBody from '../components/LandingBody.astro';
+import { SITE_COPY, SITE_ORIGIN, alternateLinks, homePath, landingPath } from '../i18n/site';
+import '../styles/landing.css';
+
+const locale = 'en';
+const copy = SITE_COPY[locale];
+const head = [
+  `<link rel="canonical" href="${SITE_ORIGIN}${landingPath(locale)}" />`,
+  alternateLinks('landing'),
+].join('\n    ');
+---
+
+<Base title={copy.meta.landingTitle} description={copy.meta.landingDescription} lang={copy.htmlLang} head={head}>
+  <Header locale={locale} langMode="landing" cta={{ href: homePath(locale), label: copy.nav.openApp }} />
+
+  {/* Legacy deep links used to target `/`. Hand them to /editor with the same
+      query, and hand any framed visit to the embed surface. Runs before the
+      page paints, so the landing never flashes for a document URL. */}
+  <script is:inline>
+    (function () {
+      try {
+        var q = location.search;
+        var deep = /[?&](file|src|new|open|embed|embedded|readonly|agent)(=|&|$)/.test(q);
+        var framed = window.parent !== window;
+        if (deep || framed) location.replace('/editor' + (q || (framed ? '?embed=1' : '')) + location.hash);
+      } catch (e) {}
+    })();
+  </script>
+
+  <LandingBody locale={locale} />
+  <Footer locale={locale} />
+
+  <script src="/open-local.js" is:inline defer></script>
+  <script src="/history-recent.js" is:inline defer></script>
+  <script src="/sw-register.js" is:inline defer></script>
+  <script>
+    import '../scripts/site.ts';
+  </script>
+</Base>

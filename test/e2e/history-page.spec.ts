@@ -163,7 +163,7 @@ test.describe('local history page', () => {
     // a page about the user's own documents should not be interrupted by
     // "office.inled.es says".
     await page.locator('.history-row', { hasText: 'Drop.docx' }).locator('.history-delete').click();
-    await page.locator('r-modal .confirm-ok').click();
+    await page.locator('dialog.confirm-dialog .confirm-ok').click();
 
     await expect(titles(page)).toHaveText(['Keep.docx']);
 
@@ -205,11 +205,11 @@ test.describe('local history page', () => {
     // Served HTML, not drawn by script: a promise about someone's documents
     // has to hold for a first-time visitor and with JavaScript off.
     await page.goto('/');
-    const line = page.locator('#landing-hero .lp-recent');
+    const line = page.locator('.hero .hero-note');
     await expect(line).not.toContainText(/\d+\s*day/i);
-    await expect(line.locator('a.recent-all')).toHaveAttribute('href', '/history');
+    await expect(line.locator('a[href="/history"]')).toHaveAttribute('href', '/history');
 
-    await line.locator('a.recent-all').click();
+    await line.locator('a[href="/history"]').click();
     await page.waitForURL(/\/history/);
     await expect(page.locator('.history-title')).toBeVisible();
   });
@@ -219,10 +219,10 @@ test.describe('local history page', () => {
     await page.reload();
 
     await page.locator('.history-delete').click();
-    await page.locator('r-modal .confirm-cancel').click();
+    await page.locator('dialog.confirm-dialog .confirm-cancel').click();
 
     // Cancelling deletes nothing, and the dialog gets out of the way.
-    await expect(page.locator('r-modal')).toHaveCount(0);
+    await expect(page.locator('dialog.confirm-dialog')).toHaveCount(0);
     await expect(titles(page)).toHaveText(['Stays.docx']);
   });
 
@@ -234,7 +234,7 @@ test.describe('local history page', () => {
     await page.reload();
 
     await page.locator('#history-clear-all').click();
-    await page.locator('r-modal .confirm-ok').click();
+    await page.locator('dialog.confirm-dialog .confirm-ok').click();
 
     await expect(page.locator('#history-empty')).toBeVisible();
   });

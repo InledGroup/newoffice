@@ -1,0 +1,28 @@
+---
+/**
+ * /editor -- the editor itself.
+ *
+ * No chrome of its own: the OnlyOffice frame is the product here, and every
+ * pixel around it belongs to it. The route contract lives in index.ts --
+ * `?new=` creates, `?file=`/`?src=` open, `?saved=` resumes this browser's
+ * copy, `?open=local` takes a file stashed by the landing page, `?embed=1` is
+ * the iframe integration surface.
+ */
+import Base from '../layouts/Base.astro';
+import '../../styles/base.css';
+---
+<Base title="Insuite Office" noindex bare>
+  <div id="app">
+    <div id="iframe"></div>
+  </div>
+
+  <noscript>
+    <p style="max-width: 720px; margin: 0 auto; padding: 24px; font-family: system-ui, sans-serif">
+      This editor needs JavaScript to open or create a document. Please enable it and reload the page.
+    </p>
+  </noscript>
+
+  <script>
+    import '../../index.ts';
+  </script>
+</Base>

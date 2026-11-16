@@ -108,7 +108,7 @@ test.describe('entry paths (real editor)', () => {
     // a copy of it: the record shape is a contract between that file and
     // lib/pending-open.ts, and a third hand-written copy here would drift and
     // still pass. test/unit/pending-open-handoff.test.ts pins the two halves.
-    await page.goto('/zh-CN/');
+    await page.goto('/');
     await page.evaluate(async (b64) => {
       const bin = atob(b64);
       const bytes = new Uint8Array(bin.length);

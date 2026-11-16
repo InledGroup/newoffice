@@ -1,0 +1,100 @@
+---
+/**
+ * The frame the two app surfaces share.
+ *
+ * /home and /history are reached from each other -- the rail's "Saved
+ * documents" is how you get from one to the other -- so they are one frame:
+ * the bar, the rail, the drop-anywhere overlay and the phone layout are
+ * declared once here. Each page supplies only what is genuinely its own.
+ *
+ * The rail's primary action is a menu, not a file picker: "start something"
+ * is either a blank document of a known type or one of your own files, and
+ * asking with a file dialog first hides the first half of that choice.
+ *
+ * The rail marks its current section with the filled cut of the icon, not only
+ * with colour: at a glance the rail then reads as a set of places, the way the
+ * Office apps' sidebars do.
+ */
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Icon from '../components/Icon.astro';
+import { SITE_COPY, editorPath, homePath, type SiteLocale } from '../i18n/site';
+import '../styles/app.css';
+
+export interface Props {
+  title: string;
+  current: 'home' | 'saved';
+  locale?: SiteLocale;
+}
+
+const { title, current, locale = 'en' } = Astro.props;
+const copy = SITE_COPY[locale];
+const home = homePath(locale);
+---
+<Base title={title} lang={copy.htmlLang} noindex>
+  <Header home={home} locale={locale} current={current} langMode="home" cta={{ href: editorPath('/editor?new=docx', locale), label: copy.nav.newDoc }} />
+
+  <div class="app">
+    <aside class="rail">
+      <div class="rail-picker">
+        <button
+          class="btn btn-primary rail-cta"
+          type="button"
+          data-picker-toggle
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="rail-picker-menu"
+        >
+          <Icon name="add" size={16} />
+          <span>{copy.home.pickerLabel}</span>
+        </button>
+
+        <div class="rail-menu" id="rail-picker-menu" role="menu" hidden>
+          <p class="rail-menu-label">{copy.home.pickerCreate}</p>
+          <a class="rail-menu-item" role="menuitem" href="/editor?new=docx">
+            <img src="/img/office/word.svg" alt="" width="20" height="20" />
+            <span>{copy.home.document}</span>
+          </a>
+          <a class="rail-menu-item" role="menuitem" href="/editor?new=xlsx">
+            <img src="/img/office/excel.svg" alt="" width="20" height="20" />
+            <span>{copy.home.spreadsheet}</span>
+          </a>
+          <a class="rail-menu-item" role="menuitem" href="/editor?new=pptx">
+            <img src="/img/office/powerpoint.svg" alt="" width="20" height="20" />
+            <span>{copy.home.presentation}</span>
+          </a>
+          <div class="rail-menu-sep" role="separator"></div>
+          <button class="rail-menu-item" type="button" role="menuitem" data-open-file>
+            <Icon name="upload" size={20} />
+            <span>{copy.home.pickerUpload}</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="rail-nav" aria-label="App">
+        <a class="rail-item" href={home} aria-current={current === 'home' ? 'page' : undefined}>
+          <Icon name={current === 'home' ? 'homeFilled' : 'home'} size={18} />
+          <span>{copy.nav.home}</span>
+        </a>
+        <a class="rail-item" href="/history" aria-current={current === 'saved' ? 'page' : undefined}>
+          <Icon name={current === 'saved' ? 'folderFilled' : 'folder'} size={18} />
+          <span>{copy.nav.saved}</span>
+        </a>
+      </nav>
+
+      <p class="rail-foot" data-i18n="historyChip">On this device · never uploaded</p>
+    </aside>
+
+    <main class="app-main">
+      <slot />
+    </main>
+  </div>
+
+  <div class="overlay" aria-hidden="true">
+    <div class="overlay-inner" data-i18n="homeDropOverlay">Drop to open</div>
+  </div>
+
+  <script>
+    import '../scripts/app';
+  </script>
+</Base>

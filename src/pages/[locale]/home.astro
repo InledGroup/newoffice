@@ -1,0 +1,29 @@
+---
+/**
+ * `/es/home`, `/fr/home`, `/it/home` -- the translated app home.
+ *
+ * Same frame and same list as `/home`; only the served strings differ, which
+ * keeps the recent documents, the autosave settings and the drop target in one
+ * place.
+ */
+import AppLayout from '../../layouts/AppLayout.astro';
+import HomeBody from '../../components/HomeBody.astro';
+import { SITE_COPY, SITE_LOCALES, DEFAULT_LOCALE, type SiteLocale } from '../../i18n/site';
+
+export function getStaticPaths() {
+  return SITE_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE).map((locale) => ({
+    params: { locale },
+  }));
+}
+
+const locale = Astro.params.locale as SiteLocale;
+const copy = SITE_COPY[locale];
+---
+
+<AppLayout title={copy.meta.homeTitle} current="home" locale={locale}>
+  <HomeBody locale={locale} />
+
+  <script>
+    import '../../scripts/home';
+  </script>
+</AppLayout>

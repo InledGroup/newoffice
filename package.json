@@ -5,12 +5,10 @@
   "description": "A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --force",
+    "dev": "astro dev --host",
     "build": "sh ./bin/build.sh",
-    "build:pages": "node bin/build-pages.mjs",
-    "sitemap:lastmod": "node bin/sitemap-lastmod.mjs",
     "build:single": "node bin/bundle_single_html.js",
-    "preview": "vite preview",
+    "preview": "astro preview",
     "tsc": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -60,9 +58,9 @@
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
     "@vitest/coverage-v8": "^4.1.11",
+    "astro": "^7.4.12",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^30.0.1",
-    "marked": "16.4.2",
     "oxlint": "^1.78.0",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
@@ -75,7 +73,6 @@
     "@ranuts/chat-ui": "workspace:*",
     "@ranuts/converter": "workspace:*",
     "@ranuts/shared": "workspace:*",
-    "ranui": "0.5.0-alpha.6",
     "ranuts": "0.4.1-alpha.2"
   }
 }

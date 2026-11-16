@@ -1,0 +1,198 @@
+/**
+ * The site's design tokens.
+ *
+ * Light only, on purpose: this is an Office, and an office is a light surface
+ * with dark ink. One palette, one set of radii, one type stack -- so a new page
+ * is written against names rather than against values, and a change of accent
+ * is a change in one place.
+ *
+ * The values follow Microsoft's Fabric neutral ramp (the greys the Office apps
+ * use) because a document tool that looks like the documents people already
+ * know is a tool they do not have to learn.
+ */
+:root {
+  color-scheme: light;
+
+  /* Neutrals */
+  --paper: #faf9f8;
+  --surface: #ffffff;
+  --surface-2: #f3f2f1;
+  --surface-hover: #f8f7f6;
+  --line: #e1dfdd;
+  --line-strong: #d2d0ce;
+  --ink: #201f1e;
+  --ink-2: #484644;
+  --ink-3: #605e5c;
+  --ink-4: #8a8886;
+
+  /* Accent: the Office blue */
+  --accent: #0f6cbd;
+  --accent-hover: #115ea3;
+  --accent-soft: #ebf3fa;
+  --focus: #0f6cbd;
+
+  /* The product colours, used for the document marks and type tiles */
+  --word: #185abd;
+  --excel: #107c41;
+  --powerpoint: #c43e1c;
+  --pdf: #b30b00;
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-2: 0 2px 6px rgb(0 0 0 / 10%);
+  --shadow-3: 0 8px 24px rgb(0 0 0 / 12%);
+
+  --bar-h: 52px;
+  --page: 1180px;
+
+  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img,
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---- buttons ---- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+
+.btn-danger {
+  border-color: #d13438;
+  color: #a4262c;
+}
+
+.btn-danger:hover {
+  background: #fdecea;
+}
+
+.btn-sm {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+/* ---- generic surface ---- */
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -107,17 +107,44 @@ test.describe('ONLYOFFICE branding (AGPL-3.0 Section 7(b))', () => {
   });
 });
 
-test.describe('trademark notice (AGPL-3.0 Section 7(e))', () => {
-  const PAGES = [
-    ['/', 'ONLYOFFICE is a trademark of Ascensio System SIA'],
-    ['/zh-CN/', 'ONLYOFFICE 是 Ascensio System SIA 的商标'],
-    ['/help', 'ONLYOFFICE is a trademark of Ascensio System SIA'],
-  ] as const;
+test.describe('trademark notices', () => {
+  // The app pages have a header and no footer, so the notices live on the
+  // marketing routes only.
+  const PAGES = ['/', '/es', '/fr', '/it'] as const;
 
-  for (const [route, expected] of PAGES) {
-    test(`${route} states whose mark ONLYOFFICE is`, async ({ page }) => {
+  for (const route of PAGES) {
+    test(`${route} states whose mark ONLYOFFICE is (AGPL-3.0 7(e))`, async ({ page }) => {
       await page.goto(route);
-      await expect(page.locator('.tm').first()).toContainText(expected);
+      await expect(page.locator('.foot-tm').last()).toContainText('ONLYOFFICE is a trademark of Ascensio System SIA');
     });
   }
+
+  /**
+   * The product names and the file marks belong to Microsoft. This site draws
+   * its own icons and only uses the names to say what a file is, so the footer
+   * has to say so -- and the drawings have to stay ours, which is why the
+   * shipped SVGs may not carry Microsoft's artwork.
+   */
+  for (const route of PAGES) {
+    test(`${route} credits Microsoft's marks without claiming them`, async ({ page }) => {
+      await page.goto(route);
+      const notice = page.locator('.foot-tm').first();
+      await expect(notice).toContainText('Microsoft, Word, Excel, PowerPoint, OneDrive');
+      await expect(notice).toContainText('not produced by, endorsed by or affiliated with Microsoft');
+    });
+  }
+
+  test('the file marks are ours, not Microsoft artwork', async ({ page }) => {
+    await page.goto('/');
+    for (const kind of ['word', 'excel', 'powerpoint']) {
+      const markup = await page.evaluate(async (name) => {
+        const response = await fetch(`/img/office/${name}.svg`);
+        return response.text();
+      }, kind);
+      // Drawn in-house: a gradient body and one letter, not a Fabric product
+      // icon's path data.
+      expect(markup, `${kind} is not our own mark`).toMatch(/id="[a-z]+-body"/);
+      expect(markup.length).toBeLessThan(1200);
+    }
+  });
 });

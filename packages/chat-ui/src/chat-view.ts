@@ -1,5 +1,5 @@
-import { ButtonBuilder, Div, Span, View } from 'ranui/builder';
 import { throttle } from 'ranuts/utils';
+import { el } from './dom';
 import { ensureChatUiStyles } from './styles';
 import type { ChatMessage, ChatRole, ChatViewLabels, ChatViewOptions } from './types';
 
@@ -15,13 +15,12 @@ const STICK_THRESHOLD = 60;
 
 /**
  * A framework-free chat UI: a scrolling message list with streaming support and
- * a modern, auto-growing composer whose icon button doubles as Send / Stop.
+ * a composer whose icon button doubles as Send / Stop.
  *
- * The DOM is built with the ranui `builder` (View/Div/Span/ButtonBuilder); the
- * scroll handler is throttled with ranuts. Mount {@link ChatView.el} anywhere,
- * drive it with {@link ChatView.append}/{@link ChatView.appendDelta}/
- * {@link ChatView.setRunning}, and receive input via the `onSend`/`onStop`
- * callbacks. No backend assumptions.
+ * Mount {@link ChatView.el} anywhere, drive it with
+ * {@link ChatView.append}/{@link ChatView.appendDelta}/{@link ChatView.setRunning},
+ * and receive input via the `onSend`/`onStop` callbacks. No backend assumptions,
+ * no component library: every node here is a plain element.
  */
 export class ChatView {
   /** Root element — append this to your container. */
@@ -47,66 +46,49 @@ export class ChatView {
     ensureChatUiStyles();
     this.labels = options.labels ?? {};
 
-    this.emptyEl = Div()
-      .class('cui-empty')
-      .text(this.labels.empty ?? '')
-      .build();
+    this.emptyEl = el('div', 'cui-empty', this.labels.empty ?? '');
 
-    this.messagesEl = Div()
-      .class('cui-messages')
-      .on(
-        'scroll',
-        throttle(() => this.updateScrollBtn(), 100),
-      )
-      .children(this.emptyEl)
-      .build();
+    this.messagesEl = el('div', 'cui-messages', this.emptyEl);
+    this.messagesEl.addEventListener(
+      'scroll',
+      throttle(() => this.updateScrollBtn(), 100),
+    );
 
     // Jump-to-latest button — appears when the user scrolls up.
-    this.scrollBtn = ButtonBuilder()
-      .class('cui-scroll-bottom cui-hidden')
-      .attr('type', 'button')
-      .aria('label', 'Scroll to latest')
-      .on('click', () => this.scrollToEnd(true))
-      .build();
+    this.scrollBtn = el('button', 'cui-scroll-bottom cui-hidden');
+    this.scrollBtn.type = 'button';
+    this.scrollBtn.setAttribute('aria-label', 'Scroll to latest');
     this.scrollBtn.innerHTML = ICON_DOWN;
+    this.scrollBtn.addEventListener('click', () => this.scrollToEnd(true));
 
     // Compose toolbar slot: host-populated controls just above the input.
-    this.actionsEl = Div().class('cui-actions').build();
+    this.actionsEl = el('div', 'cui-actions');
 
-    // Composer: rounded container holding the textarea + a circular icon button.
-    this.input = View<HTMLTextAreaElement>('textarea')
-      .class('cui-input')
-      .attr('rows', '1')
-      .on('input', () => {
-        this.autoGrow();
-        this.updateSendState();
-      })
-      .on('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          this.submit();
-        }
-      })
-      .build();
+    this.input = el('textarea', 'cui-input');
+    this.input.rows = 1;
     this.input.placeholder = this.labels.placeholder ?? '';
+    this.input.addEventListener('input', () => {
+      this.autoGrow();
+      this.updateSendState();
+    });
+    this.input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        this.submit();
+      }
+    });
 
-    this.sendBtn = ButtonBuilder()
-      .class('cui-send')
-      .attr('type', 'button')
-      .on('click', () => {
-        if (this.running) this.options.onStop?.();
-        else this.submit();
-      })
-      .build();
+    this.sendBtn = el('button', 'cui-send');
+    this.sendBtn.type = 'button';
     this.sendBtn.innerHTML = ICON_SEND;
+    this.sendBtn.addEventListener('click', () => {
+      if (this.running) this.options.onStop?.();
+      else this.submit();
+    });
 
-    const composer = Div().class('cui-composer').children(this.input, this.sendBtn).build();
-
-    // Footer hosts the jump-to-latest button (floats just above it), the action
-    // slot, and the composer.
-    const footer = Div().class('cui-footer').children(this.scrollBtn, this.actionsEl, composer).build();
-
-    this.el = Div().class('cui-root').children(this.messagesEl, footer).build();
+    const composer = el('div', 'cui-composer', this.input, this.sendBtn);
+    const footer = el('div', 'cui-footer', this.scrollBtn, this.actionsEl, composer);
+    this.el = el('div', 'cui-root', this.messagesEl, footer);
     this.updateSendState();
   }
 
@@ -116,11 +98,8 @@ export class ChatView {
     this.emptyEl.remove();
 
     const chip = this.roleChip(message.role);
-    const bubble = Div().class('cui-bubble').text(message.text).build();
-    const row = Div()
-      .class(`cui-msg cui-msg-${message.role}`)
-      .children(chip ? Span().class('cui-role').text(chip).build() : null, bubble)
-      .build();
+    const bubble = el('div', 'cui-bubble', message.text);
+    const row = el('div', `cui-msg cui-msg-${message.role}`, chip ? el('span', 'cui-role', chip) : null, bubble);
 
     this.messagesEl.appendChild(row);
     if (stick) this.scrollToEnd();
@@ -218,8 +197,8 @@ export class ChatView {
   }
 
   private nearBottom(): boolean {
-    const el = this.messagesEl;
-    return el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD;
+    const element = this.messagesEl;
+    return element.scrollHeight - element.scrollTop - element.clientHeight < STICK_THRESHOLD;
   }
 
   private scrollToEnd(smooth = false): void {

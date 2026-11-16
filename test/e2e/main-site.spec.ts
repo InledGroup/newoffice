@@ -64,7 +64,7 @@ test.describe('standalone site (real editor)', () => {
     // calls to action); creating a blank workbook starts from /home, whose
     // quick actions link to /editor?new=xlsx.
     await page.goto('/home');
-    await page.locator('.app-quick[data-type="xlsx"]').click();
+    await page.locator('.tile[href="/editor?new=xlsx"]').click();
     await waitForEditorReady(page);
     const frame = page.frameLocator('iframe[name="frameEditor"]');
     const sdk = frame.locator('#editor_sdk');
@@ -108,22 +108,20 @@ test.describe('standalone site (real editor)', () => {
     await expect(frame.locator('body')).toHaveClass(/theme-white/, { timeout: 30_000 });
   });
 
-  test('a browser holding the retired classic dark opens in the modern dark', async ({ page }) => {
-    // Same leak, and it lived longer: `theme-dark` is the classic family's dark
-    // despite the name, so it was our dark default and stayed on the old look
-    // after the light default went modern. It had to join the retirement set,
-    // not just the default change, or every dark site stayed pinned to a
-    // "preference" the editor wrote for us.
+  test('a browser holding a stored dark preference still opens light', async ({ page }) => {
+    // The site is light only now, and the editor follows the site: a stored
+    // pick from the days when it did not must not drag the chrome back to a
+    // theme the pages around it no longer match.
     await page.addInitScript(() => {
       if (window !== window.top) return;
       window.localStorage.setItem('ui-theme-id', 'theme-dark');
       window.localStorage.setItem('ui-theme-site-driven', 'theme-dark');
     });
-    // A dark site, so the driven value is the modern dark.
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/editor?new=docx');
     await waitForEditorReady(page);
     const frame = page.frameLocator('iframe[name="frameEditor"]');
-    await expect(frame.locator('body')).toHaveClass(/theme-night/, { timeout: 30_000 });
+    await expect(frame.locator('body')).toHaveClass(/theme-white/, { timeout: 30_000 });
+    await expect(frame.locator('body')).not.toHaveClass(/theme-night/);
   });
 });

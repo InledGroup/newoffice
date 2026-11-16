@@ -16,11 +16,10 @@
 [advanced]
 
 # Default: revalidate. Same semantics as the Pages default, and what every
-# stable-named file needs -- HTML, sw.js, the deploy-coupled shell files
-# (home.css, landing.css, lang-switch.js, sw-register.js, open-local.js,
-# landing-prefetch.js, ranui-iife/) and the vendor trees,
-# whose JS carries our own runtime patch (x2t_helper.js). Revalidation is a
-# conditional request answered with 304, not a re-download.
+# stable-named file needs -- HTML, sw.js, the deploy-coupled shell scripts
+# (sw-register.js, open-local.js, landing-prefetch.js, history-recent.js) and
+# the vendor trees, whose JS carries our own runtime patch (x2t_helper.js).
+# Revalidation is a conditional request answered with 304, not a re-download.
 [[advanced.headers]]
 source = "**"
 [advanced.headers.headers]
@@ -42,18 +41,6 @@ X-Robots-Tag = "noindex"
 source = "/assets/**"
 [advanced.headers.headers]
 Cache-Control = "public, max-age=31536000, immutable"
-
-# Fingerprinted by bin/build.sh, same reasoning.
-[[advanced.headers]]
-source = "/ran-tokens.*.css"
-[advanced.headers.headers]
-Cache-Control = "public, max-age=31536000, immutable"
-
-# Self-hosted webfonts: unhashed, but they only change with a ranui release.
-[[advanced.headers]]
-source = "/ran-fonts/**"
-[advanced.headers.headers]
-Cache-Control = "public, max-age=604800, must-revalidate"
 
 # The editor's indexed font catalog (000..266, 2 KB - 16 MB each): replaced
 # only together with the vendor build, and revalidating them per open is what

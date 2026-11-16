@@ -24,10 +24,9 @@ const ASSETS_TO_CACHE = ['./', './index.html', './editor', './editor.html', './m
 // Unhashed but deploy-coupled: stable filenames whose *content* changes every deploy.
 // Mirrors the group public/_headers pins to `Cache-Control: no-cache` — keep the two in sync.
 //
-// ran-tokens.css is deliberately NOT here any more: bin/build.sh fingerprints it
-// (ran-tokens.<hash>.css), so a new build is a new URL and a stale copy is impossible. It
-// takes the stale-while-revalidate path with every other immutable asset, which is both
-// correct and faster.
+// The site's own stylesheets are not here: Astro bundles them under /assets/<hash>, so a
+// new build is a new URL and a stale copy is impossible. These are the unhashed scripts
+// that the HTML references by name.
 //
 // These must NOT use stale-while-revalidate. SWR hands back the cached copy first and
 // refreshes in the background, so the deploy that changes a design token renders with the
@@ -37,8 +36,7 @@ const ASSETS_TO_CACHE = ['./', './index.html', './editor', './editor.html', './m
 // after deploy. (Symptom: `200 OK (from disk cache)` for a deploy-coupled file long after
 // its content changed.) Network-first with `cache: 'no-cache'` is what the HTML branch already
 // does, for exactly the same reason.
-const DEPLOY_COUPLED =
-  /^\/(?:home|landing)\.css$|^\/(?:lang-switch|sw-register|open-local|landing-prefetch|history-recent)\.js$|^\/ranui-iife\//;
+const DEPLOY_COUPLED = /^\/(?:sw-register|open-local|landing-prefetch|history-recent)\.js$/;
 
 // The OnlyOffice 9 tree is ~2600 files, but most of that is per-locale help
 // and on-demand font duplication a single session in one language never

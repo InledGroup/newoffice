@@ -9,7 +9,7 @@ const REMOTE = process.env.E2E_BASE_URL;
 const PORT = Number(process.env.E2E_PORT || 4173);
 // A non-default port also gets its own build output and results directory:
 // two runs sharing dist/ and test-results/ wipe each other's artifacts
-// (Playwright clears outputDir at start; vite build rewrites dist mid-serve).
+// (Playwright clears outputDir at start; the build rewrites dist mid-serve).
 const ISOLATED = Boolean(process.env.E2E_PORT);
 const OUT_DIR = ISOLATED ? `dist-e2e-${PORT}` : 'dist';
 const RESULTS_DIR = ISOLATED ? `test-results-${PORT}` : 'test-results';
@@ -38,7 +38,7 @@ export default defineConfig({
   webServer: REMOTE
     ? undefined
     : {
-        command: `./node_modules/.bin/vite build --outDir ${OUT_DIR} && ./node_modules/.bin/vite preview --outDir ${OUT_DIR} --host 127.0.0.1 --port ${PORT}`,
+        command: `ASTRO_OUT_DIR=${OUT_DIR} sh ./bin/build.sh && node bin/serve-dist.mjs --dir ${OUT_DIR} --port ${PORT}`,
         url: `http://127.0.0.1:${PORT}`,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

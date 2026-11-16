@@ -1,0 +1,63 @@
+---
+/**
+ * `/es/`, `/fr/`, `/it/` -- the translated landing pages.
+ *
+ * Same component as the English root, one route per language. English is the
+ * root rather than `/en/` so the canonical URL stays short and the alternates
+ * point somewhere the language menu also links to.
+ */
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import LandingBody from '../../components/LandingBody.astro';
+import {
+  SITE_COPY,
+  SITE_ORIGIN,
+  SITE_LOCALES,
+  DEFAULT_LOCALE,
+  alternateLinks,
+  homePath,
+  landingPath,
+  type SiteLocale,
+} from '../../i18n/site';
+import '../../styles/landing.css';
+
+export function getStaticPaths() {
+  return SITE_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE).map((locale) => ({
+    params: { locale },
+  }));
+}
+
+const locale = Astro.params.locale as SiteLocale;
+const copy = SITE_COPY[locale];
+const head = [
+  `<link rel="canonical" href="${SITE_ORIGIN}${landingPath(locale)}" />`,
+  alternateLinks('landing'),
+].join('\n    ');
+---
+
+<Base title={copy.meta.landingTitle} description={copy.meta.landingDescription} lang={copy.htmlLang} head={head}>
+  <Header locale={locale} langMode="landing" cta={{ href: homePath(locale), label: copy.nav.openApp }} />
+
+  {/* Legacy deep links used to target `/{locale}/`. Same hand-off as the root. */}
+  <script is:inline>
+    (function () {
+      try {
+        var q = location.search;
+        var deep = /[?&](file|src|new|open|embed|embedded|readonly|agent)(=|&|$)/.test(q);
+        var framed = window.parent !== window;
+        if (deep || framed) location.replace('/editor' + (q || (framed ? '?embed=1' : '')) + location.hash);
+      } catch (e) {}
+    })();
+  </script>
+
+  <LandingBody locale={locale} />
+  <Footer locale={locale} />
+
+  <script src="/open-local.js" is:inline defer></script>
+  <script src="/history-recent.js" is:inline defer></script>
+  <script src="/sw-register.js" is:inline defer></script>
+  <script>
+    import '../../scripts/site.ts';
+  </script>
+</Base>

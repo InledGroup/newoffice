@@ -1,0 +1,73 @@
+---
+/**
+ * /history -- the local document library.
+ *
+ * Everything here lives in this browser's IndexedDB and has never left the
+ * device, which is why the page leads with the ways to get rid of it: a delete
+ * on every row and a delete-everything at the foot. The bytes are the privacy
+ * cost of autosave, so the answer to "where is it?" has to be on the page.
+ */
+import AppLayout from '../layouts/AppLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+<AppLayout title="Saved documents — Insuite Office" current="saved">
+  <div class="page-head">
+    <h1 class="page-title history-title" data-i18n="historyTitle">Saved documents</h1>
+    <p class="page-sub" id="history-usage"></p>
+    <button class="btn btn-primary" type="button" data-open-file id="history-open-file">
+      <Icon name="upload" size={16} />
+      <span data-i18n="historyOpenFile">Open a file</span>
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      class="search"
+      id="history-search"
+      type="search"
+      autocomplete="off"
+      data-i18n-placeholder="historySearchPlaceholder"
+      placeholder="Search by file name"
+    />
+    <button class="chip" type="button" id="history-filter-unsaved" aria-pressed="false">
+      <span data-i18n="historyOnlyUnsaved">Not exported</span>
+    </button>
+  </div>
+
+  <div id="history-list-host"></div>
+
+  <div class="pager" id="history-pager" hidden>
+    <button class="btn btn-sm" type="button" id="history-prev">
+      <Icon name="chevronLeft" size={16} />
+      <span data-i18n="historyPrev">Previous</span>
+    </button>
+    <span class="pager-info history-page-info"></span>
+    <button class="btn btn-sm" type="button" id="history-next">
+      <span data-i18n="historyNext">Next</span>
+      <Icon name="chevronRight" size={16} />
+    </button>
+  </div>
+
+  <section class="block" style="margin-top: 32px" aria-labelledby="settings-title">
+    <div class="block-head">
+      <h2 id="settings-title" data-i18n="historyRailSettings">Settings</h2>
+    </div>
+    <div class="settings">
+      <label class="switch" for="history-autosave">
+        <input type="checkbox" id="history-autosave" role="switch" />
+        <span data-i18n="historyAutosaveLabel">Autosave</span>
+      </label>
+      <p class="note" id="history-autosave-note" hidden data-i18n="historyAutosaveOff">Autosave is off.</p>
+      <button class="btn btn-sm btn-danger" type="button" id="history-clear-all" data-i18n="historyClearAll">
+        Delete all
+      </button>
+    </div>
+    <p class="note history-note" style="margin-top: 12px" data-i18n="historyRetention">
+      These copies are kept on this device until you delete them.
+    </p>
+  </section>
+
+  <script>
+    import '../scripts/history';
+  </script>
+</AppLayout>
