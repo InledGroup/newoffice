@@ -75,6 +75,8 @@ export interface SiteCopy {
       excelHint: string;
       powerpoint: string;
       powerpointHint: string;
+      forms: string;
+      formsHint: string;
       pdf: string;
       pdfHint: string;
     };
@@ -97,6 +99,8 @@ export interface SiteCopy {
     document: string;
     spreadsheet: string;
     presentation: string;
+    forms: string;
+    formsHint: string;
     pdf: string;
     pdfHint: string;
   };
@@ -129,6 +133,8 @@ const en: SiteCopy = {
       excelHint: 'Spreadsheets · .xlsx',
       powerpoint: 'PowerPoint',
       powerpointHint: 'Presentations · .pptx',
+      forms: 'Forms',
+      formsHint: 'Surveys · forms.inled.es',
       pdf: 'PDF',
       pdfHint: 'Read, annotate, save',
     },
@@ -164,6 +170,8 @@ const en: SiteCopy = {
     document: 'Document',
     spreadsheet: 'Spreadsheet',
     presentation: 'Presentation',
+    forms: 'Forms',
+    formsHint: 'Surveys · forms.inled.es',
     pdf: 'PDF',
     pdfHint: 'Open a file',
   },
@@ -202,6 +210,8 @@ const es: SiteCopy = {
       excelHint: 'Hojas de cálculo · .xlsx',
       powerpoint: 'PowerPoint',
       powerpointHint: 'Presentaciones · .pptx',
+      forms: 'Forms',
+      formsHint: 'Encuestas · forms.inled.es',
       pdf: 'PDF',
       pdfHint: 'Leer, anotar, guardar',
     },
@@ -237,6 +247,8 @@ const es: SiteCopy = {
     document: 'Documento',
     spreadsheet: 'Hoja de cálculo',
     presentation: 'Presentación',
+    forms: 'Forms',
+    formsHint: 'Encuestas · forms.inled.es',
     pdf: 'PDF',
     pdfHint: 'Abrir un archivo',
   },
@@ -275,6 +287,8 @@ const fr: SiteCopy = {
       excelHint: 'Feuilles de calcul · .xlsx',
       powerpoint: 'PowerPoint',
       powerpointHint: 'Présentations · .pptx',
+      forms: 'Forms',
+      formsHint: 'Sondages · forms.inled.es',
       pdf: 'PDF',
       pdfHint: 'Lire, annoter, enregistrer',
     },
@@ -310,6 +324,8 @@ const fr: SiteCopy = {
     document: 'Document',
     spreadsheet: 'Feuille de calcul',
     presentation: 'Présentation',
+    forms: 'Forms',
+    formsHint: 'Sondages · forms.inled.es',
     pdf: 'PDF',
     pdfHint: 'Ouvrir un fichier',
   },
@@ -342,6 +358,8 @@ const it: SiteCopy = {
       excelHint: 'Fogli di calcolo · .xlsx',
       powerpoint: 'PowerPoint',
       powerpointHint: 'Presentazioni · .pptx',
+      forms: 'Forms',
+      formsHint: 'Sondaggi · forms.inled.es',
       pdf: 'PDF',
       pdfHint: 'Leggi, annota, salva',
     },
@@ -377,6 +395,8 @@ const it: SiteCopy = {
     document: 'Documento',
     spreadsheet: 'Foglio di calcolo',
     presentation: 'Presentazione',
+    forms: 'Forms',
+    formsHint: 'Sondaggi · forms.inled.es',
     pdf: 'PDF',
     pdfHint: 'Apri un file',
   },
